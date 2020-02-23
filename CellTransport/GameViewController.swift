@@ -20,6 +20,7 @@ class GameViewController: UIViewController {
     
     let nbodies: Int = 524288 //4194304
     let nMicrotubules: Int = 400
+    let cellRadius: Float = 14000 //nm
     let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2)
     
@@ -54,8 +55,6 @@ class GameViewController: UIViewController {
         case secondChildTab = 1
     }
     
-    var freezeFlag = false
-    
     // Metal variables
     
     var device: MTLDevice!
@@ -75,6 +74,7 @@ class GameViewController: UIViewController {
     fileprivate var buffer: MTLCommandBuffer?
     
     let nBuffers = 1
+    var isRunning = false
     
     var currentViewController: UIViewController?
     lazy var firstChildTabVC: UIViewController? = {
@@ -186,7 +186,7 @@ class GameViewController: UIViewController {
         
         var boundingBox:SCNGeometry
 
-        boundingBox = SCNBox(width: 2.0, height: 2.0, length: 2.0, chamferRadius: 0.0)
+        boundingBox = SCNBox(width: CGFloat(2.0*cellRadius), height: CGFloat(2.0*cellRadius), length: CGFloat(2.0*cellRadius), chamferRadius: 0.0)
         boundingBox.firstMaterial?.fillMode = .lines
         boundingBox.firstMaterial?.isDoubleSided = true
         boundingBox.firstMaterial?.diffuse.contents = UIColor.white
@@ -203,7 +203,7 @@ class GameViewController: UIViewController {
         var nodelist : [SCNNode] = []
         
         for _ in 0...(nMicrotubules - 1){
-            let points = generateMicrotubule(centrosomeLocation: centrosomeLocation)
+            let points = generateMicrotubule(cellRadius: cellRadius, centrosomeLocation: centrosomeLocation)
             
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
 
@@ -248,17 +248,18 @@ class GameViewController: UIViewController {
         let lightNode = SCNNode()
         lightNode.light = SCNLight()
         lightNode.light!.type = .omni
-        lightNode.position = SCNVector3(x: 0, y: 5, z: 5)
+        lightNode.position = SCNVector3(x: 0, y: 5*cellRadius, z: 5*cellRadius)
         scene.rootNode.addChildNode(lightNode)
         
         // create and add a camera to the scene
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         cameraNode.camera?.focalLength = 50.0
+        cameraNode.camera?.zFar = 500000
         scene.rootNode.addChildNode(cameraNode)
         
         // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 7)
+        cameraNode.position = SCNVector3(x: 0, y: 0, z: 7*cellRadius)
         
         // create and add an ambient light to the scene
         let ambientLightNode = SCNNode()
@@ -293,6 +294,9 @@ class GameViewController: UIViewController {
         segmentedControl.selectedSegmentIndex = TabIndex.firstChildTab.rawValue
         displayCurrentTab(TabIndex.firstChildTab.rawValue)
         
+        // hacky hack to initialize lazy var safely on a main thread
+        self.secondChildTabVC?.clearAllGraphs(Any.self)
+        
         //Initialize the simulation
         DispatchQueue.global(qos: .default).async {
             self.initializeSimulation()
@@ -326,7 +330,7 @@ class GameViewController: UIViewController {
         var pointsNodeList: [SCNNode] = []
         
         for _ in 0..<nBuffers{
-            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: nbodies/nBuffers)
+            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: nbodies/nBuffers, cellRadius: cellRadius)
             positionsIn.append(meshData.vertexBuffer1)
             positionsOut.append(meshData.vertexBuffer2)
             
@@ -413,69 +417,82 @@ class GameViewController: UIViewController {
             return .all
         }
     }
-
+    
+    func metalUpdaterChild(){
+          
+          // Update MTLBuffers thorugh compute pipeline
+            
+          buffer = queue?.makeCommandBuffer()
+            
+          // Compute kernel
+          let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
+          let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
+          
+          let computeEncoder = buffer!.makeComputeCommandEncoder()
+          
+          for i in 0..<nBuffers{
+              computeEncoder?.setComputePipelineState(computePipelineState[i]!)
+              computeEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
+              computeEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
+              computeEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 2)
+              computeEncoder?.setBuffer(timeLastJumpBuffer[i], offset: 0, index: 3)
+              computeEncoder?.setBuffer(updatedTimeLastJumpBuffer[i], offset: 0, index: 4)
+              computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
+              computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
+              computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
+              computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
+          }
+          
+          computeEncoder?.endEncoding()
+          buffer!.commit()
+          
+          swap(&positionsIn, &positionsOut)
+          swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
+          swap(&oldTimeBuffer, &newTimeBuffer)
+          
+          let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+          let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+              
+          DispatchQueue.global(qos: .default).async {
+              //TO-DO: This crashes window resizing and switch to full screen mode (switch to async)
+              self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances)
+              self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps)
+          }
+          
+          stepCounter += 1
+    
+      }
+    
+    func metalUpdater(){
+        
+        if isRunning{
+            return
+        }
+        
+        isRunning = true
+        
+        metalUpdaterChild()
+        
+        while scene.isPaused{
+            DispatchQueue.global(qos: .default).sync {
+                metalUpdaterChild()
+            }
+        }
+        
+        isRunning = false
+  
+    }
+    
 }
 
 extension GameViewController: SCNSceneRendererDelegate {
     
   func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
-                
-    // Update MTLBuffers thorugh compute pipeline
-      
-    buffer = queue?.makeCommandBuffer()
-      
-    // Compute kernel
-    let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
-    let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
-    
-    let computeEncoder = buffer!.makeComputeCommandEncoder()
-    
-    for i in 0..<nBuffers{
-        computeEncoder?.setComputePipelineState(computePipelineState[i]!)
-        computeEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
-        computeEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
-        computeEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 2)
-        computeEncoder?.setBuffer(timeLastJumpBuffer[i], offset: 0, index: 3)
-        computeEncoder?.setBuffer(updatedTimeLastJumpBuffer[i], offset: 0, index: 4)
-        computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
-        computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
-        computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
-        computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
+            
+    DispatchQueue.global(qos: .background).sync{
+        metalUpdater()
     }
-    
-    computeEncoder?.endEncoding()
-    buffer!.commit()
-    
-    swap(&positionsIn, &positionsOut)
-    swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
-    swap(&oldTimeBuffer, &newTimeBuffer)
-    
-    let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
-    let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
-        
-    DispatchQueue.global(qos: .default).async {
-        //TO-DO: This crashes window resizing and switch to full screen mode (switch to async)
-        self.secondChildTabVC?.setHistogramData1(distances: distances)
-        self.secondChildTabVC?.setHistogramData2(distances: timeJumps)
-    }
-    
-    stepCounter += 1
-    
-    /*
-    for i in 0..<nbodies{
-        print(positions[i])
-    }*/
-    
-    /*for i in 0..<nBuffers{
-        swap(&positionsIn[i], &positionsOut[i])
-    }*/
-    
+ 
   }
-    
-    /*func renderer(_ renderer: SCNSceneRenderer, didRenderScene scene: SCNScene, atTime time: TimeInterval) {
-        if freezeFlag == true{
-            scene.isPaused = true
-        }
-    }*/
     
 }

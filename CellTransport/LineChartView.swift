@@ -26,14 +26,14 @@ class LineChart: UIView{
         histogramArray = [Float](repeating: 0.0, count: bins)
     }
     
-    func drawChart(distances: UnsafeMutablePointer<Float>) {
+    func drawChart(cellRadius: Float, distances: UnsafeMutablePointer<Float>) {
         
         if !isBusy{
             isBusy = true
             
             clearHistogram()
             
-            let path = histogramPath(distances: distances)
+            let path = histogramPath(cellRadius: cellRadius, distances: distances)
             
             DispatchQueue.main.async {
                 self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
@@ -47,14 +47,14 @@ class LineChart: UIView{
         }
     }
     
-    func histogramPath(distances: UnsafeMutablePointer<Float>) -> UIBezierPath {
+    func histogramPath(cellRadius: Float, distances: UnsafeMutablePointer<Float>) -> UIBezierPath {
         
         let path = UIBezierPath()
         let coordinateOrigin = self.bounds.origin
         let width = CGFloat(self.frame.width)
         let height = CGFloat(self.frame.height)
         
-        histogram(distances: distances, bins: bins, histogramArray: &histogramArray)
+        histogram(cellRadius: cellRadius, distances: distances, bins: bins, histogramArray: &histogramArray)
         
         let baseLineHeight: CGFloat = 8.0
         let topMargin: CGFloat = 8.0

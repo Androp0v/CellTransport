@@ -10,10 +10,10 @@ import Foundation
 import SceneKit
 import simd
 
-func generateMicrotubule(centrosomeLocation: SCNVector3) -> [SCNVector3]{
+func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
-    let segmentLength:Float = 0.01
-    let cellRadius:Float = 1.0
+    let segmentLength:Float = 0.01*cellRadius
+    //let cellRadius:Float = 1.0
     let localAngle = 0.15 //1.115265 //Radians, about 63.9º
     
     var pointsList:[SCNVector3] = [centrosomeLocation]

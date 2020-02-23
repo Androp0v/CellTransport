@@ -10,6 +10,7 @@
 using namespace metal;
 
 #define deltaT 0.00001
+#define cellRadius 14000
 
 // Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
 float rand(int x, int y, int z)
@@ -55,22 +56,22 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + deltaT;
+    newTime[i] = oldTime[i] + deltaT*cellRadius;
         
-    float randNumberX = 2*rand(int(positionsIn[i].x*100000000), int(positionsIn[i].y*100000000), int(positionsIn[i].z*100000000)) - 1.0;
-    float randNumberY = 2*rand(int(positionsIn[i].y*100000000), int(positionsIn[i].z*100000000), int(positionsIn[i].z*100000000)) - 1.0;
-    float randNumberZ = 2*rand(int(positionsIn[i].y*100000000), int(positionsIn[i].y*100000000), int(positionsIn[i].z*100000000)) - 1.0;
+    float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
+    float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1.0;
+    float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
     
-    positionsOut[i] = positionsIn[i]  + 0.01*float3(randNumberX,randNumberY,randNumberZ);
+    positionsOut[i] = positionsIn[i]  + 0.01*cellRadius*float3(randNumberX,randNumberY,randNumberZ);
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
-    if (distance >= 1.0){
+    if (distance >= cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];
         timeBetweenJumps[i] = newTime[i] - timeLastJump[i];
         
-        float4 point = randomSpherePoint(0.1, int(positionsIn[i].x*100000000), int(positionsIn[i].y*100000000), int(positionsIn[i].z*100000000));
+        float4 point = randomSpherePoint(0.1 * cellRadius, int(positionsIn[i].x*100000), int(positionsIn[i].y*100000), int(positionsIn[i].z*100000));
         
         positionsOut[i].x = point.x;
         positionsOut[i].y = point.y;

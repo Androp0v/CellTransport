@@ -63,10 +63,11 @@ Builds a SceneKit geometry object backed by a Metal buffer
 */
 class MetalMeshDeformable {
 
-    class func initializePoints(_ device:MTLDevice, nbodies:Int) -> MetalMeshData {
+    class func initializePoints(_ device: MTLDevice, nbodies: Int, cellRadius: Float) -> MetalMeshData {
         
         var pointsList: [vector_float3] = []
         var indexList: [CInt] = []
+        let innerSphere = 0.1*cellRadius
                 
         
         for _ in 0...(nbodies-1) {
@@ -74,8 +75,8 @@ class MetalMeshDeformable {
             var p0 = vector_float3(10,10,10)
             
             repeat{
-                p0 = vector_float3(Float.random(in: -1...1),Float.random(in: -0.1...0.1),Float.random(in: -0.1...0.1))
-            } while sqrt(pow(p0[0],2) + pow(p0[1],2) + pow(p0[2],2)) > 0.1
+                p0 = vector_float3(Float.random(in: -innerSphere...innerSphere),Float.random(in: -innerSphere...innerSphere),Float.random(in: -innerSphere...innerSphere))
+            } while sqrt(pow(p0[0],2) + pow(p0[1],2) + pow(p0[2],2)) > innerSphere
                         
             pointsList.append(p0)
             indexList.append(CInt(indexList.count))

@@ -10,7 +10,7 @@ import Foundation
 import Metal
 import simd
 
-func histogram(distances: UnsafeMutablePointer<Float>, bins: Int, histogramArray: inout [Float]){
+func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, bins: Int, histogramArray: inout [Float]){
     
     //var histogramArrayCopy = histogramArray
     let binWidth: Float = 1.05/Float(bins)
@@ -19,8 +19,8 @@ func histogram(distances: UnsafeMutablePointer<Float>, bins: Int, histogramArray
         //let index: Int = Int(floor((distances[i] - 0)/Float(binWidth)))
         //histogramArray[index] += 1
         
-        if distances[i] >= 0 && distances[i] < 1{
-            let index: Int = Int(floor((distances[i] - 0)/Float(binWidth)))
+        if distances[i] >= 0 && distances[i]/cellRadius < 1{
+            let index: Int = Int(floor((distances[i]/cellRadius - 0)/Float(binWidth)))
             histogramArray[index] += 1
         }
     }

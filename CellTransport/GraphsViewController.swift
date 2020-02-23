@@ -20,12 +20,12 @@ class GraphsViewController: UIViewController {
         histogramChart2?.clearHistogram()
     }
     
-    func setHistogramData1(distances: UnsafeMutablePointer<Float>){
-        histogramChart1?.drawChart(distances: distances)
+    func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
+        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances)
     }
     
-    func setHistogramData2(distances: UnsafeMutablePointer<Float>){
-        histogramChart2?.drawChart(distances: distances)
+    func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
+        histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances)
     }
     
     override func viewDidLoad() {
