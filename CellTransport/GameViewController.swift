@@ -38,13 +38,24 @@ class GameViewController: UIViewController {
     @IBOutlet var alertView: UIView!
     @IBOutlet var alertLabel: UILabel!
     @IBOutlet var freezeButton: UIButton!
+    @IBOutlet var FrozenView: UIView!
     @IBAction func freeze(_ sender: Any) {
         if scene.isPaused == true{
             scene.isPaused = false
             freezeButton.setImage(UIImage(systemName: "snow"), for: .normal)
+            FrozenView.alpha = 0.0
+            DispatchQueue.main.async {
+                self.alertLabel.text = ""
+                self.alertView.backgroundColor = UIColor.clear
+            }
         }else{
             scene.isPaused = true
             freezeButton.setImage(UIImage(named: "Defrost"), for: .normal)
+            FrozenView.alpha = 1.0
+            DispatchQueue.main.async {
+                self.alertLabel.text = "Simulation running in the background"
+                self.alertView.backgroundColor = UIColor.init(cgColor: CGColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.5))
+            }
         }
     }
     

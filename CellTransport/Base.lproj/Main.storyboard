@@ -21,6 +21,23 @@
                                     <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XiD-5r-A3n">
                                         <rect key="frame" x="0.0" y="0.0" width="1066" height="1024"/>
                                     </sceneKitView>
+                                    <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pmh-kp-WYn">
+                                        <rect key="frame" x="0.0" y="0.0" width="1066" height="1024"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="GrandCentralDispatch" translatesAutoresizingMaskIntoConstraints="NO" id="T4c-FO-IRs">
+                                                <rect key="frame" x="383" y="362" width="300" height="300"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="300" id="1ce-aG-7J6"/>
+                                                    <constraint firstAttribute="width" constant="300" id="gz2-N5-1NT"/>
+                                                </constraints>
+                                            </imageView>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="T4c-FO-IRs" firstAttribute="centerY" secondItem="Pmh-kp-WYn" secondAttribute="centerY" id="OQ6-Vq-R6u"/>
+                                            <constraint firstItem="T4c-FO-IRs" firstAttribute="centerX" secondItem="Pmh-kp-WYn" secondAttribute="centerX" id="WI5-sV-hUK"/>
+                                        </constraints>
+                                    </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdv-XQ-5NM">
                                         <rect key="frame" x="429" y="954" width="208" height="46"/>
                                         <subviews>
@@ -112,9 +129,13 @@
                                     <constraint firstItem="pdv-XQ-5NM" firstAttribute="centerX" secondItem="y2h-Zf-dmp" secondAttribute="centerX" id="EFD-S7-xxk"/>
                                     <constraint firstItem="j0w-cZ-pgg" firstAttribute="centerX" secondItem="XiD-5r-A3n" secondAttribute="centerX" id="JQy-sy-FTa"/>
                                     <constraint firstItem="XiD-5r-A3n" firstAttribute="leading" secondItem="y2h-Zf-dmp" secondAttribute="leading" id="LDz-v8-hPy"/>
+                                    <constraint firstItem="Pmh-kp-WYn" firstAttribute="width" secondItem="XiD-5r-A3n" secondAttribute="width" id="Tl2-9W-Y8z"/>
                                     <constraint firstItem="XiD-5r-A3n" firstAttribute="top" secondItem="y2h-Zf-dmp" secondAttribute="top" id="dAt-EI-TbH"/>
+                                    <constraint firstItem="Pmh-kp-WYn" firstAttribute="centerX" secondItem="XiD-5r-A3n" secondAttribute="centerX" id="fXP-HK-51z"/>
                                     <constraint firstAttribute="bottom" secondItem="pdv-XQ-5NM" secondAttribute="bottom" constant="24" id="iSS-dV-bSc"/>
                                     <constraint firstAttribute="bottom" secondItem="XiD-5r-A3n" secondAttribute="bottom" id="mwX-sC-4vE"/>
+                                    <constraint firstItem="Pmh-kp-WYn" firstAttribute="centerY" secondItem="XiD-5r-A3n" secondAttribute="centerY" id="rRp-5B-XrT"/>
+                                    <constraint firstItem="Pmh-kp-WYn" firstAttribute="height" secondItem="XiD-5r-A3n" secondAttribute="height" id="vQP-kI-FUM"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gKz-RE-pXx">
@@ -167,6 +188,7 @@
                         <viewLayoutGuide key="safeArea" id="WO7-jS-JkE"/>
                     </stackView>
                     <connections>
+                        <outlet property="FrozenView" destination="Pmh-kp-WYn" id="MkH-q1-JPS"/>
                         <outlet property="alertLabel" destination="kr2-8L-gKo" id="KiV-UF-Njs"/>
                         <outlet property="alertView" destination="j0w-cZ-pgg" id="4zw-RO-flc"/>
                         <outlet property="buttonContainerView" destination="pdv-XQ-5NM" id="VBX-5M-hgW"/>
@@ -467,6 +489,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="GrandCentralDispatch" width="150" height="84.5"/>
         <image name="arrow.down.doc.fill" catalog="system" width="56" height="64"/>
         <image name="camera.fill" catalog="system" width="64" height="48"/>
         <image name="playpause.fill" catalog="system" width="64" height="36"/>
