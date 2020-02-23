@@ -7,15 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C403DB4323F6B394008368CB /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C403DB4223F6B394008368CB /* LineChartView.swift */; };
+		C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = C406BBB723F6F57F0013A79B /* Histogram.swift */; };
+		C406BBBA23F743F60013A79B /* Histogram.metal in Sources */ = {isa = PBXBuildFile; fileRef = C406BBB923F743F60013A79B /* Histogram.metal */; };
 		C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594423EA22E1000B871B /* AppDelegate.swift */; };
 		C4BD594723EA22E1000B871B /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594623EA22E1000B871B /* art.scnassets */; };
 		C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594823EA22E1000B871B /* GameViewController.swift */; };
 		C4BD594C23EA22E1000B871B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594A23EA22E1000B871B /* Main.storyboard */; };
 		C4BD594E23EA22E3000B871B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594D23EA22E3000B871B /* Assets.xcassets */; };
 		C4BD595123EA22E3000B871B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594F23EA22E3000B871B /* LaunchScreen.storyboard */; };
+		C4BD595C23EA34A6000B871B /* Particles.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD595B23EA34A6000B871B /* Particles.swift */; };
+		C4BD595E23EA3954000B871B /* Compute.metal in Sources */ = {isa = PBXBuildFile; fileRef = C4BD595D23EA3954000B871B /* Compute.metal */; };
+		C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */; };
+		C4BD596223EB139C000B871B /* LineDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596123EB139C000B871B /* LineDrawing.swift */; };
+		C4BD596423EB14DD000B871B /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596323EB14DD000B871B /* shaders.metal */; };
+		C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596523EB15AA000B871B /* Microtubules.swift */; };
+		C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596723EB4769000B871B /* ParametersViewController.swift */; };
+		C4BD596A23EB477F000B871B /* GraphsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596923EB477F000B871B /* GraphsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C403DB4223F6B394008368CB /* LineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
+		C406BBB723F6F57F0013A79B /* Histogram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Histogram.swift; sourceTree = "<group>"; };
+		C406BBB923F743F60013A79B /* Histogram.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Histogram.metal; sourceTree = "<group>"; };
 		C4BD594123EA22E1000B871B /* CellTransport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellTransport.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4BD594423EA22E1000B871B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C4BD594623EA22E1000B871B /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -24,6 +38,15 @@
 		C4BD594D23EA22E3000B871B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C4BD595023EA22E3000B871B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C4BD595223EA22E3000B871B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C4BD595823EA22ED000B871B /* CellTransport.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CellTransport.entitlements; sourceTree = "<group>"; };
+		C4BD595B23EA34A6000B871B /* Particles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Particles.swift; sourceTree = "<group>"; };
+		C4BD595D23EA3954000B871B /* Compute.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Compute.metal; sourceTree = "<group>"; };
+		C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalMeshDeformable.swift; sourceTree = "<group>"; };
+		C4BD596123EB139C000B871B /* LineDrawing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineDrawing.swift; sourceTree = "<group>"; };
+		C4BD596323EB14DD000B871B /* shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = shaders.metal; sourceTree = "<group>"; };
+		C4BD596523EB15AA000B871B /* Microtubules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Microtubules.swift; sourceTree = "<group>"; };
+		C4BD596723EB4769000B871B /* ParametersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersViewController.swift; sourceTree = "<group>"; };
+		C4BD596923EB477F000B871B /* GraphsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,10 +79,22 @@
 		C4BD594323EA22E1000B871B /* CellTransport */ = {
 			isa = PBXGroup;
 			children = (
+				C4BD595823EA22ED000B871B /* CellTransport.entitlements */,
 				C4BD594423EA22E1000B871B /* AppDelegate.swift */,
 				C4BD594623EA22E1000B871B /* art.scnassets */,
 				C4BD594823EA22E1000B871B /* GameViewController.swift */,
+				C4BD596723EB4769000B871B /* ParametersViewController.swift */,
+				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
 				C4BD594A23EA22E1000B871B /* Main.storyboard */,
+				C4BD596523EB15AA000B871B /* Microtubules.swift */,
+				C4BD595B23EA34A6000B871B /* Particles.swift */,
+				C406BBB723F6F57F0013A79B /* Histogram.swift */,
+				C403DB4223F6B394008368CB /* LineChartView.swift */,
+				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
+				C4BD596123EB139C000B871B /* LineDrawing.swift */,
+				C4BD596323EB14DD000B871B /* shaders.metal */,
+				C406BBB923F743F60013A79B /* Histogram.metal */,
+				C4BD595D23EA3954000B871B /* Compute.metal */,
 				C4BD594D23EA22E3000B871B /* Assets.xcassets */,
 				C4BD594F23EA22E3000B871B /* LaunchScreen.storyboard */,
 				C4BD595223EA22E3000B871B /* Info.plist */,
@@ -139,8 +174,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */,
+				C4BD595C23EA34A6000B871B /* Particles.swift in Sources */,
+				C406BBBA23F743F60013A79B /* Histogram.metal in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
+				C403DB4323F6B394008368CB /* LineChartView.swift in Sources */,
+				C4BD596423EB14DD000B871B /* shaders.metal in Sources */,
+				C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */,
+				C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */,
+				C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */,
 				C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */,
+				C4BD596A23EB477F000B871B /* GraphsViewController.swift in Sources */,
+				C4BD596223EB139C000B871B /* LineDrawing.swift in Sources */,
+				C4BD595E23EA3954000B871B /* Compute.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,17 +330,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CellTransport/CellTransport.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 4ND4CZC2FK;
 				INFOPLIST_FILE = CellTransport/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.raulmonton.CellTransport;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -302,17 +352,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CellTransport/CellTransport.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 4ND4CZC2FK;
 				INFOPLIST_FILE = CellTransport/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.raulmonton.CellTransport;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
