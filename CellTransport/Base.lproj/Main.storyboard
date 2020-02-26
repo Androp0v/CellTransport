@@ -435,8 +435,15 @@
                                     <constraint firstAttribute="height" constant="160" id="hMk-0L-xrH"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OJ0-ss-233" customClass="LineChart" customModule="CellTransport" customModuleProvider="target">
+                                <rect key="frame" x="20" y="380" width="260" height="160"/>
+                                <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="160" id="Rp6-Q8-SLB"/>
+                                </constraints>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Sim-UT-CW1">
-                                <rect key="frame" x="0.0" y="380" width="300" height="34"/>
+                                <rect key="frame" x="0.0" y="560" width="300" height="34"/>
                                 <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                                 <color key="tintColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Clear graph data">
@@ -452,9 +459,12 @@
                             <constraint firstItem="80e-mu-shh" firstAttribute="top" secondItem="6ca-sC-HgI" secondAttribute="bottom" constant="20" id="1aA-Fu-ZIH"/>
                             <constraint firstItem="80e-mu-shh" firstAttribute="leading" secondItem="WE3-xI-3Qq" secondAttribute="leading" constant="20" id="HhT-NI-DvA"/>
                             <constraint firstItem="Sim-UT-CW1" firstAttribute="leading" secondItem="WE3-xI-3Qq" secondAttribute="leading" id="KY8-kV-sJs"/>
+                            <constraint firstItem="OJ0-ss-233" firstAttribute="top" secondItem="80e-mu-shh" secondAttribute="bottom" constant="20" id="MD5-Qc-W5v"/>
+                            <constraint firstItem="Sim-UT-CW1" firstAttribute="top" secondItem="OJ0-ss-233" secondAttribute="bottom" constant="20" id="QJP-tT-he0"/>
+                            <constraint firstItem="OJ0-ss-233" firstAttribute="leading" secondItem="WE3-xI-3Qq" secondAttribute="leading" constant="20" id="SNE-kR-J9o"/>
                             <constraint firstItem="6ca-sC-HgI" firstAttribute="leading" secondItem="WE3-xI-3Qq" secondAttribute="leading" constant="20" id="YvC-Iw-rzc"/>
-                            <constraint firstItem="Sim-UT-CW1" firstAttribute="top" secondItem="80e-mu-shh" secondAttribute="bottom" constant="20" id="d4i-a1-wd8"/>
                             <constraint firstItem="WE3-xI-3Qq" firstAttribute="trailing" secondItem="6ca-sC-HgI" secondAttribute="trailing" constant="20" id="deB-g0-NA3"/>
+                            <constraint firstItem="WE3-xI-3Qq" firstAttribute="trailing" secondItem="OJ0-ss-233" secondAttribute="trailing" constant="20" id="fL9-Lg-IVn"/>
                             <constraint firstItem="WE3-xI-3Qq" firstAttribute="trailing" secondItem="80e-mu-shh" secondAttribute="trailing" constant="20" id="knQ-1V-N1e"/>
                             <constraint firstItem="WE3-xI-3Qq" firstAttribute="trailing" secondItem="Sim-UT-CW1" secondAttribute="trailing" id="mMZ-A2-jau"/>
                             <constraint firstItem="6ca-sC-HgI" firstAttribute="top" secondItem="WE3-xI-3Qq" secondAttribute="top" constant="20" id="oav-dJ-9wW"/>
@@ -465,6 +475,7 @@
                     <connections>
                         <outlet property="histogramChart1" destination="6ca-sC-HgI" id="eiP-aV-0bs"/>
                         <outlet property="histogramChart2" destination="80e-mu-shh" id="OeI-td-gDq"/>
+                        <outlet property="histogramChart3" destination="OJ0-ss-233" id="BGc-an-M5Y"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KqR-Tz-Mjn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

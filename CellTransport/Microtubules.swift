@@ -14,7 +14,10 @@ func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [
     
     let segmentLength:Float = 0.01*cellRadius
     //let cellRadius:Float = 1.0
-    let localAngle = 0.15 //1.115265 //Radians, about 63.9º
+    var localAngle: Float = 0.15 //1.115265 //Radians, about 63.9º
+    let maxLocalAngle: Float = 0.15
+    let angleSlope: Float = (maxLocalAngle - localAngle)/(0.1*cellRadius)
+    
     
     var pointsList:[SCNVector3] = [centrosomeLocation]
     
@@ -37,6 +40,13 @@ func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [
             let directionvector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/segmentLength,
                                              (pointsList[i].y - pointsList[i-1].y)/segmentLength,
                                              (pointsList[i].z - pointsList[i-1].z)/segmentLength)
+            
+            let currentDistance = sqrt(pow(pointsList[i].x,2) + pow(pointsList[i].y,2) + pow(pointsList[i].z,2))
+            
+            if currentDistance > 0.99*cellRadius{
+                localAngle = 0.15 + (currentDistance - 0.99*cellRadius)*angleSlope
+                print("localAngle: " + String(localAngle))
+            }
             
             newPoint = pointsList[i]
             newPoint.x += directionvector.x*segmentLength*Float(cos(localAngle))

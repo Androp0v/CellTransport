@@ -13,6 +13,7 @@ class GraphsViewController: UIViewController {
     
     @IBOutlet var histogramChart1: LineChart?
     @IBOutlet var histogramChart2: LineChart!
+    @IBOutlet var histogramChart3: LineChart!
     
     
     @IBAction func clearAllGraphs(_ sender: Any) {
@@ -26,6 +27,10 @@ class GraphsViewController: UIViewController {
     
     func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
         histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances)
+    }
+    
+    func setHistogramData3(cellRadius: Float, distances: [Float]){
+        histogramChart3?.drawChart(cellRadius: cellRadius, distances: distances)
     }
     
     override func viewDidLoad() {

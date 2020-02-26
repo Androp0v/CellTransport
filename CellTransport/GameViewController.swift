@@ -24,6 +24,8 @@ class GameViewController: UIViewController {
     let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2)
     
+    var microtubuleDistances: [Float] = []
+    
     // UI outlets and variables
     @IBOutlet var scnView: SCNView!
     let scene = SCNScene(named: "art.scnassets/ship.scn")!
@@ -209,12 +211,17 @@ class GameViewController: UIViewController {
         return boundingBoxNode
     }
     
-    func spawnMicrotubules() -> [SCNNode]{
+    func spawnMicrotubules() -> ([SCNNode],[SCNVector3]){
         
         var nodelist : [SCNNode] = []
+        var microtubulePoints: [SCNVector3] = []
         
         for _ in 0...(nMicrotubules - 1){
             let points = generateMicrotubule(cellRadius: cellRadius, centrosomeLocation: centrosomeLocation)
+            
+            for point in points{
+                microtubulePoints.append(point)
+            }
             
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
 
@@ -227,7 +234,7 @@ class GameViewController: UIViewController {
             nodelist.append(node)
         }
         
-        return nodelist
+        return (nodelist,microtubulePoints)
     }
     
     func spawnCellNucleus() -> SCNNode{
@@ -332,7 +339,15 @@ class GameViewController: UIViewController {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure"
         }
-        let microtubules = spawnMicrotubules()
+        let (microtubules, microtubulePoints) = spawnMicrotubules()
+        
+        //var microtubuleDistances: [Float] = []
+        
+        for microtubulePoint in microtubulePoints{
+            microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
+        }
+        
+        self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: microtubuleDistances)
         
         // spawn points
         DispatchQueue.main.async {
@@ -465,9 +480,10 @@ class GameViewController: UIViewController {
           let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
               
           DispatchQueue.global(qos: .default).async {
-              //TO-DO: This crashes window resizing and switch to full screen mode (switch to async)
-              self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances)
-              self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps)
+            //TO-DO: This crashes window resizing and switch to full screen mode (switch to async)
+            self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances)
+            self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps)
+            self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: self.microtubuleDistances)
           }
           
           stepCounter += 1
