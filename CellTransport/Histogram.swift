@@ -13,7 +13,7 @@ import simd
 func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, bins: Int, histogramArray: inout [Float]){
     
     //var histogramArrayCopy = histogramArray
-    let binWidth: Float = 1.05/Float(bins)
+    let binWidth: Float = 1.0/Float(bins)
     
     for i in 0..<131072{
         //let index: Int = Int(floor((distances[i] - 0)/Float(binWidth)))

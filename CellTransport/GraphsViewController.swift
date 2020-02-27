@@ -36,7 +36,9 @@ class GraphsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        histogramChart1?.layer.cornerRadius = 8.0
+        histogramChart2?.layer.cornerRadius = 8.0
+        histogramChart3?.layer.cornerRadius = 8.0
     }
     
 
