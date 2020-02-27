@@ -16,11 +16,17 @@ class LineChart: UIView{
     private let gridLayer: CALayer = CALayer()
     private var dataPoints: [CGPoint]?
     
-    private var isBusy = false
+    public var isBusy = false
     
     let bins: Int = 1000
     
     private var histogramArray = [Float](repeating: 0.0, count: 1000)
+    
+    /*let busyHandlerBlock: (Bool) -> Void = { doneWork in
+     if doneWork {
+      isBusy = false
+     }
+    }*/
     
     func clearHistogram(){
         histogramArray = [Float](repeating: 0.0, count: bins)
@@ -28,7 +34,6 @@ class LineChart: UIView{
     
     func drawChart(cellRadius: Float, distances: UnsafeMutablePointer<Float>, autoMerge: Bool) {
         
-        if !isBusy{
             isBusy = true
             
             if !autoMerge{
@@ -44,14 +49,12 @@ class LineChart: UIView{
                 lineLayer.strokeColor = UIColor.white.cgColor
                 lineLayer.fillColor = UIColor.clear.cgColor
                 self.layer.addSublayer(lineLayer)
+                self.isBusy = false
             }
-            isBusy = false
-        }
     }
     
     func drawChart(cellRadius: Float, distances: [Float], autoMerge: Bool) {
         
-        if !isBusy{
             isBusy = true
             
             if !autoMerge{
@@ -67,9 +70,8 @@ class LineChart: UIView{
                 lineLayer.strokeColor = UIColor.white.cgColor
                 lineLayer.fillColor = UIColor.clear.cgColor
                 self.layer.addSublayer(lineLayer)
+                self.isBusy = false
             }
-            isBusy = false
-        }
     }
     
     func histogramPath(cellRadius: Float, distances: UnsafeMutablePointer<Float>) -> UIBezierPath {

@@ -488,17 +488,28 @@ class GameViewController: UIViewController {
           
           let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
           let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
-              
-          DispatchQueue.global(qos: .default).async {
-            //TO-DO: This crashes window resizing and switch to full screen mode (switch to async)
-            self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances)
-            self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps)
-            self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: self.microtubuleDistances)
+            
+            if !(self.secondChildTabVC?.histogramChart1?.isBusy ?? true){
+                DispatchQueue.global(qos: .default).async {
+                  self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances)
+                }
+            }
+            
+            if !(self.secondChildTabVC?.histogramChart2?.isBusy ?? true){
+                DispatchQueue.global(qos: .default).async {
+                  self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps)
+                }
+            }
+            
+            if !(self.secondChildTabVC?.histogramChart3?.isBusy ?? true){
+                DispatchQueue.global(qos: .default).async {
+                  self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: self.microtubuleDistances)
+                }
+            }
+                        
+            stepCounter += 1
+        
           }
-          
-          stepCounter += 1
-    
-      }
     
     func metalUpdater(){
         
