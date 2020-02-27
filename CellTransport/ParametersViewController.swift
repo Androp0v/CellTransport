@@ -9,7 +9,28 @@
 import UIKit
 
 class ParametersViewController: UIViewController {
-
+    
+    @IBOutlet var nCells: UITextField!
+    @IBOutlet var nParticlesPerCell: UITextField!
+    @IBOutlet var nBodies: UILabel!
+    @IBOutlet var nMicrotubules: UITextField!
+    
+    func changenCellsText(text: String){
+        self.nCells.text = text
+    }
+    
+    func changeParticlesPerCellText(text: String){
+        self.nParticlesPerCell.text = text
+    }
+    
+    func changenBodiesText(text: String){
+        self.nBodies.text = text
+    }
+    
+    func changeMicrotubulesText(text: String){
+        self.nMicrotubules.text = text
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

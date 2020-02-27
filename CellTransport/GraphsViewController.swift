@@ -15,6 +15,16 @@ class GraphsViewController: UIViewController {
     @IBOutlet var histogramChart2: LineChart!
     @IBOutlet var histogramChart3: LineChart!
     
+    var autoMerge: Bool = false
+    
+    @IBOutlet var switchAutoMerge: UISwitch!
+    @IBAction func switchAutoMergeChanged(_ sender: Any) {
+        if switchAutoMerge.isOn{
+            autoMerge = true
+        }else{
+            autoMerge = false
+        }
+    }
     
     @IBAction func clearAllGraphs(_ sender: Any) {
         histogramChart1?.clearHistogram()
@@ -22,7 +32,7 @@ class GraphsViewController: UIViewController {
     }
     
     func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
-        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: true)
+        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: autoMerge)
     }
     
     func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>){

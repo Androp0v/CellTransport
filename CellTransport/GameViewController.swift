@@ -92,9 +92,9 @@ class GameViewController: UIViewController {
     var isRunning = false
     
     var currentViewController: UIViewController?
-    lazy var firstChildTabVC: UIViewController? = {
+    lazy var firstChildTabVC: ParametersViewController? = {
         let firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController")
-        return firstChildTabVC
+        return (firstChildTabVC as! ParametersViewController)
     }()
     lazy var secondChildTabVC : GraphsViewController? = {
         let secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController")
@@ -317,6 +317,13 @@ class GameViewController: UIViewController {
         
         // hacky hack to initialize lazy var safely on a main thread
         self.secondChildTabVC?.clearAllGraphs(Any.self)
+        
+        // finish VC UIs
+        
+        self.firstChildTabVC?.changenCellsText(text: String(nCells))
+        self.firstChildTabVC?.changeParticlesPerCellText(text: String(nbodies/nCells))
+        self.firstChildTabVC?.changenBodiesText(text: String(nbodies))
+        self.firstChildTabVC?.changeMicrotubulesText(text: String(nMicrotubules))
         
         //Initialize the simulation
         DispatchQueue.global(qos: .default).async {
