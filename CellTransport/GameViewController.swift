@@ -18,11 +18,13 @@ class GameViewController: UIViewController {
     
     // Simulation parameters
     
+    let nCells: Int = 100
     let nbodies: Int = 524288 //4194304
     let nMicrotubules: Int = 400
     let cellRadius: Float = 14000 //nm
-    let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
+    let centrosomeRadius: Float = 1400 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2)
+    let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
     
     var microtubuleDistances: [Float] = []
     
@@ -216,24 +218,25 @@ class GameViewController: UIViewController {
         var nodelist : [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
         
-        for _ in 0...(nMicrotubules - 1){
-            let points = generateMicrotubule(cellRadius: cellRadius, centrosomeLocation: centrosomeLocation)
+        for i in 0...(nCells*nMicrotubules - 1){
+            let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
             
             for point in points{
                 microtubulePoints.append(point)
             }
             
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
-
-            let geometry = SCNGeometry.lineThrough(points: points,
-                                                   width: 2,
-                                                   closed: false,
-                                                   color: microtubuleColor)
-            let node = SCNNode(geometry: geometry)
-            scene.rootNode.addChildNode(node)
-            nodelist.append(node)
+            
+            if i < nMicrotubules{
+                let geometry = SCNGeometry.lineThrough(points: points,
+                                                       width: 2,
+                                                       closed: false,
+                                                       color: microtubuleColor)
+                let node = SCNNode(geometry: geometry)
+                scene.rootNode.addChildNode(node)
+                nodelist.append(node)
+            }
         }
-        
         return (nodelist,microtubulePoints)
     }
     

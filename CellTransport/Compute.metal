@@ -66,6 +66,13 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
+    //TO-DO Fix
+    float sum = 0;
+    for (int j = 0; j < 16; j++){
+        sum += positionsIn[j].x;
+    }
+    //TO-DO End fix
+    
     if (distance >= cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];
@@ -80,7 +87,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         distance = point.w;
     }
     
-    distances[i] = distance;
+    distances[i] = distance + 0.000000001*sum; //TO-DO Fix
     
 }
 

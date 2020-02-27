@@ -10,16 +10,16 @@ import Foundation
 import SceneKit
 import simd
 
-func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
+func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
-    let segmentLength:Float = 0.01*cellRadius
+    let segmentLength:Float = 140 //0.01*cellRadius
     //let cellRadius:Float = 1.0
     var localAngle: Float = 0.15 //1.115265 //Radians, about 63.9º
     let maxLocalAngle: Float = 0.15
     let angleSlope: Float = (maxLocalAngle - localAngle)/(0.1*cellRadius)
     
     
-    var pointsList:[SCNVector3] = [centrosomeLocation]
+    var pointsList:[SCNVector3] = []
     
     for i in 0...(200){
         
@@ -27,14 +27,26 @@ func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [
         
         if i == 0{
             
-            let tmpX = Float.random(in: -1...1)
-            let tmpY = Float.random(in: -1...1)
-            let tmpZ = Float.random(in: -1...1)
+            //Initialize first microtubule point inside the centrosome
+            var p0 = vector_float3(10*centrosomeRadius,10*centrosomeRadius,10*centrosomeRadius)
+            repeat{
+                p0 = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius))
+            } while sqrt(pow(p0.x,2) + pow(p0.y,2) + pow(p0.z,2)) > centrosomeRadius
+            
+            pointsList.append(SCNVector3(centrosomeLocation.x + p0.x,
+                                    centrosomeLocation.y + p0.y,
+                                    centrosomeLocation.z + p0.z))
+            
+            //Initialize second microtubule point (random direction)
+            
+            let tmpX = pointsList[0].x // Float.random(in: -1...1)
+            let tmpY = pointsList[0].y // Float.random(in: -1...1)
+            let tmpZ = pointsList[0].z // Float.random(in: -1...1)
             let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
             
-            newPoint = SCNVector3(centrosomeLocation.x + segmentLength*tmpX/normalConstant,
-                                  centrosomeLocation.y + segmentLength*tmpY/normalConstant,
-                                  centrosomeLocation.z + segmentLength*tmpZ/normalConstant)
+            newPoint = SCNVector3(centrosomeLocation.x + p0.x + segmentLength*tmpX/normalConstant,
+                                  centrosomeLocation.y + p0.y + segmentLength*tmpY/normalConstant,
+                                  centrosomeLocation.z + p0.z + segmentLength*tmpZ/normalConstant)
         }else{
             
             let directionvector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/segmentLength,
@@ -45,7 +57,6 @@ func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [
             
             if currentDistance > 0.99*cellRadius{
                 localAngle = 0.15 + (currentDistance - 0.99*cellRadius)*angleSlope
-                print("localAngle: " + String(localAngle))
             }
             
             newPoint = pointsList[i]
@@ -71,10 +82,12 @@ func generateMicrotubule(cellRadius: Float, centrosomeLocation: SCNVector3) -> [
         
         // Check wether microtubule has exceeded cell walls
         if (sqrt(pow(newPoint.x, 2) + pow(newPoint.y, 2) + pow(newPoint.z, 2)) > cellRadius){
+            //print("Microtubule length: " + String(pointsList.count))
             return pointsList
         }
         pointsList.append(newPoint)
     }
     
+    //print("Microtubule length: " + String(pointsList.count))
     return pointsList
 }

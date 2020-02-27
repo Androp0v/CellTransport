@@ -15,7 +15,7 @@ func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, bins: 
     //var histogramArrayCopy = histogramArray
     let binWidth: Float = 1.05/Float(bins)
     
-    for i in 0..<524288{
+    for i in 0..<131072{
         //let index: Int = Int(floor((distances[i] - 0)/Float(binWidth)))
         //histogramArray[index] += 1
         
@@ -40,6 +40,14 @@ func histogram(cellRadius: Float, distances: [Float], bins: Int, histogramArray:
             let index: Int = Int(floor((distances[i]/cellRadius - 0)/Float(binWidth)))
             histogramArray[index] += 1
         }
+    }
+    
+    let binRadiusSegment = cellRadius / Float(bins)
+    histogramArray[0] /= 4.0/3.0*Float.pi * powf(binRadiusSegment, 3)
+    for i in 1..<histogramArray.count{
+        let outerVolume = 4.0/3.0*Float.pi * powf(binRadiusSegment*Float((i+1)), 3)
+        let innerVolume = 4.0/3.0*Float.pi * powf(binRadiusSegment*Float(i), 3)
+        histogramArray[i] /= outerVolume - innerVolume
     }
 
 }

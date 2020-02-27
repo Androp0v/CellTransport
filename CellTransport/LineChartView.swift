@@ -106,19 +106,19 @@ class LineChart: UIView{
         let width = CGFloat(self.frame.width)
         let height = CGFloat(self.frame.height)
                 
-        histogram(cellRadius: cellRadius, distances: distances, bins: 120, histogramArray: &histogramArray)
+        histogram(cellRadius: cellRadius, distances: distances, bins: bins, histogramArray: &histogramArray)
         
         let baseLineHeight: CGFloat = 8.0
         let topMargin: CGFloat = 8.0
         
-        let binDrawWidth: CGFloat = CGFloat(width)/CGFloat(120)
+        let binDrawWidth: CGFloat = CGFloat(width)/CGFloat(bins)
         let binDrawHeight: CGFloat = (height - topMargin - baseLineHeight)/CGFloat(histogramArray.max()!)
         
         var newPosition = CGPoint(x: coordinateOrigin.x, y: height - baseLineHeight - CGFloat(histogramArray[0])*binDrawHeight)
         
         path.move(to: newPosition)
         
-        for i in 0..<(120 - 1){
+        for i in 0..<(bins - 1){
             newPosition = CGPoint(x: newPosition.x + binDrawWidth, y: newPosition.y)
             path.addLine(to: newPosition)
             newPosition = CGPoint(x: newPosition.x, y: height - baseLineHeight - CGFloat(histogramArray[i + 1])*binDrawHeight)
