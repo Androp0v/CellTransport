@@ -491,13 +491,13 @@ class GameViewController: UIViewController {
             
             if !(self.secondChildTabVC?.histogramChart1?.isBusy ?? true){
                 DispatchQueue.global(qos: .default).async {
-                  self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances)
+                    self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances, nBodies: self.nbodies)
                 }
             }
             
             if !(self.secondChildTabVC?.histogramChart2?.isBusy ?? true){
                 DispatchQueue.global(qos: .default).async {
-                  self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps)
+                    self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps, nBodies: self.nbodies)
                 }
             }
             

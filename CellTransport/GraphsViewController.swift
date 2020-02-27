@@ -31,12 +31,12 @@ class GraphsViewController: UIViewController {
         histogramChart2?.clearHistogram()
     }
     
-    func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
-        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: autoMerge)
+    func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int){
+        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, nBodies: nBodies, autoMerge: autoMerge)
     }
     
-    func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
-        histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: false)
+    func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int){
+        histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances, nBodies: nBodies, autoMerge: false)
     }
     
     func setHistogramData3(cellRadius: Float, distances: [Float]){
