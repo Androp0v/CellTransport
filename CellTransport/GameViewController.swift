@@ -218,7 +218,7 @@ class GameViewController: UIViewController {
         var nodelist : [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
         
-        for i in 0...(nCells*nMicrotubules - 1){
+        for i in 0..<(nCells*nMicrotubules){
             let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
             
             for point in points{
@@ -359,13 +359,13 @@ class GameViewController: UIViewController {
         var pointsNodeList: [SCNNode] = []
         
         for _ in 0..<nBuffers{
-            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: nbodies/nBuffers, cellRadius: cellRadius)
+            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: nbodies/nBuffers, nBodiesPerCell: nbodies/nCells, cellRadius: cellRadius)
             positionsIn.append(meshData.vertexBuffer1)
             positionsOut.append(meshData.vertexBuffer2)
             
             let pointsNode = SCNNode(geometry: meshData.geometry)
             pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-            pointsNode.geometry?.firstMaterial?.transparency = 0.4
+            pointsNode.geometry?.firstMaterial?.transparency = 0.7
             pointsNode.geometry?.firstMaterial?.lightingModel = .constant
             pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
             pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true

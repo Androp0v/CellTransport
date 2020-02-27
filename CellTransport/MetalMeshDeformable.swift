@@ -63,7 +63,7 @@ Builds a SceneKit geometry object backed by a Metal buffer
 */
 class MetalMeshDeformable {
 
-    class func initializePoints(_ device: MTLDevice, nbodies: Int, cellRadius: Float) -> MetalMeshData {
+    class func initializePoints(_ device: MTLDevice, nbodies: Int, nBodiesPerCell: Int, cellRadius: Float) -> MetalMeshData {
         
         var pointsList: [vector_float3] = []
         var indexList: [CInt] = []
@@ -98,7 +98,7 @@ class MetalMeshDeformable {
             buffer: vertexBuffer1!,
             vertexFormat: vertexFormat,
             semantic: SCNGeometrySource.Semantic.vertex,
-            vertexCount: pointsList.count,
+            vertexCount: nBodiesPerCell,
             dataOffset: 0,
             dataStride: MemoryLayout<vector_float3>.size)
         		
@@ -106,13 +106,13 @@ class MetalMeshDeformable {
         let indexElement = SCNGeometryElement(
             data: indexData,
             primitiveType: SCNGeometryPrimitiveType.point,
-            primitiveCount: indexList.count,
+            primitiveCount: nBodiesPerCell,
             bytesPerIndex: MemoryLayout<CInt>.size
         )
                 
-        indexElement.pointSize = 2 //0.0005
-        indexElement.minimumPointScreenSpaceRadius = 2 //0.1
-        //indexElement.maximumPointScreenSpaceRadius = 1//150
+        indexElement.pointSize = 150 //0.0005
+        indexElement.minimumPointScreenSpaceRadius = 0.1 //0.1
+        indexElement.maximumPointScreenSpaceRadius = 3000
         
 		let geo = SCNGeometry(sources: [vertexSource], elements: [indexElement])
         geo.firstMaterial?.isLitPerPixel = true

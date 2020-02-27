@@ -22,15 +22,15 @@ class GraphsViewController: UIViewController {
     }
     
     func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
-        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances)
+        histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: true)
     }
     
     func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>){
-        histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances)
+        histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: false)
     }
     
     func setHistogramData3(cellRadius: Float, distances: [Float]){
-        histogramChart3?.drawChart(cellRadius: cellRadius, distances: distances)
+        histogramChart3?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: false)
     }
     
     override func viewDidLoad() {

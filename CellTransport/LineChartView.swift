@@ -26,12 +26,14 @@ class LineChart: UIView{
         histogramArray = [Float](repeating: 0.0, count: bins)
     }
     
-    func drawChart(cellRadius: Float, distances: UnsafeMutablePointer<Float>) {
+    func drawChart(cellRadius: Float, distances: UnsafeMutablePointer<Float>, autoMerge: Bool) {
         
         if !isBusy{
             isBusy = true
             
-            clearHistogram()
+            if !autoMerge{
+                clearHistogram()
+            }
             
             let path = histogramPath(cellRadius: cellRadius, distances: distances)
             
@@ -47,12 +49,14 @@ class LineChart: UIView{
         }
     }
     
-    func drawChart(cellRadius: Float, distances: [Float]) {
+    func drawChart(cellRadius: Float, distances: [Float], autoMerge: Bool) {
         
         if !isBusy{
             isBusy = true
             
-            clearHistogram()
+            if !autoMerge{
+                clearHistogram()
+            }
             
             let path = histogramPath(cellRadius: cellRadius, distances: distances)
             
