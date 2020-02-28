@@ -456,60 +456,60 @@ class GameViewController: UIViewController {
     
     func metalUpdaterChild(){
           
-          // Update MTLBuffers thorugh compute pipeline
+        // Update MTLBuffers thorugh compute pipeline
             
-          buffer = queue?.makeCommandBuffer()
+        buffer = queue?.makeCommandBuffer()
             
-          // Compute kernel
-          let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
-          let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
-          
-          let computeEncoder = buffer!.makeComputeCommandEncoder()
-          
-          for i in 0..<nBuffers{
-              computeEncoder?.setComputePipelineState(computePipelineState[i]!)
-              computeEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
-              computeEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
-              computeEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 2)
-              computeEncoder?.setBuffer(timeLastJumpBuffer[i], offset: 0, index: 3)
-              computeEncoder?.setBuffer(updatedTimeLastJumpBuffer[i], offset: 0, index: 4)
-              computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
-              computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
-              computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
-              computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
-          }
-          
-          computeEncoder?.endEncoding()
-          buffer!.commit()
-          
-          swap(&positionsIn, &positionsOut)
-          swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
-          swap(&oldTimeBuffer, &newTimeBuffer)
-          
-          let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
-          let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
-            
-            if !(self.secondChildTabVC?.histogramChart1?.isBusy ?? true){
-                DispatchQueue.global(qos: .default).async {
-                    self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances, nBodies: self.nbodies)
-                }
-            }
-            
-            if !(self.secondChildTabVC?.histogramChart2?.isBusy ?? true){
-                DispatchQueue.global(qos: .default).async {
-                    self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps, nBodies: self.nbodies)
-                }
-            }
-            
-            if !(self.secondChildTabVC?.histogramChart3?.isBusy ?? true){
-                DispatchQueue.global(qos: .default).async {
-                  self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: self.microtubuleDistances)
-                }
-            }
-                        
-            stepCounter += 1
+        // Compute kernel
+        let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
+        let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
         
-          }
+        let computeEncoder = buffer!.makeComputeCommandEncoder()
+          
+        for i in 0..<nBuffers{
+            computeEncoder?.setComputePipelineState(computePipelineState[i]!)
+            computeEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
+            computeEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
+            computeEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 2)
+            computeEncoder?.setBuffer(timeLastJumpBuffer[i], offset: 0, index: 3)
+            computeEncoder?.setBuffer(updatedTimeLastJumpBuffer[i], offset: 0, index: 4)
+            computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
+            computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
+            computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
+            computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
+        }
+          
+        computeEncoder?.endEncoding()
+        buffer!.commit()
+          
+        swap(&positionsIn, &positionsOut)
+        swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
+        swap(&oldTimeBuffer, &newTimeBuffer)
+          
+        let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+        let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+        
+        if !(self.secondChildTabVC?.histogramChart1?.isBusy ?? true){
+            DispatchQueue.global(qos: .default).async {
+                self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances, nBodies: self.nbodies)
+            }
+        }
+            
+        if !(self.secondChildTabVC?.histogramChart2?.isBusy ?? true){
+            DispatchQueue.global(qos: .default).async {
+                self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps, nBodies: self.nbodies)
+            }
+        }
+            
+        if !(self.secondChildTabVC?.histogramChart3?.isBusy ?? true){
+            DispatchQueue.global(qos: .default).async {
+                self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: self.microtubuleDistances)
+            }
+        }
+                        
+        stepCounter += 1
+        
+    }
     
     func metalUpdater(){
         

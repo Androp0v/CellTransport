@@ -22,12 +22,6 @@ float rand(int x, int y, int z)
 
 //Generate random sphere points
 float4 randomSpherePoint(float radius, int x, int y, int z){
-    /*float theta = 2*M_PI_F*rand(x, y, z);
-    float phi = 2*M_PI_F*acos(1-2*rand(z, x, y));
-    
-    float xsphere = radius*sin(phi)*cos(theta);
-    float ysphere = radius*sin(phi)*sin(theta);
-    float zsphere = radius*cos(phi);*/
     
     float u = rand(x, y, z);
     float v = rand(z, x, y);
