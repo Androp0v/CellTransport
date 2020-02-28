@@ -17,7 +17,6 @@
 		C4BD594C23EA22E1000B871B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594A23EA22E1000B871B /* Main.storyboard */; };
 		C4BD594E23EA22E3000B871B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594D23EA22E3000B871B /* Assets.xcassets */; };
 		C4BD595123EA22E3000B871B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594F23EA22E3000B871B /* LaunchScreen.storyboard */; };
-		C4BD595C23EA34A6000B871B /* Particles.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD595B23EA34A6000B871B /* Particles.swift */; };
 		C4BD595E23EA3954000B871B /* Compute.metal in Sources */ = {isa = PBXBuildFile; fileRef = C4BD595D23EA3954000B871B /* Compute.metal */; };
 		C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */; };
 		C4BD596223EB139C000B871B /* LineDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596123EB139C000B871B /* LineDrawing.swift */; };
@@ -41,7 +40,6 @@
 		C4BD595023EA22E3000B871B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C4BD595223EA22E3000B871B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C4BD595823EA22ED000B871B /* CellTransport.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CellTransport.entitlements; sourceTree = "<group>"; };
-		C4BD595B23EA34A6000B871B /* Particles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Particles.swift; sourceTree = "<group>"; };
 		C4BD595D23EA3954000B871B /* Compute.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Compute.metal; sourceTree = "<group>"; };
 		C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalMeshDeformable.swift; sourceTree = "<group>"; };
 		C4BD596123EB139C000B871B /* LineDrawing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineDrawing.swift; sourceTree = "<group>"; };
@@ -90,7 +88,6 @@
 				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
 				C4BD594A23EA22E1000B871B /* Main.storyboard */,
 				C4BD596523EB15AA000B871B /* Microtubules.swift */,
-				C4BD595B23EA34A6000B871B /* Particles.swift */,
 				C406BBB723F6F57F0013A79B /* Histogram.swift */,
 				C403DB4223F6B394008368CB /* LineChartView.swift */,
 				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
@@ -179,7 +176,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */,
-				C4BD595C23EA34A6000B871B /* Particles.swift in Sources */,
 				C406BBBA23F743F60013A79B /* Histogram.metal in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
 				C403DB4323F6B394008368CB /* LineChartView.swift in Sources */,

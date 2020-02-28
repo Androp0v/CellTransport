@@ -63,6 +63,20 @@ class GameViewController: UIViewController {
         }
     }
     
+    var truePause = false
+    @IBOutlet var pauseButton: UIButton!
+    @IBAction func playPause(_ sender: Any) {
+        if pauseButton.currentImage == UIImage.init(systemName: "pause.fill"){
+            scene.isPaused = true
+            truePause = true
+            pauseButton.setImage(UIImage.init(systemName: "play.fill"), for: .normal)
+        }else{
+            scene.isPaused = false
+            truePause = false
+            pauseButton.setImage(UIImage.init(systemName: "pause.fill"), for: .normal)
+        }
+    }
+    
     let rotationTime: TimeInterval = 40
     
     enum TabIndex : Int {
@@ -521,14 +535,14 @@ class GameViewController: UIViewController {
         
         metalUpdaterChild()
         
-        while scene.isPaused{
-            DispatchQueue.global(qos: .default).sync {
-                metalUpdaterChild()
+        if !truePause{
+            while scene.isPaused{
+                DispatchQueue.global(qos: .default).sync {
+                    metalUpdaterChild()
+                }
             }
         }
-        
         isRunning = false
-  
     }
     
 }
@@ -537,7 +551,7 @@ extension GameViewController: SCNSceneRendererDelegate {
     
   func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
             
-    DispatchQueue.global(qos: .background).sync{
+    DispatchQueue.global(qos: .default).sync{
         metalUpdater()
     }
  

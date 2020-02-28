@@ -39,15 +39,18 @@
                                         </constraints>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdv-XQ-5NM">
-                                        <rect key="frame" x="429" y="954" width="208" height="46"/>
+                                        <rect key="frame" x="436" y="954" width="194.5" height="46"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OIj-Cf-SeM">
-                                                <rect key="frame" x="90" y="12" width="28" height="22"/>
+                                                <rect key="frame" x="90" y="12" width="14.5" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <state key="normal" image="playpause.fill" catalog="system">
+                                                <state key="normal" image="pause.fill" catalog="system">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
                                                 </state>
+                                                <connections>
+                                                    <action selector="playPause:" destination="BV1-FR-VrT" eventType="touchUpInside" id="6O7-RL-IUX"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L8T-dy-2ou">
                                                 <rect key="frame" x="51.5" y="12" width="20.5" height="22"/>
@@ -64,14 +67,14 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LKp-kt-PoI">
-                                                <rect key="frame" x="136" y="12" width="24" height="22"/>
+                                                <rect key="frame" x="122.5" y="12" width="24" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="camera.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
                                                 </state>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7y-hq-3N8">
-                                                <rect key="frame" x="178" y="12" width="18" height="22"/>
+                                                <rect key="frame" x="164.5" y="12" width="18" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="arrow.down.doc.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
@@ -194,6 +197,7 @@
                         <outlet property="buttonContainerView" destination="pdv-XQ-5NM" id="VBX-5M-hgW"/>
                         <outlet property="containerView" destination="Fbd-xZ-qai" id="p0A-hK-Uje"/>
                         <outlet property="freezeButton" destination="L8T-dy-2ou" id="uCJ-5B-8rb"/>
+                        <outlet property="pauseButton" destination="OIj-Cf-SeM" id="h1b-i0-jty"/>
                         <outlet property="scnView" destination="XiD-5r-A3n" id="S2J-eK-ZOM"/>
                         <outlet property="segmentedControl" destination="A0q-Od-ymt" id="NTq-5n-iRc"/>
                     </connections>
@@ -263,6 +267,9 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstItem="bnH-Eq-Jjr" firstAttribute="leading" secondItem="4L1-iA-8kP" secondAttribute="trailing" constant="4" id="sZD-43-0Cl"/>
+                                        </constraints>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="dgx-Qt-HSt" userLabel="MicrotubuleStack">
@@ -354,7 +361,7 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="61E-vW-onP">
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="61E-vW-onP">
                                                 <rect key="frame" x="231" y="0.0" width="51" height="31"/>
                                             </switch>
                                         </subviews>
@@ -593,7 +600,7 @@
         <image name="GrandCentralDispatch" width="150" height="84.5"/>
         <image name="arrow.down.doc.fill" catalog="system" width="56" height="64"/>
         <image name="camera.fill" catalog="system" width="64" height="48"/>
-        <image name="playpause.fill" catalog="system" width="64" height="36"/>
+        <image name="pause.fill" catalog="system" width="58" height="64"/>
         <image name="snow" catalog="system" width="60" height="64"/>
         <image name="stopwatch.fill" catalog="system" width="60" height="64"/>
     </resources>
