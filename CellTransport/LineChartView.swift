@@ -20,14 +20,8 @@ class LineChart: UIView{
     
     let bins: Int = 1000
     
-    private var histogramArray = [Float](repeating: 0.0, count: 1000)
-    
-    /*let busyHandlerBlock: (Bool) -> Void = { doneWork in
-     if doneWork {
-      isBusy = false
-     }
-    }*/
-    
+    private var histogramArray = [Float](repeating: 0.0, count: 100)
+        
     func clearHistogram(){
         histogramArray = [Float](repeating: 0.0, count: bins)
     }

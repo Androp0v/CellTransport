@@ -19,7 +19,7 @@ class GameViewController: UIViewController {
     // Simulation parameters
     
     let nCells: Int = 100
-    let nbodies: Int = 524288 //4194304
+    let nbodies: Int = 524288 //4194304 // 16777216
     let nMicrotubules: Int = 400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm
@@ -219,7 +219,7 @@ class GameViewController: UIViewController {
         boundingBox.firstMaterial?.fillMode = .lines
         boundingBox.firstMaterial?.isDoubleSided = true
         boundingBox.firstMaterial?.diffuse.contents = UIColor.white
-        boundingBox.firstMaterial?.transparency = 0.02
+        boundingBox.firstMaterial?.transparency = 0.05
         
         let boundingBoxNode = SCNNode(geometry: boundingBox)
         scene.rootNode.addChildNode(boundingBoxNode)
@@ -252,6 +252,37 @@ class GameViewController: UIViewController {
             }
         }
         return (nodelist,microtubulePoints)
+    }
+    
+    func spawnCellMembrane() -> SCNNode{
+        
+        var membrane:SCNSphere
+        
+        membrane = SCNSphere(radius: CGFloat(cellRadius))
+        membrane.segmentCount = 96
+        
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.black
+        material.reflective.contents = UIColor(red: 0, green: 0.764, blue: 1, alpha: 1)
+        material.reflective.intensity = 1
+        material.transparent.contents = UIColor.black.withAlphaComponent(0.15)
+        material.transparencyMode = .default
+        material.fresnelExponent = 4
+        
+        material.lightingModel = .constant
+        material.blendMode = .screen
+        material.writesToDepthBuffer = false
+        
+        membrane.materials = [material]
+        
+        
+        let membraneNode = SCNNode(geometry: membrane)
+
+        scene.rootNode.addChildNode(membraneNode)
+        
+        membraneNode.position = SCNVector3(x: 0, y: 0, z: 0)
+        
+        return membraneNode
     }
     
     func spawnCellNucleus() -> SCNNode{
@@ -349,6 +380,12 @@ class GameViewController: UIViewController {
         }
         let boundingBox = spawnBoundingBox()
         
+        // spawn the cell membrane
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Generating cellular membrane"
+        }
+        let membrane = spawnCellMembrane()
+        
         // spawn the cell nucleus
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating cellular nucleus"
@@ -382,7 +419,7 @@ class GameViewController: UIViewController {
             
             let pointsNode = SCNNode(geometry: meshData.geometry)
             pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-            pointsNode.geometry?.firstMaterial?.transparency = 0.7
+            pointsNode.geometry?.firstMaterial?.transparency = 1.0 //0.7
             pointsNode.geometry?.firstMaterial?.lightingModel = .constant
             pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
             pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true
@@ -395,6 +432,7 @@ class GameViewController: UIViewController {
         
         // animate the 3d object
         boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         for pointsNode in pointsNodeList{
             pointsNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
@@ -437,7 +475,8 @@ class GameViewController: UIViewController {
             
         // Compute kernel
         let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
-        let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
+        //let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
+        let groupsize = MTLSizeMake(64,1,1)
         
         let computeEncoder = buffer!.makeComputeCommandEncoder()
           
@@ -488,17 +527,13 @@ class GameViewController: UIViewController {
     
     func metalUpdater(){
         
-        if isRunning{
-            return
-        }
-        
         isRunning = true
         
         metalUpdaterChild()
         
         if !truePause{
             while scene.isPaused{
-                DispatchQueue.global(qos: .default).sync {
+                DispatchQueue.global(qos: .background).sync {
                     metalUpdaterChild()
                 }
             }
@@ -512,10 +547,11 @@ extension GameViewController: SCNSceneRendererDelegate {
     
   func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
             
-    DispatchQueue.global(qos: .default).sync{
-        metalUpdater()
+    if !isRunning{
+        DispatchQueue.global(qos: .background).sync{
+            metalUpdater()
+        }
     }
- 
   }
     
 }

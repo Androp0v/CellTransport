@@ -10,6 +10,7 @@
 		C403DB4323F6B394008368CB /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C403DB4223F6B394008368CB /* LineChartView.swift */; };
 		C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = C406BBB723F6F57F0013A79B /* Histogram.swift */; };
 		C406BBBA23F743F60013A79B /* Histogram.metal in Sources */ = {isa = PBXBuildFile; fileRef = C406BBB923F743F60013A79B /* Histogram.metal */; };
+		C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F0BCB241155E3008A5619 /* IOFunctions.swift */; };
 		C4544D4D2402D86000EDB29A /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = C4544D4C2402D86000EDB29A /* Readme.md */; };
 		C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594423EA22E1000B871B /* AppDelegate.swift */; };
 		C4BD594723EA22E1000B871B /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594623EA22E1000B871B /* art.scnassets */; };
@@ -30,6 +31,7 @@
 		C403DB4223F6B394008368CB /* LineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
 		C406BBB723F6F57F0013A79B /* Histogram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Histogram.swift; sourceTree = "<group>"; };
 		C406BBB923F743F60013A79B /* Histogram.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Histogram.metal; sourceTree = "<group>"; };
+		C40F0BCB241155E3008A5619 /* IOFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOFunctions.swift; sourceTree = "<group>"; };
 		C4544D4C2402D86000EDB29A /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		C4BD594123EA22E1000B871B /* CellTransport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellTransport.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4BD594423EA22E1000B871B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 				C4BD594423EA22E1000B871B /* AppDelegate.swift */,
 				C4BD594623EA22E1000B871B /* art.scnassets */,
 				C4BD594823EA22E1000B871B /* GameViewController.swift */,
+				C40F0BCB241155E3008A5619 /* IOFunctions.swift */,
 				C4BD596723EB4769000B871B /* ParametersViewController.swift */,
 				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
 				C4BD594A23EA22E1000B871B /* Main.storyboard */,
@@ -177,6 +180,7 @@
 			files = (
 				C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */,
 				C406BBBA23F743F60013A79B /* Histogram.metal in Sources */,
+				C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
 				C403DB4323F6B394008368CB /* LineChartView.swift in Sources */,
 				C4BD596423EB14DD000B871B /* shaders.metal in Sources */,
