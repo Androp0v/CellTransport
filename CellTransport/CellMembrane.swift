@@ -9,35 +9,55 @@
 import Foundation
 import SceneKit
 
-func SCNIcosphere(radius: Float, recursionLevel: Int = 5) -> SCNGeometry{
+func SCNIcosphere(radius: Float, recursionLevel: Int = 6) -> SCNGeometry{
     
-    let t = (1.0 + sqrt(5.0)) / 2.0
+    let t: Float = (1.0 + sqrt(5.0)) / 2.0
     
-    var vertices: [SCNVector3] = [
-        SCNVector3(-1,  t,  0),
-        SCNVector3( 1,  t,  0),
-        SCNVector3(-1, -t,  0),
-        SCNVector3( 1, -t,  0),
+    var vertices: [simd_float3:  UInt32] = [
+        simd_float3(-1,  t,  0): 0,
+        simd_float3( 1,  t,  0): 1,
+        simd_float3(-1, -t,  0): 2,
+        simd_float3( 1, -t,  0): 3,
 
-        SCNVector3( 0, -1,  t),
-        SCNVector3( 0,  1,  t),
-        SCNVector3( 0, -1, -t),
-        SCNVector3( 0,  1, -t),
+        simd_float3( 0, -1,  t): 4,
+        simd_float3( 0,  1,  t): 5,
+        simd_float3( 0, -1, -t): 6,
+        simd_float3( 0,  1, -t): 7,
 
-        SCNVector3( t,  0, -1),
-        SCNVector3( t,  0,  1),
-        SCNVector3(-t,  0, -1),
-        SCNVector3(-t,  0,  1)
+        simd_float3( t,  0, -1): 8,
+        simd_float3( t,  0,  1): 9,
+        simd_float3(-t,  0, -1): 10,
+        simd_float3(-t,  0,  1): 11
+    ]
+    var verticesList: [simd_float3] = [
+        simd_float3(-1,  t,  0),
+        simd_float3( 1,  t,  0),
+        simd_float3(-1, -t,  0),
+        simd_float3( 1, -t,  0),
+
+        simd_float3( 0, -1,  t),
+        simd_float3( 0,  1,  t),
+        simd_float3( 0, -1, -t),
+        simd_float3( 0,  1, -t),
+
+        simd_float3( t,  0, -1),
+        simd_float3( t,  0,  1),
+        simd_float3(-t,  0, -1),
+        simd_float3(-t,  0,  1)
     ]
     
-    for i in 0..<vertices.count {
-        vertices[i] = SCNVector3(normalize(simd_float3(vertices[i])))
-        vertices[i].x *= radius
-        vertices[i].y *= radius
-        vertices[i].z *= radius
+    var tempVertices: [simd_float3:  UInt32] = [simd_float3: UInt32]()
+    for (vertex, index) in vertices {
+        let newVertex = normalize(simd_float3(vertex))
+        tempVertices[newVertex] = index
+    }
+    vertices = tempVertices
+    
+    for i in 0..<verticesList.count {
+        verticesList[i] = normalize(simd_float3(verticesList[i]))
     }
     
-    var indices: [UInt16] = [
+    var indices: [UInt32] = [
         0, 11, 5,
         0, 5, 1,
         0, 1, 7,
@@ -63,75 +83,77 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 5) -> SCNGeometry{
         9, 8, 1
     ]
     
-    var newVertices: [SCNVector3] = [SCNVector3]()
-    var newIndices: [UInt16] = [UInt16]()
+    var newVertices: [simd_float3:  UInt32] = [simd_float3: UInt32]()
+    var newVerticesList: [simd_float3] = [simd_float3]()
+    var newIndices: [UInt32] = [UInt32]()
     
     for _ in 0..<recursionLevel{
-        newVertices = [SCNVector3]()
-        newIndices = [UInt16]()
+        newVertices = [simd_float3: UInt32]()
+        newVerticesList = [simd_float3]()
+        newIndices = [UInt32]()
                     
         for j in stride(from: 0, to: indices.count, by: 3){
-            let v0 = vertices[Int(indices[j])]
-            let v1 = vertices[Int(indices[j+1])]
-            let v2 = vertices[Int(indices[j+2])]
+            let v0 = verticesList[Int(indices[j])]
+            let v1 = verticesList[Int(indices[j+1])]
+            let v2 = verticesList[Int(indices[j+2])]
                                 
-            let v3 = SCNVector3(normalize(simd_float3(SCNVector3(0.5*v0.x + 0.5*v1.x, 0.5*v0.y + 0.5*v1.y, 0.5*v0.z + 0.5*v1.z))))
-            let v4 = SCNVector3(normalize(simd_float3(SCNVector3(0.5*v1.x + 0.5*v2.x, 0.5*v1.y + 0.5*v2.y, 0.5*v1.z + 0.5*v2.z))))
-            let v5 = SCNVector3(normalize(simd_float3(SCNVector3(0.5*v2.x + 0.5*v0.x, 0.5*v2.y + 0.5*v0.y, 0.5*v2.z + 0.5*v0.z))))
+            let v3 = normalize(simd_float3(0.5*v0.x + 0.5*v1.x, 0.5*v0.y + 0.5*v1.y, 0.5*v0.z + 0.5*v1.z))
+            let v4 = normalize(simd_float3(0.5*v1.x + 0.5*v2.x, 0.5*v1.y + 0.5*v2.y, 0.5*v1.z + 0.5*v2.z))
+            let v5 = normalize(simd_float3(0.5*v2.x + 0.5*v0.x, 0.5*v2.y + 0.5*v0.y, 0.5*v2.z + 0.5*v0.z))
             
-            var v0index: UInt16
-            var v1index: UInt16
-            var v2index: UInt16
-            var v3index: UInt16
-            var v4index: UInt16
-            var v5index: UInt16
+            var v0index: UInt32
+            var v1index: UInt32
+            var v2index: UInt32
+            var v3index: UInt32
+            var v4index: UInt32
+            var v5index: UInt32
             
-            let tentativeV0 = newVertices.firstIndex(where: { $0.x == v0.x && $0.y == v0.y && $0.z == v0.z})
-            if tentativeV0 != nil{
-                v0index = UInt16(tentativeV0!)
+            if newVertices[v0] != nil{
+                v0index = newVertices[v0]!
             }else{
-                newVertices.append(v0)
-                v0index = UInt16(newVertices.count - 1)
+                newVerticesList.append(v0)
+                v0index = UInt32(newVerticesList.count - 1)
+                newVertices[v0] = v0index
             }
             
-            let tentativeV1 = newVertices.firstIndex(where: { $0.x == v1.x && $0.y == v1.y && $0.z == v1.z})
-            if tentativeV1 != nil{
-                v1index = UInt16(tentativeV1!)
+            if newVertices[v1] != nil{
+                v1index = newVertices[v1]!
             }else{
-                newVertices.append(v1)
-                v1index = UInt16(newVertices.count - 1)
+                newVerticesList.append(v1)
+                v1index = UInt32(newVerticesList.count - 1)
+                newVertices[v1] = v1index
             }
             
-            let tentativeV2 = newVertices.firstIndex(where: { $0.x == v2.x && $0.y == v2.y && $0.z == v2.z})
-            if tentativeV2 != nil{
-                v2index = UInt16(tentativeV2!)
+            if newVertices[v2] != nil{
+                v2index = newVertices[v2]!
             }else{
-                newVertices.append(v2)
-                v2index = UInt16(newVertices.count - 1)
+                newVerticesList.append(v2)
+                v2index = UInt32(newVerticesList.count - 1)
+                newVertices[v2] = v2index
             }
             
-            let tentativeV3 = newVertices.firstIndex(where: { $0.x == v3.x && $0.y == v3.y && $0.z == v3.z})
-            if tentativeV3 != nil{
-                v3index = UInt16(tentativeV3!)
+            if newVertices[v3] != nil{
+                v3index = newVertices[v3]!
             }else{
-                newVertices.append(v3)
-                v3index = UInt16(newVertices.count - 1)
+                newVerticesList.append(v3)
+                v3index = UInt32(newVerticesList.count - 1)
+                newVertices[v3] = v3index
             }
             
-            let tentativeV4 = newVertices.firstIndex(where: { $0.x == v4.x && $0.y == v4.y && $0.z == v4.z})
-            if tentativeV4 != nil{
-                v4index = UInt16(tentativeV4!)
+            if newVertices[v4] != nil{
+                v4index = newVertices[v4]!
             }else{
-                newVertices.append(v4)
-                v4index = UInt16(newVertices.count - 1)
+                newVerticesList.append(v4)
+                v4index = UInt32(newVerticesList.count - 1)
+                newVertices[v4] = v4index
             }
             
-            let tentativeV5 = newVertices.firstIndex(where: { $0.x == v5.x && $0.y == v5.y && $0.z == v5.z})
-            if tentativeV5 != nil{
-                v5index = UInt16(tentativeV5!)
+            if newVertices[v5] != nil{
+                v5index = newVertices[v5]!
             }else{
-                newVertices.append(v5)
-                v5index = UInt16(newVertices.count - 1)
+                newVerticesList.append(v5)
+                v5index = UInt32(newVerticesList.count - 1)
+                newVertices[v5] = v5index
             }
             
             newIndices.append(v0index)
@@ -150,28 +172,31 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 5) -> SCNGeometry{
             newIndices.append(v4index)
             newIndices.append(v5index)
         }
-        
-        for i in 0..<newVertices.count {
-            newVertices[i] = SCNVector3(normalize(simd_float3(newVertices[i])))
-            newVertices[i].x *= radius
-            newVertices[i].y *= radius
-            newVertices[i].z *= radius
-        }
-        
+                    
         vertices = newVertices
+        verticesList = newVerticesList
         indices = newIndices
         
     }
     
-    for i in 0..<newVertices.count {
-        newVertices[i].x += radius*Float.random(in: 0..<1)*0.01
-        newVertices[i].y += radius*Float.random(in: 0..<1)*0.01
-        newVertices[i].z += radius*Float.random(in: 0..<1)*0.01
+    //Convert to SCNVector3
+    var finalVertices: [SCNVector3] = [SCNVector3]()
+    for i in 0..<newVerticesList.count {
+        finalVertices.append(SCNVector3(radius*newVerticesList[i].x, radius*newVerticesList[i].y, radius*newVerticesList[i].z))
     }
-                            
-    let source = SCNGeometrySource(vertices: newVertices)
+    
+    //Add noise
+    for i in 0..<finalVertices.count {
+        finalVertices[i].x += radius*Float.random(in: -1..<1)*0.01
+        finalVertices[i].y += radius*Float.random(in: -1..<1)*0.01
+        finalVertices[i].z += radius*Float.random(in: -1..<1)*0.01
+    }
+                                
+    let source = SCNGeometrySource(vertices: finalVertices)
     let element = SCNGeometryElement(indices: newIndices, primitiveType: .triangles)
     let geometry = SCNGeometry(sources: [source], elements: [element])
+    
+    geometry.firstMaterial?.isDoubleSided = true
     
     let material = SCNMaterial()
     material.diffuse.contents = UIColor.black
