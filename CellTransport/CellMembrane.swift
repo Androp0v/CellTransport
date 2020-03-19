@@ -8,8 +8,9 @@
 
 import Foundation
 import SceneKit
+import GameplayKit
 
-func SCNIcosphere(radius: Float, recursionLevel: Int = 6) -> SCNGeometry{
+func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
     
     let t: Float = (1.0 + sqrt(5.0)) / 2.0
     
@@ -83,11 +84,18 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 6) -> SCNGeometry{
         9, 8, 1
     ]
     
+    //Initialize noise
+    
+    let noise = GKNoise.init(GKPerlinNoiseSource())
+    var vertexNoise: [simd_float3:  Float] = [simd_float3: Float]()
+    
+    //Temp arrays and dictionaries
     var newVertices: [simd_float3:  UInt32] = [simd_float3: UInt32]()
     var newVerticesList: [simd_float3] = [simd_float3]()
     var newIndices: [UInt32] = [UInt32]()
-    
-    for _ in 0..<recursionLevel{
+            
+    //Recursive loop
+    for currentRecursionLevel in 0..<recursionLevel{
         newVertices = [simd_float3: UInt32]()
         newVerticesList = [simd_float3]()
         newIndices = [UInt32]()
@@ -107,6 +115,8 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 6) -> SCNGeometry{
             var v3index: UInt32
             var v4index: UInt32
             var v5index: UInt32
+            
+            //Add vertices to list and cache (dictionary)
             
             if newVertices[v0] != nil{
                 v0index = newVertices[v0]!
@@ -171,6 +181,51 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 6) -> SCNGeometry{
             newIndices.append(v3index)
             newIndices.append(v4index)
             newIndices.append(v5index)
+            
+            if currentRecursionLevel > 2{
+                if newVertices[v3] != nil{
+                    vertexNoise[v3] = (vertexNoise[v0]! + vertexNoise[v1]!)/2
+                }
+                
+                if newVertices[v4] != nil{
+                    vertexNoise[v4] = (vertexNoise[v1]! + vertexNoise[v2]!)/2
+                }
+                
+                if newVertices[v5] != nil{
+                    vertexNoise[v5] = (vertexNoise[v0]! + vertexNoise[v2]!)/2
+                }
+            }
+            
+        }
+        
+        if currentRecursionLevel == 2{
+            
+            var semifinalVertices: [SCNVector3] = [SCNVector3]()
+            for i in 0..<newVerticesList.count {
+                semifinalVertices.append(SCNVector3(radius*newVerticesList[i].x, radius*newVerticesList[i].y, radius*newVerticesList[i].z))
+            }
+            
+            for i in 0..<semifinalVertices.count{
+                                    
+                noise.move(by: vector_double3(0,0,Double(semifinalVertices[i].z)))
+                
+                let rDirection = normalize(simd_float3(semifinalVertices[i]))
+                let xPosition = semifinalVertices[i].x
+                let yPosition = semifinalVertices[i].y
+                            
+                let noiseValue = noise.value(atPosition: vector_float2(xPosition,yPosition))
+                let modulator: Float = 0.000001
+                                    
+                vertexNoise[newVerticesList[i]] = noiseValue*modulator
+                
+                semifinalVertices[i].x += rDirection.x * noiseValue * modulator
+                semifinalVertices[i].y += rDirection.y * noiseValue * modulator
+                semifinalVertices[i].z += rDirection.z * noiseValue * modulator
+                
+                noise.move(by: vector_double3(0,0,Double(-semifinalVertices[i].z)))
+                
+            }
+            
         }
                     
         vertices = newVertices
@@ -179,25 +234,45 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 6) -> SCNGeometry{
         
     }
     
+    //Smoothen noise
+    /*for j in stride(from: 0, to: indices.count, by: 3){
+        let v0 = verticesList[Int(indices[j])]
+        let v1 = verticesList[Int(indices[j+1])]
+        let v2 = verticesList[Int(indices[j+2])]
+        
+        vertexNoise[v0]! = (vertexNoise[v1]! + vertexNoise[v2]!)/2
+        vertexNoise[v1]! = (vertexNoise[v0]! + vertexNoise[v2]!)/2
+        vertexNoise[v2]! = (vertexNoise[v0]! + vertexNoise[v1]!)/2
+    }*/
+    
+    //Add noise
+    for i in 0..<newVerticesList.count{
+        var noiseValue = vertexNoise[newVerticesList[i]]
+        let rDirection = normalize(newVerticesList[i])
+                
+        newVerticesList[i].x += rDirection.x * (noiseValue ?? 0.0) * radius
+        newVerticesList[i].y += rDirection.y * (noiseValue ?? 0.0) * radius
+        newVerticesList[i].z += rDirection.z * (noiseValue ?? 0.0) * radius
+    }
+    
     //Convert to SCNVector3
     var finalVertices: [SCNVector3] = [SCNVector3]()
     for i in 0..<newVerticesList.count {
         finalVertices.append(SCNVector3(radius*newVerticesList[i].x, radius*newVerticesList[i].y, radius*newVerticesList[i].z))
     }
-    
-    //Add noise
+                    
+    //Uniform noise
     for i in 0..<finalVertices.count {
-        finalVertices[i].x += radius*Float.random(in: -1..<1)*0.01
-        finalVertices[i].y += radius*Float.random(in: -1..<1)*0.01
-        finalVertices[i].z += radius*Float.random(in: -1..<1)*0.01
+        finalVertices[i].x += radius*Float.random(in: -1..<1)*0.0025
+        finalVertices[i].y += radius*Float.random(in: -1..<1)*0.0025
+        finalVertices[i].z += radius*Float.random(in: -1..<1)*0.0025
     }
-                                
+                            
+    //Make SceneKit things
     let source = SCNGeometrySource(vertices: finalVertices)
     let element = SCNGeometryElement(indices: newIndices, primitiveType: .triangles)
     let geometry = SCNGeometry(sources: [source], elements: [element])
-    
-    geometry.firstMaterial?.isDoubleSided = true
-    
+            
     let material = SCNMaterial()
     material.diffuse.contents = UIColor.black
     material.reflective.contents = UIColor(red: 0.2, green: 0.764, blue: 1, alpha: 1)

@@ -402,7 +402,7 @@ class GameViewController: UIViewController {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating cellular nucleus"
         }
-        let nucleus = spawnCellNucleus()
+        //let nucleus = spawnCellNucleus()
         
         // spawn the microtubules
         DispatchQueue.main.async {
@@ -452,7 +452,7 @@ class GameViewController: UIViewController {
             microtubule.geometry?.firstMaterial?.lightingModel = .constant
             microtubule.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
-        nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        //nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         
         //Set renderer delegate to start animation loop
         DispatchQueue.main.async {
