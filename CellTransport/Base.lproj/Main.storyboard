@@ -79,6 +79,9 @@
                                                 <state key="normal" image="arrow.down.doc.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
                                                 </state>
+                                                <connections>
+                                                    <action selector="exportToFile:" destination="BV1-FR-VrT" eventType="touchUpInside" id="mrF-JZ-a2y"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Hy-uh-Gk0">
                                                 <rect key="frame" x="12" y="12" width="21.5" height="22.5"/>

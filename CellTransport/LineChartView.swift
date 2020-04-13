@@ -21,6 +21,10 @@ class LineChart: UIView{
     let bins: Int = 1000
     
     private var histogramArray = [Float](repeating: 0.0, count: 100)
+    
+    func getHistogramData() -> [Float]{
+        return histogramArray
+    }
         
     func clearHistogram(){
         histogramArray = [Float](repeating: 0.0, count: bins)

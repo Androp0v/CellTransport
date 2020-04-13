@@ -31,6 +31,18 @@ class GraphsViewController: UIViewController {
         histogramChart2?.clearHistogram()
     }
     
+    func getHistogramData(number: Float) -> [Float]?{
+        if number == 1{
+            return histogramChart1?.getHistogramData()
+        }else if number == 2{
+            return histogramChart2?.getHistogramData()
+        }else if number == 3{
+            return histogramChart3?.getHistogramData()
+        }else{
+            return nil
+        }
+    }
+    
     func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int){
         histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, nBodies: nBodies, autoMerge: autoMerge)
     }

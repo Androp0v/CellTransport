@@ -7,3 +7,24 @@
 //
 
 import Foundation
+
+func exportHistogramToFile(histogram: [Float], folderURL: URL, filename: String){
+        
+    var exportURL = folderURL
+    exportURL.appendPathComponent(filename)
+    exportURL.appendPathComponent(".txt")
+    
+    //Convert array of floats to array of Strings
+    let histogramStringArray = histogram.map{NumberFormatter().string(from: NSNumber(value: $0))!}
+    
+    //Merge into a single string, separated by \n
+    let histogramString = histogramStringArray.joined(separator: "\n")
+    
+    //Write to file (atomically!)
+    do{
+        try histogramString.write(to: exportURL, atomically: true, encoding: .utf8)
+    } catch let IOError {
+        print(IOError)
+    }
+    
+}

@@ -12,7 +12,7 @@ import SceneKit
 import Metal
 import MetalKit
 
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     var stepCounter: Int = 0
     
@@ -76,6 +76,26 @@ class GameViewController: UIViewController {
             pauseButton.setImage(UIImage.init(systemName: "pause.fill"), for: .normal)
         }
     }
+    
+    @IBAction func exportToFile(_ sender: Any) {
+        // Create a document picker for directories.
+        let documentPicker =
+            UIDocumentPickerViewController(documentTypes: [kUTTypeFolder as String],
+                                           in: .open)
+        documentPicker.delegate = self
+        documentPicker.allowsMultipleSelection = false
+
+        // Present the document picker.
+        present(documentPicker, animated: true, completion: nil)
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        //Execute code after picking an export folder with exportToFile()
+        exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 1)) ?? [], folderURL: urls[0], filename: "Hist1")
+        exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 2)) ?? [], folderURL: urls[0], filename: "Hist2")
+        exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 3)) ?? [], folderURL: urls[0], filename: "Hist3")
+    }
+    
     
     let rotationTime: TimeInterval = 40
     
