@@ -503,7 +503,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
           
         // Update MTLBuffers thorugh compute pipeline
             
-        buffer = queue?.makeCommandBuffer()
+         buffer = queue?.makeCommandBuffer()
             
         // Compute kernel
         let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
