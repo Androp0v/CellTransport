@@ -51,6 +51,11 @@ float4 randomSpherePoint(float radius, int x, int y, int z){
     return float4(xsphere,ysphere,zsphere,r);
 }
 
+//Try argument struct
+struct simulation_parameters {
+    float deltat;
+};
+
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float3 *positionsOut [[buffer(1)]],
                     device float *distances [[buffer(2)]],
@@ -59,10 +64,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float *timeBetweenJumps [[buffer(5)]],
                     device float *oldTime [[buffer(6)]],
                     device float *newTime [[buffer(7)]],
+                    constant simulation_parameters & parameters [[buffer(8)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + deltaT*cellRadius;
+    newTime[i] = oldTime[i] + parameters.deltat*cellRadius;
         
     float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
     float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1.0;
@@ -72,6 +78,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
+    //Check if new point is inside cell radius
     if (distance >= cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];
@@ -85,6 +92,10 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         
         distance = point.w;
     }
+    
+    //Check if new point is near a microtubule
+    
+    int cellID = getCellID(positionsOut[i].x, positionsOut[i].y, positionsOut[i].z);
     
     distances[i] = distance;
     

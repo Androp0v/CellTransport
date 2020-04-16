@@ -25,6 +25,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     let centrosomeRadius: Float = 1400 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
     let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
+    public let deltat: Float = 0.00001
     
     var microtubuleDistances: [Float] = []
     
@@ -499,11 +500,20 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
     }
     
+    //Define a struct of parameters to be passed to the kernel function in Metal
+    struct simulationParameters{
+        var deltat_to_metal: Float;
+    }
+    
     func metalUpdaterChild(){
-          
+        
+        // Create simulationParameters struct
+        
+        var simulationParametersObject = simulationParameters(deltat_to_metal: deltat)
+        
         // Update MTLBuffers thorugh compute pipeline
             
-         buffer = queue?.makeCommandBuffer()
+        buffer = queue?.makeCommandBuffer()
             
         // Compute kernel
         let threadsPerArray = MTLSizeMake(nbodies/nBuffers, 1, 1)
@@ -522,6 +532,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
             computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
             computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
+            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 8)
             computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
         }
           
