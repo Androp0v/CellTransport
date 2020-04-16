@@ -11,6 +11,18 @@ using namespace metal;
 
 #define deltaT 0.00001
 #define cellRadius 14000
+#define cellsPerDimension 1000
+
+// Get CellID of a position in x,y,z coordinates
+int getCellID(float x, float y, float z){
+    
+    int cellID = 0;
+    cellID += cellsPerDimension*cellsPerDimension * floor(cellsPerDimension * ((z+cellRadius/2)/cellRadius));
+    cellID += cellsPerDimension * floor(cellsPerDimension * ((y+cellRadius/2)/cellRadius));
+    cellID += floor(cellsPerDimension * ((x+cellRadius/2)/cellRadius));
+    
+    return cellID;
+}
 
 // Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
 float rand(int x, int y, int z)
@@ -60,13 +72,6 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
-    //TO-DO Fix
-    float sum = 0;
-    for (int j = 0; j < 16; j++){
-        sum += positionsIn[j].x;
-    }
-    //TO-DO End fix
-    
     if (distance >= cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];
@@ -81,7 +86,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         distance = point.w;
     }
     
-    distances[i] = distance + 0.000000001*sum; //TO-DO Fix
+    distances[i] = distance;
     
 }
 
