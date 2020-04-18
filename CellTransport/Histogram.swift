@@ -29,17 +29,22 @@ func histogramMT(cellRadius: Float, points: [SCNVector3], bins: Int, histogramAr
     
     for i in 0..<(points.count - 1){
         
-        let newPoints: [simd_float3] = stride(from: 0.0, to: 1.0, by: 1 / 100).map { x in
-            return mix(simd_float3(points[i]), simd_float3(points[i+1]), t: x)
-        }
-        
-        for point in newPoints{
-            let distance = simd_length(point)
+        // Check if next point is from the same microtubule (it should then be at a distance equal to the segmentLenght, within a small tolerance)
+        if abs(simd_distance(simd_float3(points[i]), simd_float3(points[i+1])) - 200.0) < 0.1{
             
-            if distance/cellRadius < 1{
-                let index: Int = Int(floor((distance/cellRadius - 0)/Float(binWidth)))
-                histogramArray[index] += 1
+            let newPoints: [simd_float3] = stride(from: 0.0, to: 1.0, by: 1 / 100).map { x in
+                return mix(simd_float3(points[i]), simd_float3(points[i+1]), t: x)
             }
+            
+            for point in newPoints{
+                let distance = simd_length(point)
+                
+                if distance/cellRadius < 1{
+                    let index: Int = Int(floor((distance/cellRadius - 0)/Float(binWidth)))
+                    histogramArray[index] += 1
+                }
+            }
+            
         }
     }
 }
