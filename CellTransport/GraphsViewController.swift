@@ -15,6 +15,7 @@ class GraphsViewController: UIViewController {
     @IBOutlet var histogramChart1: LineChart?
     @IBOutlet var histogramChart2: LineChart!
     @IBOutlet var histogramChart3: LineChart!
+    @IBOutlet var histogramChart4: LineChart!
     
     var autoMerge: Bool = false
     
@@ -63,6 +64,7 @@ class GraphsViewController: UIViewController {
         histogramChart1?.layer.cornerRadius = 8.0
         histogramChart2?.layer.cornerRadius = 8.0
         histogramChart3?.layer.cornerRadius = 8.0
+        histogramChart4?.layer.cornerRadius = 8.0
     }
     
 }

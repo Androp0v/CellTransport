@@ -247,7 +247,7 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
     
     //Add noise
     for i in 0..<newVerticesList.count{
-        var noiseValue = vertexNoise[newVerticesList[i]]
+        let noiseValue = vertexNoise[newVerticesList[i]]
         let rDirection = normalize(newVerticesList[i])
                 
         newVerticesList[i].x += rDirection.x * (noiseValue ?? 0.0) * radius
