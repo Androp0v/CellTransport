@@ -8,6 +8,7 @@
 
 import UIKit
 import simd
+import SceneKit
 
 class GraphsViewController: UIViewController {
     
@@ -29,6 +30,7 @@ class GraphsViewController: UIViewController {
     @IBAction func clearAllGraphs(_ sender: Any) {
         histogramChart1?.clearHistogram()
         histogramChart2?.clearHistogram()
+        histogramChart3?.clearHistogram()
     }
     
     func getHistogramData(number: Float) -> [Float]?{
@@ -51,8 +53,8 @@ class GraphsViewController: UIViewController {
         histogramChart2?.drawChart(cellRadius: cellRadius, distances: distances, nBodies: nBodies, autoMerge: false)
     }
     
-    func setHistogramData3(cellRadius: Float, distances: [Float]){
-        histogramChart3?.drawChart(cellRadius: cellRadius, distances: distances, autoMerge: false)
+    func setHistogramData3(cellRadius: Float, points: [SCNVector3]){
+        histogramChart3?.drawChart(cellRadius: cellRadius, points: points, autoMerge: false)
     }
     
     override func viewDidLoad() {
@@ -63,15 +65,4 @@ class GraphsViewController: UIViewController {
         histogramChart3?.layer.cornerRadius = 8.0
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

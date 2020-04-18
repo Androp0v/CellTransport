@@ -14,7 +14,9 @@ func exportHistogramToFile(histogram: [Float], folderURL: URL, filename: String)
     exportURL.appendPathComponent(filename + String(".txt"))
     
     //Convert array of floats to array of Strings
-    let histogramStringArray = histogram.map{NumberFormatter().string(from: NSNumber(value: $0))!}
+    let numberFormat = NumberFormatter()
+    numberFormat.numberStyle = .scientific
+    let histogramStringArray = histogram.map{numberFormat.string(from: NSNumber(value: $0))!}
     
     //Merge into a single string, separated by \n
     let histogramString = histogramStringArray.joined(separator: "\n")

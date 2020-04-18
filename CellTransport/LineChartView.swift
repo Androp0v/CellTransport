@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import simd
+import SceneKit
 
 class LineChart: UIView{
        
@@ -20,10 +21,11 @@ class LineChart: UIView{
     
     let bins: Int = 1000
     
-    private var histogramArray = [Float](repeating: 0.0, count: 100)
+    var histogramArray = [Float](repeating: 0.0, count: 1000)
+    public var returnableArray: [Float] = []
     
     func getHistogramData() -> [Float]{
-        return histogramArray
+        return returnableArray
     }
         
     func clearHistogram(){
@@ -40,7 +42,7 @@ class LineChart: UIView{
             
             let path = histogramPath(cellRadius: cellRadius, distances: distances, nBodies: nBodies)
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.sync {
                 self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
                 let lineLayer = CAShapeLayer()
                 lineLayer.path = path.cgPath
@@ -48,27 +50,7 @@ class LineChart: UIView{
                 lineLayer.fillColor = UIColor.clear.cgColor
                 self.layer.addSublayer(lineLayer)
                 self.isBusy = false
-            }
-    }
-    
-    func drawChart(cellRadius: Float, distances: [Float], autoMerge: Bool) {
-        
-            isBusy = true
-            
-            if !autoMerge{
-                clearHistogram()
-            }
-            
-            let path = histogramPath(cellRadius: cellRadius, distances: distances)
-            
-            DispatchQueue.main.async {
-                self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
-                let lineLayer = CAShapeLayer()
-                lineLayer.path = path.cgPath
-                lineLayer.strokeColor = UIColor.white.cgColor
-                lineLayer.fillColor = UIColor.clear.cgColor
-                self.layer.addSublayer(lineLayer)
-                self.isBusy = false
+                self.returnableArray = self.histogramArray
             }
     }
     
@@ -103,14 +85,38 @@ class LineChart: UIView{
         return path
     }
     
-    func histogramPath(cellRadius: Float, distances: [Float]) -> UIBezierPath {
+    func drawChart(cellRadius: Float, points: [SCNVector3], autoMerge: Bool) {
+        
+            isBusy = true
+            
+            if !autoMerge{
+                clearHistogram()
+            }
+            
+            let path = histogramPath(cellRadius: cellRadius, points: points)
+            
+            DispatchQueue.main.sync {
+                self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+                let lineLayer = CAShapeLayer()
+                lineLayer.path = path.cgPath
+                lineLayer.strokeColor = UIColor.white.cgColor
+                lineLayer.fillColor = UIColor.clear.cgColor
+                self.layer.addSublayer(lineLayer)
+                self.isBusy = false
+                self.returnableArray = self.histogramArray
+            }
+    }
+    
+    func histogramPath(cellRadius: Float, points: [SCNVector3]) -> UIBezierPath {
         
         let path = UIBezierPath()
         let coordinateOrigin = self.bounds.origin
         let width = CGFloat(self.frame.width)
         let height = CGFloat(self.frame.height)
-                
-        histogram(cellRadius: cellRadius, distances: distances, bins: bins, histogramArray: &histogramArray)
+        
+        histogramMT(cellRadius: cellRadius, points: points, bins: bins, histogramArray: &histogramArray)
+        
+        densify(cellRadius: cellRadius, bins: bins, histogramArray: &histogramArray)
         
         let baseLineHeight: CGFloat = 8.0
         let topMargin: CGFloat = 8.0
@@ -133,24 +139,5 @@ class LineChart: UIView{
                 
         return path
     }
-    
-    func randomPath() -> UIBezierPath {
-        let path = UIBezierPath()
-        let coordinateOrigin = self.bounds.origin
-        let width = CGFloat(self.frame.width)
-        let height = CGFloat(self.frame.height)
-                
-        path.move(to: coordinateOrigin)
         
-        for _ in 0...500{
-            path.addLine(to: CGPoint(x: Double.random(in: Double(coordinateOrigin.x)...Double(coordinateOrigin.x + width)), y: Double.random(in: Double(coordinateOrigin.y)...Double(coordinateOrigin.y + height))))
-        }
-        
-        return path
-    }
-    
-    override func layoutSubviews() {
-        
-        //drawChart(positions: UnsafeMutablePointer<simd_float3>())
-    }
 }

@@ -9,12 +9,10 @@
 #include <metal_stdlib>
 using namespace metal;
 
-#define deltaT 0.00001
-#define cellRadius 14000
 #define cellsPerDimension 1000
 
 // Get CellID of a position in x,y,z coordinates
-int getCellID(float x, float y, float z){
+int getCellID(float x, float y, float z, float cellRadius){
     
     int cellID = 0;
     cellID += cellsPerDimension*cellsPerDimension * floor(cellsPerDimension * ((z+cellRadius/2)/cellRadius));
@@ -54,6 +52,7 @@ float4 randomSpherePoint(float radius, int x, int y, int z){
 //Try argument struct
 struct simulation_parameters {
     float deltat;
+    float cellRadius;
 };
 
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
@@ -68,23 +67,23 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + parameters.deltat*cellRadius;
+    newTime[i] = oldTime[i] + parameters.deltat * parameters.cellRadius;
         
     float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
     float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1.0;
     float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
     
-    positionsOut[i] = positionsIn[i]  + 0.01*cellRadius*float3(randNumberX,randNumberY,randNumberZ);
+    positionsOut[i] = positionsIn[i]  + 0.01*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
     //Check if new point is inside cell radius
-    if (distance >= cellRadius){
+    if (distance >= parameters.cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];
         timeBetweenJumps[i] = newTime[i] - timeLastJump[i];
         
-        float4 point = randomSpherePoint(0.1 * cellRadius, int(positionsIn[i].x*100000), int(positionsIn[i].y*100000), int(positionsIn[i].z*100000));
+        float4 point = randomSpherePoint(0.1 * parameters.cellRadius, int(positionsIn[i].x*100000), int(positionsIn[i].y*100000), int(positionsIn[i].z*100000));
         
         positionsOut[i].x = point.x;
         positionsOut[i].y = point.y;
@@ -93,11 +92,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         distance = point.w;
     }
     
+    distances[i] = distance;
+    
     //Check if new point is near a microtubule
     
-    int cellID = getCellID(positionsOut[i].x, positionsOut[i].y, positionsOut[i].z);
-    
-    distances[i] = distance;
+    int cellID = getCellID(positionsOut[i].x, positionsOut[i].y, positionsOut[i].z, parameters.cellRadius);
     
 }
 

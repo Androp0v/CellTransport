@@ -18,8 +18,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 100
-    let nbodies: Int = 524288 //4194304 // 16777216
+    let nCells: Int = 1
+    let nbodies: Int = 1024 //524288 //4194304 // 16777216
     let nMicrotubules: Int = 400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm
@@ -28,6 +28,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     public let deltat: Float = 0.00001
     
     var microtubuleDistances: [Float] = []
+    var microtubulePoints: [SCNVector3] = []
     
     // UI outlets and variables
     @IBOutlet var scnView: SCNView!
@@ -77,6 +78,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             pauseButton.setImage(UIImage.init(systemName: "pause.fill"), for: .normal)
         }
     }
+    
+    // Save to .txt code
     
     @IBAction func exportToFile(_ sender: Any) {
         // Create a document picker for directories.
@@ -429,15 +432,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure"
         }
-        let (microtubules, microtubulePoints) = spawnMicrotubules()
-        
-        //var microtubuleDistances: [Float] = []
-        
+        let (microtubules, microtubulePointsReturned) = spawnMicrotubules()
+        microtubulePoints = microtubulePointsReturned
+                
         for microtubulePoint in microtubulePoints{
             microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
         }
         
-        self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: microtubuleDistances)
+        self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, points: microtubulePoints)
         
         // spawn points
         DispatchQueue.main.async {
@@ -503,13 +505,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     //Define a struct of parameters to be passed to the kernel function in Metal
     struct simulationParameters{
         var deltat_to_metal: Float;
+        var cellRadius_to_metal: Float;
     }
     
     func metalUpdaterChild(){
         
         // Create simulationParameters struct
         
-        var simulationParametersObject = simulationParameters(deltat_to_metal: deltat)
+        var simulationParametersObject = simulationParameters(deltat_to_metal: deltat, cellRadius_to_metal: cellRadius)
         
         // Update MTLBuffers thorugh compute pipeline
             
@@ -560,7 +563,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             
         if !(self.secondChildTabVC?.histogramChart3?.isBusy ?? true){
             DispatchQueue.global(qos: .default).async {
-                self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, distances: self.microtubuleDistances)
+                self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, points: self.microtubulePoints)
             }
         }
                         

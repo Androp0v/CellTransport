@@ -10,11 +10,21 @@ import Foundation
 import SceneKit
 import simd
 
+/*func getCellID(x: Float, y: Float, z: Float, cellRadius: Float, cellsPerDimension: Float = 1000) -> Int{
+    
+    var cellID: Int = 0
+    cellID += cellsPerDimension*cellsPerDimension * floor(cellsPerDimension * ((z+cellRadius/2)/cellRadius))
+    cellID += cellsPerDimension * floor(cellsPerDimension * ((y+cellRadius/2)/cellRadius))
+    cellID += floor(cellsPerDimension * ((x+cellRadius/2)/cellRadius))
+    
+    return cellID
+}*/
+
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
     let segmentLength:Float = 200 //0.01*cellRadius
-    var localAngle: Float = 0.15 //1.115265 //Radians, about 63.9º
-    let maxLocalAngle: Float = 0.15
+    var localAngle: Float = 0.15 //0.15 //1.115265 //Radians, about 63.9º
+    let maxLocalAngle: Float = 2*localAngle
     let angleSlope: Float = (maxLocalAngle - localAngle)/(0.1*cellRadius)
     
     
