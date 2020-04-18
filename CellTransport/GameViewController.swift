@@ -100,6 +100,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 3)) ?? [], folderURL: urls[0], filename: "Hist3")
     }
     
+    @IBOutlet var topBarBackground: UIView!
     
     let rotationTime: TimeInterval = 40
     
@@ -384,6 +385,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         scnView.backgroundColor = UIColor.black
                 
         // finish UI configuration
+        
+        let blurEffect = UIBlurEffect(style: .systemThickMaterial)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = self.topBarBackground.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        topBarBackground.addSubview(blurEffectView)
+        
         //nparticlesTextField.text = String(nbodies)
         buttonContainerView.layer.cornerRadius = 7.5
         alertView.layer.cornerRadius = 7.5

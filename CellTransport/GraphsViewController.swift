@@ -12,6 +12,8 @@ import SceneKit
 
 class GraphsViewController: UIViewController {
     
+    @IBOutlet var scrollView: UIScrollView!
+    
     @IBOutlet var histogramChart1: LineChart?
     @IBOutlet var histogramChart2: LineChart!
     @IBOutlet var histogramChart3: LineChart!
@@ -60,7 +62,9 @@ class GraphsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 126, left: 1, bottom: 1, right: 1)
+        
         histogramChart1?.layer.cornerRadius = 8.0
         histogramChart2?.layer.cornerRadius = 8.0
         histogramChart3?.layer.cornerRadius = 8.0
