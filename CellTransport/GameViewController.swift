@@ -18,7 +18,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 1
+    let nCells: Int = 100
     let nbodies: Int = 1 //524288 //4194304 // 16777216
     let nMicrotubules: Int = 400
     let cellRadius: Float = 14000 //nm
@@ -29,6 +29,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
+    var microtubuleNSegments: [Int] = []
     
     // UI outlets and variables
     @IBOutlet var scnView: SCNView!
@@ -98,6 +99,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 1)) ?? [], folderURL: urls[0], filename: "Hist1")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 2)) ?? [], folderURL: urls[0], filename: "Hist2")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 3)) ?? [], folderURL: urls[0], filename: "Hist3")
+        exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 4)) ?? [], folderURL: urls[0], filename: "Hist4")
     }
     
     @IBOutlet var topBarBackground: UIView!
@@ -252,13 +254,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return boundingBoxNode
     }
     
-    func spawnMicrotubules() -> ([SCNNode],[SCNVector3]){
+    func spawnMicrotubules() -> ([SCNNode],[SCNVector3],[Int]){
         
         var nodelist : [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
+        var microtubuleNSegments: [Int] = []
         
         for i in 0..<(nCells*nMicrotubules){
             let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
+            microtubuleNSegments.append(points.count)
             
             for point in points{
                 microtubulePoints.append(point)
@@ -276,7 +280,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 nodelist.append(node)
             }
         }
-        return (nodelist,microtubulePoints)
+        return (nodelist,microtubulePoints,microtubuleNSegments)
     }
     
     func spawnCellMembrane() -> SCNNode{
@@ -440,8 +444,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure"
         }
-        let (microtubules, microtubulePointsReturned) = spawnMicrotubules()
+        let (microtubules, microtubulePointsReturned, microtubuleNSegmentsReturned) = spawnMicrotubules()
         microtubulePoints = microtubulePointsReturned
+        microtubuleNSegments = microtubuleNSegmentsReturned
                 
         for microtubulePoint in microtubulePoints{
             microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
@@ -572,6 +577,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         if !(self.secondChildTabVC?.histogramChart3?.isBusy ?? true){
             DispatchQueue.global(qos: .default).async {
                 self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, points: self.microtubulePoints)
+            }
+        }
+        
+        if !(self.secondChildTabVC?.histogramChart4?.isBusy ?? true){
+            DispatchQueue.global(qos: .default).async {
+                self.secondChildTabVC?.setHistogramData4(cellRadius: self.cellRadius, counts: self.microtubuleNSegments)
             }
         }
                         

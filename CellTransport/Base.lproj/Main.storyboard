@@ -149,10 +149,10 @@
                                 <rect key="frame" x="1066" y="0.0" width="300" height="1024"/>
                                 <subviews>
                                     <containerView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fbd-xZ-qai">
-                                        <rect key="frame" x="0.0" y="-1.5" width="300" height="1025.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="300" height="1024"/>
                                     </containerView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8BS-bg-Xv2">
-                                        <rect key="frame" x="0.0" y="0.0" width="300" height="97.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="300" height="91.5"/>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CellTransport" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qhX-xt-6ls">
                                         <rect key="frame" x="18" y="20" width="264" height="20.5"/>
@@ -161,7 +161,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="A0q-Od-ymt">
-                                        <rect key="frame" x="18" y="58.5" width="264" height="32"/>
+                                        <rect key="frame" x="18" y="52.5" width="264" height="32"/>
                                         <segments>
                                             <segment title="Parameters"/>
                                             <segment title="Graphs"/>
@@ -176,9 +176,10 @@
                                 <constraints>
                                     <constraint firstItem="A0q-Od-ymt" firstAttribute="leading" secondItem="gKz-RE-pXx" secondAttribute="leading" constant="18" id="8c6-mn-g7a"/>
                                     <constraint firstAttribute="width" constant="300" id="9MK-ey-LlD"/>
-                                    <constraint firstItem="A0q-Od-ymt" firstAttribute="top" secondItem="qhX-xt-6ls" secondAttribute="bottom" constant="18" id="AWR-n4-JTR"/>
+                                    <constraint firstItem="A0q-Od-ymt" firstAttribute="top" secondItem="qhX-xt-6ls" secondAttribute="bottom" constant="12" id="AWR-n4-JTR"/>
                                     <constraint firstItem="Fbd-xZ-qai" firstAttribute="leading" secondItem="gKz-RE-pXx" secondAttribute="leading" id="Gzo-2f-RH0"/>
                                     <constraint firstItem="qhX-xt-6ls" firstAttribute="leading" secondItem="gKz-RE-pXx" secondAttribute="leading" constant="18" id="IL4-Q3-NLD"/>
+                                    <constraint firstItem="Fbd-xZ-qai" firstAttribute="top" secondItem="qhX-xt-6ls" secondAttribute="top" constant="-20" id="O3b-gB-53a"/>
                                     <constraint firstAttribute="bottom" secondItem="Fbd-xZ-qai" secondAttribute="bottom" id="Yc9-k2-3sj"/>
                                     <constraint firstAttribute="trailing" secondItem="8BS-bg-Xv2" secondAttribute="trailing" id="bz2-hm-qHT"/>
                                     <constraint firstItem="8BS-bg-Xv2" firstAttribute="top" secondItem="gKz-RE-pXx" secondAttribute="top" id="efG-U1-zfs"/>
@@ -187,7 +188,6 @@
                                     <constraint firstAttribute="trailing" secondItem="Fbd-xZ-qai" secondAttribute="trailing" id="qKD-7C-zjS"/>
                                     <constraint firstAttribute="trailing" secondItem="qhX-xt-6ls" secondAttribute="trailing" constant="18" id="rvl-Nr-dE7"/>
                                     <constraint firstItem="8BS-bg-Xv2" firstAttribute="bottom" secondItem="A0q-Od-ymt" secondAttribute="bottom" constant="8" id="tqB-a4-SqR"/>
-                                    <constraint firstItem="Fbd-xZ-qai" firstAttribute="height" secondItem="gKz-RE-pXx" secondAttribute="height" multiplier="1.00146" id="tyc-ER-hbt"/>
                                     <constraint firstItem="qhX-xt-6ls" firstAttribute="centerX" secondItem="gKz-RE-pXx" secondAttribute="centerX" id="wPM-Fa-yO6"/>
                                 </constraints>
                             </view>
@@ -227,7 +227,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="QI6-PT-1wb">
-                                <rect key="frame" x="4" y="129.5" width="292" height="427"/>
+                                <rect key="frame" x="4" y="97.5" width="292" height="427"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="cMD-f3-mjv" userLabel="SimulationsStack">
                                         <rect key="frame" x="0.0" y="0.0" width="292" height="36.5"/>
@@ -456,7 +456,7 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="QI6-PT-1wb" firstAttribute="leading" secondItem="kN7-TX-gR8" secondAttribute="leading" constant="4" id="FTC-6r-tB6"/>
-                            <constraint firstItem="QI6-PT-1wb" firstAttribute="top" secondItem="kN7-TX-gR8" secondAttribute="top" constant="129.5" id="eb4-B4-irA"/>
+                            <constraint firstItem="QI6-PT-1wb" firstAttribute="top" secondItem="kN7-TX-gR8" secondAttribute="top" constant="97.5" id="eb4-B4-irA"/>
                             <constraint firstItem="kN7-TX-gR8" firstAttribute="trailing" secondItem="QI6-PT-1wb" secondAttribute="trailing" constant="4" id="n7Q-xN-Nsd"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="kN7-TX-gR8"/>
@@ -484,12 +484,21 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YHS-VJ-Vz4">
                                 <rect key="frame" x="0.0" y="0.0" width="300" height="1004"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Particle distances to center" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="He4-gG-Ka7">
-                                        <rect key="frame" x="18" y="12" width="264" height="20.5"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" ambiguous="YES" text="Particle distances to center" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="He4-gG-Ka7">
+                                        <rect key="frame" x="18" y="12" width="238" height="20.5"/>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nb8-Gs-eb4">
+                                        <rect key="frame" x="260" y="11" width="22" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="22" id="H0V-pk-3jG"/>
+                                            <constraint firstAttribute="width" constant="22" id="jwr-iL-rUH"/>
+                                        </constraints>
+                                        <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <state key="normal" image="info.circle" catalog="system"/>
+                                    </button>
                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6ca-sC-HgI" customClass="LineChart" customModule="CellTransport" customModuleProvider="target">
                                         <rect key="frame" x="18" y="40.5" width="264" height="160"/>
                                         <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -577,11 +586,12 @@
                                     <constraint firstItem="6SX-98-ciV" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="BFf-db-SmN"/>
                                     <constraint firstItem="OJ0-ss-233" firstAttribute="top" secondItem="6SX-98-ciV" secondAttribute="bottom" constant="8" id="BJV-O7-1FV"/>
                                     <constraint firstAttribute="trailing" secondItem="Iax-kW-fXp" secondAttribute="trailing" constant="18" id="CLN-VN-kL5"/>
-                                    <constraint firstAttribute="trailing" secondItem="He4-gG-Ka7" secondAttribute="trailing" constant="18" id="ENj-rQ-adp"/>
-                                    <constraint firstItem="He4-gG-Ka7" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="4" id="LSj-aa-uxH"/>
+                                    <constraint firstAttribute="trailing" secondItem="He4-gG-Ka7" secondAttribute="trailing" constant="44" id="ENj-rQ-adp"/>
+                                    <constraint firstItem="nb8-Gs-eb4" firstAttribute="leading" secondItem="He4-gG-Ka7" secondAttribute="trailing" constant="4" id="LRf-3v-uuG"/>
                                     <constraint firstItem="vMp-bS-fG8" firstAttribute="top" secondItem="OJ0-ss-233" secondAttribute="bottom" constant="18" id="Ue1-n8-wC6"/>
                                     <constraint firstItem="e1S-Lq-YFZ" firstAttribute="top" secondItem="rYf-H9-7zY" secondAttribute="bottom" constant="18" id="VyL-7u-wYU"/>
                                     <constraint firstItem="6ca-sC-HgI" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="XFs-cw-dXT"/>
+                                    <constraint firstAttribute="trailing" secondItem="nb8-Gs-eb4" secondAttribute="trailing" constant="18" id="YH9-Tk-fgW"/>
                                     <constraint firstItem="vMp-bS-fG8" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="YMF-EV-c8X"/>
                                     <constraint firstItem="OJ0-ss-233" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="azE-Ui-449"/>
                                     <constraint firstAttribute="trailing" secondItem="Sim-UT-CW1" secondAttribute="trailing" constant="18" id="bAv-aL-rgn"/>
@@ -596,9 +606,10 @@
                                     <constraint firstItem="80e-mu-shh" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="n63-j8-qPW"/>
                                     <constraint firstAttribute="trailing" secondItem="6ca-sC-HgI" secondAttribute="trailing" constant="18" id="orA-nt-IUe"/>
                                     <constraint firstAttribute="trailing" secondItem="rYf-H9-7zY" secondAttribute="trailing" constant="18" id="p7v-AS-Bst"/>
-                                    <constraint firstItem="He4-gG-Ka7" firstAttribute="top" secondItem="YHS-VJ-Vz4" secondAttribute="top" constant="137.5" id="pDM-61-Jds"/>
+                                    <constraint firstItem="He4-gG-Ka7" firstAttribute="top" secondItem="YHS-VJ-Vz4" secondAttribute="top" constant="107.5" id="pDM-61-Jds"/>
                                     <constraint firstItem="rYf-H9-7zY" firstAttribute="top" secondItem="vMp-bS-fG8" secondAttribute="bottom" constant="8" id="sNb-zy-cu8"/>
                                     <constraint firstItem="e1S-Lq-YFZ" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="sOa-2s-8HJ"/>
+                                    <constraint firstItem="nb8-Gs-eb4" firstAttribute="centerY" secondItem="He4-gG-Ka7" secondAttribute="centerY" id="sui-UV-Nha"/>
                                     <constraint firstItem="80e-mu-shh" firstAttribute="top" secondItem="Iax-kW-fXp" secondAttribute="bottom" constant="8" id="ttu-Qa-P3j"/>
                                 </constraints>
                             </view>
@@ -615,6 +626,7 @@
                     <size key="freeformSize" width="300" height="1024"/>
                     <connections>
                         <outlet property="histogramChart1" destination="6ca-sC-HgI" id="eiP-aV-0bs"/>
+                        <outlet property="histogramChart1Settings" destination="nb8-Gs-eb4" id="JkC-fb-dbn"/>
                         <outlet property="histogramChart2" destination="80e-mu-shh" id="OeI-td-gDq"/>
                         <outlet property="histogramChart3" destination="OJ0-ss-233" id="BGc-an-M5Y"/>
                         <outlet property="histogramChart4" destination="rYf-H9-7zY" id="Oji-EE-9Dv"/>
@@ -647,6 +659,7 @@
         <image name="GrandCentralDispatch" width="150" height="84.5"/>
         <image name="arrow.down.doc.fill" catalog="system" width="56" height="64"/>
         <image name="camera.fill" catalog="system" width="64" height="48"/>
+        <image name="info.circle" catalog="system" width="64" height="60"/>
         <image name="pause.fill" catalog="system" width="58" height="64"/>
         <image name="snow" catalog="system" width="60" height="64"/>
         <image name="stopwatch.fill" catalog="system" width="60" height="64"/>

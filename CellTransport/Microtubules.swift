@@ -23,14 +23,15 @@ import simd
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
     let segmentLength:Float = 200 //0.01*cellRadius
-    var localAngle: Float = 0.15 //0.15 //1.115265 //Radians, about 63.9º
-    let maxLocalAngle: Float = 2*localAngle
+    let localAngle: Float = 0.05 //0.15 //1.115265 //Radians, about 63.9º
+    let maxLocalAngle: Float = 1*localAngle
     let angleSlope: Float = (maxLocalAngle - localAngle)/(0.1*cellRadius)
+    let maxNSegments = 200
     
     
     var pointsList:[SCNVector3] = []
     
-    for i in 0...(200){
+    for i in 0..<(maxNSegments-1){
         
         var newPoint:SCNVector3
         
@@ -64,21 +65,23 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             
             let currentDistance = sqrt(pow(pointsList[i].x,2) + pow(pointsList[i].y,2) + pow(pointsList[i].z,2))
             
-            if currentDistance > 0.99*cellRadius{
-                localAngle = 0.15 + (currentDistance - 0.99*cellRadius)*angleSlope
+            var localAngleMod = localAngle
+            
+            if currentDistance > 0.90*cellRadius{
+                localAngleMod = localAngle + (currentDistance - 0.90*cellRadius)*angleSlope
             }
             
             newPoint = pointsList[i]
-            newPoint.x += directionvector.x*segmentLength*Float(cos(localAngle))
-            newPoint.y += directionvector.y*segmentLength*Float(cos(localAngle))
-            newPoint.z += directionvector.z*segmentLength*Float(cos(localAngle))
+            newPoint.x += directionvector.x*segmentLength*Float(cos(localAngleMod))
+            newPoint.y += directionvector.y*segmentLength*Float(cos(localAngleMod))
+            newPoint.z += directionvector.z*segmentLength*Float(cos(localAngleMod))
             
             let testX = normalize(cross(normalize(simd_float3(Float.random(in: -1...1),Float.random(in: -1...1),Float.random(in: -1...1))), normalize(simd_float3(directionvector))))
             let testY = normalize(cross(normalize(simd_float3(testX)), normalize(simd_float3(directionvector))))
                         
             let randomPhi = Float.random(in: 0..<(2*Float.pi))
-            let xvalue = segmentLength*Float(sin(localAngle))*Float(sin(randomPhi))
-            let yvalue = segmentLength*Float(sin(localAngle))*Float(cos(randomPhi))
+            let xvalue = segmentLength*Float(sin(localAngleMod))*Float(sin(randomPhi))
+            let yvalue = segmentLength*Float(sin(localAngleMod))*Float(cos(randomPhi))
             
             let randomX = SCNVector3(testX.x*xvalue, testX.y*xvalue, testX.z*xvalue)
             let randomY = SCNVector3(testY.x*yvalue, testY.y*yvalue, testY.z*yvalue)

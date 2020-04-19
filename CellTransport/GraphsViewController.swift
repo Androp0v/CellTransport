@@ -19,6 +19,8 @@ class GraphsViewController: UIViewController {
     @IBOutlet var histogramChart3: LineChart!
     @IBOutlet var histogramChart4: LineChart!
     
+    @IBOutlet var histogramChart1Settings: UIButton!
+    
     var autoMerge: Bool = false
     
     @IBOutlet var switchAutoMerge: UISwitch!
@@ -43,6 +45,8 @@ class GraphsViewController: UIViewController {
             return histogramChart2?.getHistogramData()
         }else if number == 3{
             return histogramChart3?.getHistogramData()
+        }else if number == 4{
+            return histogramChart4?.getHistogramData()
         }else{
             return nil
         }
@@ -58,6 +62,10 @@ class GraphsViewController: UIViewController {
     
     func setHistogramData3(cellRadius: Float, points: [SCNVector3]){
         histogramChart3?.drawChart(cellRadius: cellRadius, points: points, autoMerge: false)
+    }
+    
+    func setHistogramData4(cellRadius: Float, counts: [Int]){
+        histogramChart4?.drawChart(cellRadius: cellRadius, counts: counts, autoMerge: false)
     }
     
     override func viewDidLoad() {

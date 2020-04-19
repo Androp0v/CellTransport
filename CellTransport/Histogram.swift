@@ -17,9 +17,17 @@ func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nDista
     
     for i in 0..<nDistances{
         if distances[i] >= 0 && distances[i]/cellRadius < 1{
-            let index: Int = Int(floor((distances[i]/cellRadius - 0)/Float(binWidth)))
+            let index: Int = Int(floor((distances[i]/cellRadius)/Float(binWidth)))
             histogramArray[index] += 1
         }
+    }
+}
+
+func histogramLengths(lengths: [Int], histogramArray: inout [Float]){
+            
+    for length in lengths{
+        let index: Int = length - 1
+        histogramArray[index] += 1
     }
 }
 

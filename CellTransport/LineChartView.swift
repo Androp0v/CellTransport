@@ -85,6 +85,8 @@ class LineChart: UIView{
         return path
     }
     
+    /*- MICROTUBULES HISTOGRAM -*/
+    
     func drawChart(cellRadius: Float, points: [SCNVector3], autoMerge: Bool) {
         
             isBusy = true
@@ -139,5 +141,64 @@ class LineChart: UIView{
                 
         return path
     }
+    
+    /*- COUNTS HISTOGRAM -*/
+    
+    func drawChart(cellRadius: Float, counts: [Int], autoMerge: Bool) {
         
+            isBusy = true
+            
+            if !autoMerge{
+                clearHistogram()
+            }
+            
+            let path = histogramPath(cellRadius: cellRadius, counts: counts)
+            
+            DispatchQueue.main.sync {
+                self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+                let lineLayer = CAShapeLayer()
+                lineLayer.path = path.cgPath
+                lineLayer.strokeColor = UIColor.white.cgColor
+                lineLayer.fillColor = UIColor.clear.cgColor
+                self.layer.addSublayer(lineLayer)
+                self.isBusy = false
+                self.returnableArray = self.histogramArray
+            }
+    }
+    
+    func histogramPath(cellRadius: Float, counts: [Int]) -> UIBezierPath {
+        
+        let path = UIBezierPath()
+        let coordinateOrigin = self.bounds.origin
+        let width = CGFloat(self.frame.width)
+        let height = CGFloat(self.frame.height)
+        let maxNSegments: Int = 200
+        
+        histogramArray = [Float](repeating: 0.0, count: maxNSegments)
+        
+        histogramLengths(lengths: counts, histogramArray: &histogramArray)
+                
+        let baseLineHeight: CGFloat = 8.0
+        let topMargin: CGFloat = 8.0
+        
+        let binDrawWidth: CGFloat = CGFloat(width)/CGFloat(maxNSegments)
+        let binDrawHeight: CGFloat = (height - topMargin - baseLineHeight)/CGFloat(histogramArray.max()!)
+        
+        var newPosition = CGPoint(x: coordinateOrigin.x, y: height - baseLineHeight - CGFloat(histogramArray[0])*binDrawHeight)
+        
+        path.move(to: newPosition)
+        
+        for i in 0..<(maxNSegments - 1){
+            newPosition = CGPoint(x: newPosition.x + binDrawWidth, y: newPosition.y)
+            path.addLine(to: newPosition)
+            newPosition = CGPoint(x: newPosition.x, y: height - baseLineHeight - CGFloat(histogramArray[i + 1])*binDrawHeight)
+            path.addLine(to: newPosition)
+        }
+        newPosition = CGPoint(x: newPosition.x + binDrawWidth, y: newPosition.y)
+        path.addLine(to: newPosition)
+                
+        return path
+    }
+    
+    
 }
