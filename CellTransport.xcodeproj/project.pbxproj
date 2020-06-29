@@ -13,6 +13,7 @@
 		C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F0BCB241155E3008A5619 /* IOFunctions.swift */; };
 		C411F960241F0C88006BDEF3 /* CellMembrane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C411F95F241F0C88006BDEF3 /* CellMembrane.swift */; };
 		C4544D4D2402D86000EDB29A /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = C4544D4C2402D86000EDB29A /* Readme.md */; };
+		C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
 		C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594423EA22E1000B871B /* AppDelegate.swift */; };
 		C4BD594723EA22E1000B871B /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594623EA22E1000B871B /* art.scnassets */; };
 		C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594823EA22E1000B871B /* GameViewController.swift */; };
@@ -35,6 +36,7 @@
 		C40F0BCB241155E3008A5619 /* IOFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOFunctions.swift; sourceTree = "<group>"; };
 		C411F95F241F0C88006BDEF3 /* CellMembrane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellMembrane.swift; sourceTree = "<group>"; };
 		C4544D4C2402D86000EDB29A /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
+		C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		C4BD594123EA22E1000B871B /* CellTransport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellTransport.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4BD594423EA22E1000B871B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C4BD594623EA22E1000B871B /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				C406BBB723F6F57F0013A79B /* Histogram.swift */,
 				C4BD594A23EA22E1000B871B /* Main.storyboard */,
 				C411F95F241F0C88006BDEF3 /* CellMembrane.swift */,
+				C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */,
 				C4BD596523EB15AA000B871B /* Microtubules.swift */,
 				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
 				C4BD596123EB139C000B871B /* LineDrawing.swift */,
@@ -186,6 +189,7 @@
 				C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
 				C403DB4323F6B394008368CB /* LineChartView.swift in Sources */,
+				C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */,
 				C4BD596423EB14DD000B871B /* shaders.metal in Sources */,
 				C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */,
 				C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */,

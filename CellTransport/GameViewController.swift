@@ -18,7 +18,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 100
+    let nCells: Int = 100 //Number of biological cells to simulate simultaneously
+    let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
     let nbodies: Int = 524288 //4194304 // 16777216
     let nMicrotubules: Int = 400
     let cellRadius: Float = 14000 //nm
@@ -31,6 +32,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var microtubulePoints: [SCNVector3] = []
     var microtubuleNSegments: [Int] = []
     var microtubulePointsArray: [simd_float3] = []
+    
+    var cellIDDict: Dictionary<Int, [Int]> = [:]
     
     // UI outlets and variables
     @IBOutlet var scnView: SCNView!
@@ -85,9 +88,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     @IBAction func exportToFile(_ sender: Any) {
         // Create a document picker for directories.
-        let documentPicker =
-            UIDocumentPickerViewController(documentTypes: [kUTTypeFolder as String],
-                                           in: .open)
+        let documentPicker = UIDocumentPickerViewController(documentTypes: [kUTTypeFolder as String], in: .open)
         documentPicker.delegate = self
         documentPicker.allowsMultipleSelection = false
 
@@ -243,6 +244,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             length: nbodies * MemoryLayout<Float>.stride
         ))
         
+    }
+    
+    func initializeMetalMTs(){
+        
         microtubulePointsBuffer.append(device.makeBuffer(
             bytes: microtubulePointsArray,
             length: microtubulePointsArray.count * MemoryLayout<simd_float3>.stride
@@ -283,8 +288,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 microtubulePointsArray.append(simd_float3(point))
             }
             
-            //Introduce separators after each microtubule (situated at an impossible point)
+            //Introduce separators after each cell (situated at an impossible point)
+            
             microtubulePointsArray.append(simd_float3(cellRadius,cellRadius,cellRadius))
+            
+            //Add MTs to the CellID dictionary
+            
+            addMTToCellIDDict(cellIDDict: cellIDDict, points: points, currentCellNumber: i, cellsPerDimension: cellsPerDimension)
+                        
+            //UI configuration
             
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
             
@@ -298,6 +310,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 nodelist.append(node)
             }
         }
+        
+        //Create MTLBuffers that require MT data
+        //initializeMetalMTs() //TO-DO
                 
         return (nodelist,microtubulePoints,microtubuleNSegments,microtubulePointsArray)
     }
