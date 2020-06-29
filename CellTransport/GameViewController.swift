@@ -19,7 +19,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     // Simulation parameters
     
     let nCells: Int = 100
-    let nbodies: Int = 1 //524288 //4194304 // 16777216
+    let nbodies: Int = 524288 //4194304 // 16777216
     let nMicrotubules: Int = 400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm
