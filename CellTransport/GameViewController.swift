@@ -30,6 +30,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
     var microtubuleNSegments: [Int] = []
+    var microtubulePointsArray: [simd_float3] = []
     
     // UI outlets and variables
     @IBOutlet var scnView: SCNView!
@@ -127,6 +128,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var oldTimeBuffer: [MTLBuffer?] = []
     fileprivate var newTimeBuffer: [MTLBuffer?] = []
     
+    fileprivate var microtubulePointsBuffer: [MTLBuffer?] = []
+    
     fileprivate var buffer: MTLCommandBuffer?
     
     let nBuffers = 1
@@ -202,13 +205,17 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         library = device.makeDefaultLibrary()
         initComputePipelineState(device)
         
-        distancesBuffer.append(device.makeBuffer(
-            length: nbodies * MemoryLayout<Float>.stride
-        ))
+        //Create [Float] lists to populate buffers
         
         let initializedTimeJump = [Float](repeating: 0.0, count: nbodies)
         let initializedUpdatedTimeJump = [Float](repeating: 0.0, count: nbodies)
         let initializedTimeBetweenJumps = [Float](repeating: -1.0, count: nbodies)
+        
+        //Initialize buffers and populate those of them that need it
+        
+        distancesBuffer.append(device.makeBuffer(
+            length: nbodies * MemoryLayout<Float>.stride
+        ))
         
         timeLastJumpBuffer.append(device.makeBuffer(
             bytes: initializedTimeJump,
@@ -236,6 +243,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             length: nbodies * MemoryLayout<Float>.stride
         ))
         
+        microtubulePointsBuffer.append(device.makeBuffer(
+            bytes: microtubulePointsArray,
+            length: microtubulePointsArray.count * MemoryLayout<simd_float3>.stride
+        ))
+        
     }
     
     func spawnBoundingBox() -> SCNNode{
@@ -254,11 +266,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return boundingBoxNode
     }
     
-    func spawnMicrotubules() -> ([SCNNode],[SCNVector3],[Int]){
+    func spawnMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
         
         var nodelist : [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
         var microtubuleNSegments: [Int] = []
+        
+        var microtubulePointsArray: [simd_float3] = []
         
         for i in 0..<(nCells*nMicrotubules){
             let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
@@ -266,7 +280,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             
             for point in points{
                 microtubulePoints.append(point)
+                microtubulePointsArray.append(simd_float3(point))
             }
+            
+            //Introduce separators after each microtubule (situated at an impossible point)
+            microtubulePointsArray.append(simd_float3(cellRadius,cellRadius,cellRadius))
             
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
             
@@ -280,7 +298,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 nodelist.append(node)
             }
         }
-        return (nodelist,microtubulePoints,microtubuleNSegments)
+                
+        return (nodelist,microtubulePoints,microtubuleNSegments,microtubulePointsArray)
     }
     
     func spawnCellMembrane() -> SCNNode{
@@ -444,9 +463,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure"
         }
-        let (microtubules, microtubulePointsReturned, microtubuleNSegmentsReturned) = spawnMicrotubules()
+        let (microtubules, microtubulePointsReturned,
+                microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnMicrotubules()
         microtubulePoints = microtubulePointsReturned
         microtubuleNSegments = microtubuleNSegmentsReturned
+        microtubulePointsArray = microtubulePointsArrayReturned
                 
         for microtubulePoint in microtubulePoints{
             microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
