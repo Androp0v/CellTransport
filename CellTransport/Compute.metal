@@ -9,15 +9,17 @@
 #include <metal_stdlib>
 using namespace metal;
 
-#define cellsPerDimension 100
-
 // Get CellID of a position in x,y,z coordinates
-int getCellID(float x, float y, float z, float cellRadius){
+int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension, int currentCellNumber){
+    
+    //int maxCellNumber = cellsPerDimension*cellsPerDimension*cellsPerDimension;
     
     int cellID = 0;
-    cellID += cellsPerDimension*cellsPerDimension * floor(cellsPerDimension * ((z+cellRadius/2)/(2*cellRadius)));
-    cellID += cellsPerDimension * floor(cellsPerDimension * ((y+cellRadius/2)/(2*cellRadius)));
-    cellID += floor(cellsPerDimension * ((x+cellRadius/2)/(2*cellRadius)));
+    cellID += cellsPerDimension*cellsPerDimension * int(cellsPerDimension * ((z+cellRadius)/(2*cellRadius)));
+    cellID += cellsPerDimension * int(cellsPerDimension * ((y+cellRadius)/(2*cellRadius)));
+    cellID += int(cellsPerDimension * ((x+cellRadius)/(2*cellRadius)));
+    
+    //cellID += maxCellNumber*currentCellNumber;
     
     return cellID;
 }
@@ -53,6 +55,9 @@ float4 randomSpherePoint(float radius, int x, int y, int z){
 struct simulation_parameters {
     float deltat;
     float cellRadius;
+    int cellsPerDimension;
+    int nBodies;
+    int nCells;
 };
 
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
@@ -75,7 +80,9 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     newTime[i] = oldTime[i] + parameters.deltat * parameters.cellRadius;
     
-    int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius);
+    int currentCellNumber = int(floor(i / float(parameters.nBodies/parameters.nCells)));
+    
+    int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
     
     if (isAttachedIn[i] != -1){
         //Check that the particle hasn't reached the end of the MT
@@ -93,20 +100,26 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         }
         
     }else if (cellIDtoNMTs[currentCellID] != 0){
+        
+        int nMTs = cellIDtoNMTs[currentCellID];
+        int chosenMT = int(rand(int(positionsIn[i].x*1000000), int(positionsIn[i].y*1000000), int(positionsIn[i].z*1000000))*nMTs);
+        
         int MTindex = cellIDtoIndex[currentCellID];
-        float3 MTpointOfAttachment = MTpoints[indexToPoints[MTindex]];
+        float3 MTpointOfAttachment = MTpoints[indexToPoints[MTindex + chosenMT]];
         positionsOut[i] = MTpointOfAttachment;
-        isAttachedOut[i] = indexToPoints[MTindex];
+        
+        isAttachedOut[i] = indexToPoints[MTindex + chosenMT];
+        
     }else{
-        float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
-        float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1.0;
-        float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
+        float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1;
+        float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1;
+        float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1;
         
         positionsOut[i] = positionsIn[i]  + 0.01*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
+        
         isAttachedOut[i] = -1;
         
     }
-    
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     

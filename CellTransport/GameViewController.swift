@@ -18,9 +18,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 10 //Number of biological cells to simulate simultaneously
+    let nCells: Int = 1 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
-    let nbodies: Int =  100000 //524288 //4194304 // 16777216
+    let nbodies: Int =  1000 //524288 //4194304 // 16777216
     let nMicrotubules: Int = 400 //400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm
@@ -605,13 +605,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     struct simulationParameters{
         var deltat_to_metal: Float;
         var cellRadius_to_metal: Float;
+        var cellsPerDimension_to_metal: Int;
+        var nBodies_to_Metal: Int;
+        var nCells_to_Metal: Int;
     }
     
     func metalUpdaterChild(){
         
         // Create simulationParameters struct
         
-        var simulationParametersObject = simulationParameters(deltat_to_metal: deltat, cellRadius_to_metal: cellRadius)
+        var simulationParametersObject = simulationParameters(deltat_to_metal: deltat, cellRadius_to_metal: cellRadius, cellsPerDimension_to_metal: cellsPerDimension, nBodies_to_Metal: nbodies, nCells_to_Metal: nCells)
         
         // Update MTLBuffers thorugh compute pipeline
             
