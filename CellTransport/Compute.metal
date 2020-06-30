@@ -63,7 +63,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float *timeBetweenJumps [[buffer(5)]],
                     device float *oldTime [[buffer(6)]],
                     device float *newTime [[buffer(7)]],
-                    constant simulation_parameters & parameters [[buffer(8)]],
+                    device float *MTpoints [[buffer(8)]],
+                    device float *cellIDtoIndex [[buffer(9)]],
+                    device float *cellIDtoNMTs [[buffer(10)]],
+                    device float *indexToPoints [[buffer(11)]],
+                    constant simulation_parameters & parameters [[buffer(12)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     

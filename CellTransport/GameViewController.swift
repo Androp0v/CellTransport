@@ -620,7 +620,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
             computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
             computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
-            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 8)
+            
+            computeEncoder?.setBuffer(microtubulePointsBuffer[i], offset: 0, index: 8)
+            computeEncoder?.setBuffer(cellIDtoIndexBuffer[i], offset: 0, index: 9)
+            computeEncoder?.setBuffer(cellIDtoNMTsBuffer[i], offset: 0, index: 10)
+            computeEncoder?.setBuffer(indextoPointsBuffer[i], offset: 0, index: 11)
+            
+            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 12)
             computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
         }
           
