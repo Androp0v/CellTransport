@@ -33,9 +33,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var microtubuleNSegments: [Int] = []
     var microtubulePointsArray: [simd_float3] = []
     
+    // CellID to MT dictionaries and arrays
+    
     var cellIDDict: Dictionary<Int, [Int]> = [:]
+    var cellIDtoIndex: [Int32] = [] //Array to translate cellID to MT index
+    var cellIDtoNMTs: [Int16] = [] //Array to translate cellID to number of MTs in that specific cell
+    var indexToPoint: [Int32] = [] //Array to translate MT index to MT point position (x,y,z)
     
     // UI outlets and variables
+    
     @IBOutlet var scnView: SCNView!
     let scene = SCNScene(named: "art.scnassets/ship.scn")!
     @IBOutlet var segmentedControl: UISegmentedControl!
@@ -130,6 +136,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var newTimeBuffer: [MTLBuffer?] = []
     
     fileprivate var microtubulePointsBuffer: [MTLBuffer?] = []
+    fileprivate var cellIDtoIndexBuffer: [MTLBuffer?] = []
+    fileprivate var cellIDtoNMTsBuffer: [MTLBuffer?] = []
+    fileprivate var indextoPointsBuffer: [MTLBuffer?] = []
     
     fileprivate var buffer: MTLCommandBuffer?
     
@@ -247,10 +256,25 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     func initializeMetalMTs(){
-        
+
         microtubulePointsBuffer.append(device.makeBuffer(
             bytes: microtubulePointsArray,
             length: microtubulePointsArray.count * MemoryLayout<simd_float3>.stride
+        ))
+        
+        cellIDtoIndexBuffer.append(device.makeBuffer(
+            bytes: cellIDtoIndex,
+            length: cellIDtoIndex.count * MemoryLayout<Int32>.stride
+        ))
+        
+        cellIDtoNMTsBuffer.append(device.makeBuffer(
+            bytes: cellIDtoNMTs,
+            length: cellIDtoNMTs.count * MemoryLayout<Int16>.stride
+        ))
+        
+        indextoPointsBuffer.append(device.makeBuffer(
+            bytes: indexToPoint,
+            length: indexToPoint.count * MemoryLayout<Int32>.stride
         ))
         
     }
@@ -277,7 +301,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var microtubulePoints: [SCNVector3] = []
         var microtubuleNSegments: [Int] = []
         
-        var microtubulePointsArray: [simd_float3] = []
         var cellsPointsNumber: [Int] = []
         
         for i in 0..<(nCells){
@@ -320,8 +343,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellRadius: cellRadius, cellsPerDimension: cellsPerDimension)
         
+        //Convert MY dictionary to arrays
+        
+        cellIDDictToArrays(cellIDDict: cellIDDict, cellIDtoIndex: &cellIDtoIndex, cellIDtoNMTs: &cellIDtoNMTs, MTIndexArray: &indexToPoint, nCells: nCells, cellsPerDimension: cellsPerDimension)
+        
         //Create MTLBuffers that require MT data
-        //initializeMetalMTs() //TO-DO
+        initializeMetalMTs()
                 
         return (nodelist,microtubulePoints,microtubuleNSegments,microtubulePointsArray)
     }

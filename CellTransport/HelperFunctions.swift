@@ -16,9 +16,9 @@ func getCellID(x: Float, y: Float, z: Float, cellRadius: Float, cellsPerDimensio
     let cellsPerDimensionSquared: Int = cellsPerDimension*cellsPerDimension
     
     //Break the computation into smaller ones so the Swift compiler doesn't complain
-    let stupidComputation1: Float = (Float(cellsPerDimension) * ((z+cellRadius/2)/(2*cellRadius)))
-    let stupidComputation2: Float = (Float(cellsPerDimension) * ((y+cellRadius/2)/(2*cellRadius)))
-    let stupidCOmputation3: Float = (Float(cellsPerDimension) * ((x+cellRadius/2)/(2*cellRadius)))
+    let stupidComputation1: Float = (Float(cellsPerDimension) * ((z+cellRadius)/(2*cellRadius)))
+    let stupidComputation2: Float = (Float(cellsPerDimension) * ((y+cellRadius)/(2*cellRadius)))
+    let stupidCOmputation3: Float = (Float(cellsPerDimension) * ((x+cellRadius)/(2*cellRadius)))
     
     let floor1: Int = Int(floor(stupidComputation1))
     let floor2: Int = Int(floor(stupidComputation2))
@@ -45,7 +45,7 @@ func addMTToCellIDDict(cellIDDict: inout Dictionary<Int, [Int]>, points: [simd_f
             //Find the associated CellID
             var currentCellID = getCellID(x: currentPoint.x, y: currentPoint.y, z: currentPoint.z, cellRadius: cellRadius, cellsPerDimension: cellsPerDimension)
             currentCellID += maxNumberOfCells*cellNCounter
-            
+ 
             //Check if CellID is already on dictionary
             if cellIDDict[currentCellID] != nil{
                 cellIDDict[currentCellID]!.append(i+counter)
@@ -55,5 +55,38 @@ func addMTToCellIDDict(cellIDDict: inout Dictionary<Int, [Int]>, points: [simd_f
         }
         counter += NmicrotubulesInCell
         cellNCounter += 1
+    }
+}
+
+func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout [Int32], cellIDtoNMTs: inout [Int16], MTIndexArray: inout [Int32], nCells: Int, cellsPerDimension: Int){
+    
+    let maxNumberOfCells = cellsPerDimension*cellsPerDimension*cellsPerDimension
+    var currentMTindex: Int = 0
+    
+    for i in 0..<nCells{
+        for j in 0..<maxNumberOfCells{
+            let cellID = i*maxNumberOfCells + j
+            
+            if cellIDDict[cellID] != nil{
+                //Count the numbers of MTs in that specific cell and add that to the array
+                cellIDtoNMTs.append(Int16(cellIDDict[cellID]!.count))
+                
+                //Add the index of the FIRST MT in that specific cell to the cellIDtoIndex array
+                cellIDtoIndex.append(Int32(currentMTindex))
+                
+                //Add all MTs indexes to the MTindexArray
+                for MTindex in cellIDDict[cellID]!{
+                    MTIndexArray.append(Int32(MTindex))
+                }
+                
+                //Move the current MTindex
+                currentMTindex += cellIDDict[cellID]!.count
+                
+            }else{
+                cellIDtoIndex.append(-1)
+                cellIDtoNMTs.append(0)
+            }
+            
+        }
     }
 }
