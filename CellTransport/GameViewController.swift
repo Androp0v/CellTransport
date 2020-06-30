@@ -278,6 +278,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var microtubuleNSegments: [Int] = []
         
         var microtubulePointsArray: [simd_float3] = []
+        var cellsPointsNumber: [Int] = []
         
         for i in 0..<(nCells*nMicrotubules){
             let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
@@ -292,10 +293,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             
             microtubulePointsArray.append(simd_float3(cellRadius,cellRadius,cellRadius))
             
-            //Add MTs to the CellID dictionary
+            //Update the length of each cell's MT points
+            cellsPointsNumber.append(points.count + 1)
             
-            addMTToCellIDDict(cellIDDict: cellIDDict, points: points, currentCellNumber: i, cellsPerDimension: cellsPerDimension)
-                        
             //UI configuration
             
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
@@ -310,6 +310,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 nodelist.append(node)
             }
         }
+        
+        //Add MTs to the CellID dictionary
+        
+        addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellsPerDimension: cellsPerDimension)
         
         //Create MTLBuffers that require MT data
         //initializeMetalMTs() //TO-DO
