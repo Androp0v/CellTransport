@@ -9,7 +9,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-#define cellsPerDimension 1000
+#define cellsPerDimension 100
 
 // Get CellID of a position in x,y,z coordinates
 int getCellID(float x, float y, float z, float cellRadius){
@@ -63,21 +63,50 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float *timeBetweenJumps [[buffer(5)]],
                     device float *oldTime [[buffer(6)]],
                     device float *newTime [[buffer(7)]],
-                    device float *MTpoints [[buffer(8)]],
-                    device float *cellIDtoIndex [[buffer(9)]],
-                    device float *cellIDtoNMTs [[buffer(10)]],
-                    device float *indexToPoints [[buffer(11)]],
-                    constant simulation_parameters & parameters [[buffer(12)]],
+                    device simd_float3 *MTpoints [[buffer(8)]],
+                    device int32_t *cellIDtoIndex [[buffer(9)]],
+                    device int16_t *cellIDtoNMTs [[buffer(10)]],
+                    device int32_t *indexToPoints [[buffer(11)]],
+                    device int32_t *isAttachedIn [[buffer(12)]],
+                    device int32_t *isAttachedOut [[buffer(13)]],
+                    constant simulation_parameters & parameters [[buffer(14)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
     newTime[i] = oldTime[i] + parameters.deltat * parameters.cellRadius;
-        
-    float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
-    float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1.0;
-    float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
     
-    positionsOut[i] = positionsIn[i]  + 0.01*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
+    int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius);
+    
+    if (isAttachedIn[i] != -1){
+        //Check that the particle hasn't reached the end of the MT
+        if (MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius &&
+            MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius &&
+            MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius){
+            
+            //isAttachedOut[i] = -1;
+            
+        }else{
+            
+            positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
+            isAttachedOut[i] = isAttachedIn[i] + 1;
+            
+        }
+        
+    }else if (cellIDtoNMTs[currentCellID] != 0){
+        int MTindex = cellIDtoIndex[currentCellID];
+        float3 MTpointOfAttachment = MTpoints[indexToPoints[MTindex]];
+        positionsOut[i] = MTpointOfAttachment;
+        isAttachedOut[i] = indexToPoints[MTindex];
+    }else{
+        float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
+        float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1.0;
+        float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1.0;
+        
+        positionsOut[i] = positionsIn[i]  + 0.01*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
+        isAttachedOut[i] = -1;
+        
+    }
+    
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
@@ -100,7 +129,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     //Check if new point is near a microtubule
     
-    int cellID = getCellID(positionsOut[i].x, positionsOut[i].y, positionsOut[i].z, parameters.cellRadius);
+    //int cellID = getCellID(positionsOut[i].x, positionsOut[i].y, positionsOut[i].z, parameters.cellRadius);
     
 }
 

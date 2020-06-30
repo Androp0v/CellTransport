@@ -20,8 +20,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     let nCells: Int = 10 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
-    let nbodies: Int = 524288 //4194304 // 16777216
-    let nMicrotubules: Int = 400
+    let nbodies: Int =  100000 //524288 //4194304 // 16777216
+    let nMicrotubules: Int = 400 //400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
@@ -139,6 +139,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var cellIDtoIndexBuffer: [MTLBuffer?] = []
     fileprivate var cellIDtoNMTsBuffer: [MTLBuffer?] = []
     fileprivate var indextoPointsBuffer: [MTLBuffer?] = []
+    fileprivate var isAttachedInBuffer: [MTLBuffer?] = []
+    fileprivate var isAttachedOutBuffer: [MTLBuffer?] = []
     
     fileprivate var buffer: MTLCommandBuffer?
     
@@ -277,6 +279,18 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             length: indexToPoint.count * MemoryLayout<Int32>.stride
         ))
         
+        let isAttachedIn: [Int32] = [Int32](repeatElement(-1, count: nbodies))
+        
+        isAttachedInBuffer.append(device.makeBuffer(
+            bytes: isAttachedIn,
+            length: isAttachedIn.count * MemoryLayout<Int32>.stride
+        ))
+        
+        isAttachedOutBuffer.append(device.makeBuffer(
+            bytes: isAttachedIn,
+            length: isAttachedIn.count * MemoryLayout<Int32>.stride
+        ))
+        
     }
     
     func spawnBoundingBox() -> SCNNode{
@@ -346,7 +360,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         //Convert MY dictionary to arrays
         
         cellIDDictToArrays(cellIDDict: cellIDDict, cellIDtoIndex: &cellIDtoIndex, cellIDtoNMTs: &cellIDtoNMTs, MTIndexArray: &indexToPoint, nCells: nCells, cellsPerDimension: cellsPerDimension)
-        
+                
         //Create MTLBuffers that require MT data
         initializeMetalMTs()
                 
@@ -625,8 +639,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             computeEncoder?.setBuffer(cellIDtoIndexBuffer[i], offset: 0, index: 9)
             computeEncoder?.setBuffer(cellIDtoNMTsBuffer[i], offset: 0, index: 10)
             computeEncoder?.setBuffer(indextoPointsBuffer[i], offset: 0, index: 11)
+            computeEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 12)
+            computeEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 13)
             
-            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 12)
+            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 14)
             computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
         }
           
@@ -636,6 +652,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         swap(&positionsIn, &positionsOut)
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
         swap(&oldTimeBuffer, &newTimeBuffer)
+        swap(&isAttachedInBuffer, &isAttachedOutBuffer)
           
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
