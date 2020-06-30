@@ -18,9 +18,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 2 //Number of biological cells to simulate simultaneously
+    let nCells: Int = 10 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
-    let nbodies: Int =  1000 //524288 //4194304 // 16777216
+    let nbodies: Int =  10000 //524288 //4194304 // 16777216
     let nMicrotubules: Int = 400 //400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm

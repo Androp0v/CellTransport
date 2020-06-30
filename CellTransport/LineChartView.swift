@@ -172,7 +172,7 @@ class LineChart: UIView{
         let coordinateOrigin = self.bounds.origin
         let width = CGFloat(self.frame.width)
         let height = CGFloat(self.frame.height)
-        let maxNSegments: Int = 200
+        let maxNSegments: Int = 800 //TO-DO PASS THIS AS ARGUMENT FFS
         
         histogramArray = [Float](repeating: 0.0, count: maxNSegments)
         
