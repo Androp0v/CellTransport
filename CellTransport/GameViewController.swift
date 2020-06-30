@@ -18,7 +18,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 100 //Number of biological cells to simulate simultaneously
+    let nCells: Int = 10 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
     let nbodies: Int = 524288 //4194304 // 16777216
     let nMicrotubules: Int = 400
@@ -280,40 +280,45 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var microtubulePointsArray: [simd_float3] = []
         var cellsPointsNumber: [Int] = []
         
-        for i in 0..<(nCells*nMicrotubules){
-            let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
-            microtubuleNSegments.append(points.count)
+        for i in 0..<(nCells){
             
-            for point in points{
-                microtubulePoints.append(point)
-                microtubulePointsArray.append(simd_float3(point))
+            var cellPoints: Int = 0
+            
+            for _ in 0..<nMicrotubules{
+                let points = generateMicrotubule(cellRadius: cellRadius, centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation)
+                microtubuleNSegments.append(points.count)
+                
+                for point in points{
+                    microtubulePoints.append(point)
+                    microtubulePointsArray.append(simd_float3(point))
+                }
+                
+                //Introduce separators after each MT (situated at an impossible point)
+                microtubulePointsArray.append(simd_float3(cellRadius,cellRadius,cellRadius))
+                
+                //Update the number of MT points in the cell (including separator, +1)
+                cellPoints += points.count + 1
+                
+                //UI configuration for the first cell (the only cell displayed on screen)
+        
+                if i == 0{
+                    let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
+                    let geometry = SCNGeometry.lineThrough(points: points,
+                                                           width: 2,
+                                                           closed: false,
+                                                           color: microtubuleColor)
+                    let node = SCNNode(geometry: geometry)
+                    scene.rootNode.addChildNode(node)
+                    nodelist.append(node)
+                }
             }
-            
-            //Introduce separators after each cell (situated at an impossible point)
-            
-            microtubulePointsArray.append(simd_float3(cellRadius,cellRadius,cellRadius))
-            
             //Update the length of each cell's MT points
-            cellsPointsNumber.append(points.count + 1)
-            
-            //UI configuration
-            
-            let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
-            
-            if i < nMicrotubules{
-                let geometry = SCNGeometry.lineThrough(points: points,
-                                                       width: 2,
-                                                       closed: false,
-                                                       color: microtubuleColor)
-                let node = SCNNode(geometry: geometry)
-                scene.rootNode.addChildNode(node)
-                nodelist.append(node)
-            }
+            cellsPointsNumber.append(cellPoints)
         }
         
         //Add MTs to the CellID dictionary
         
-        addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellsPerDimension: cellsPerDimension)
+        addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellRadius: cellRadius, cellsPerDimension: cellsPerDimension)
         
         //Create MTLBuffers that require MT data
         //initializeMetalMTs() //TO-DO

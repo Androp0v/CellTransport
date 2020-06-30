@@ -15,9 +15,9 @@ using namespace metal;
 int getCellID(float x, float y, float z, float cellRadius){
     
     int cellID = 0;
-    cellID += cellsPerDimension*cellsPerDimension * floor(cellsPerDimension * ((z+cellRadius/2)/cellRadius));
-    cellID += cellsPerDimension * floor(cellsPerDimension * ((y+cellRadius/2)/cellRadius));
-    cellID += floor(cellsPerDimension * ((x+cellRadius/2)/cellRadius));
+    cellID += cellsPerDimension*cellsPerDimension * floor(cellsPerDimension * ((z+cellRadius/2)/(2*cellRadius)));
+    cellID += cellsPerDimension * floor(cellsPerDimension * ((y+cellRadius/2)/(2*cellRadius)));
+    cellID += floor(cellsPerDimension * ((x+cellRadius/2)/(2*cellRadius)));
     
     return cellID;
 }
