@@ -20,8 +20,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     let nCells: Int = 10 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
-    let nbodies: Int =  10000 //524288 //4194304 // 16777216
-    let nMicrotubules: Int = 400 //400
+    let nbodies: Int = 50000 //524288 //4194304 // 16777216
+    let nMicrotubules: Int = 120 //400
     let cellRadius: Float = 14000 //nm
     let centrosomeRadius: Float = 1400 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
@@ -142,6 +142,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var isAttachedInBuffer: [MTLBuffer?] = []
     fileprivate var isAttachedOutBuffer: [MTLBuffer?] = []
     
+    fileprivate var randomSeedsInBuffer: [MTLBuffer?] = []
+    fileprivate var randomSeedsOutBuffer: [MTLBuffer?] = []
+    
     fileprivate var buffer: MTLCommandBuffer?
     
     let nBuffers = 1
@@ -252,6 +255,20 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         ))
         
         newTimeBuffer.append(device.makeBuffer(
+            length: nbodies * MemoryLayout<Float>.stride
+        ))
+        
+        var randomSeeds: [Float] = []
+        while randomSeeds.count != nbodies{
+            let number = Float.random(in: 0 ..< 1)
+            randomSeeds.append(number)
+        }
+        randomSeedsInBuffer.append(device.makeBuffer(
+            bytes: randomSeeds,
+            length: nbodies * MemoryLayout<Float>.stride
+        ))
+        randomSeedsOutBuffer.append(device.makeBuffer(
+            bytes: randomSeeds,
             length: nbodies * MemoryLayout<Float>.stride
         ))
         
@@ -645,7 +662,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             computeEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 12)
             computeEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 13)
             
-            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 14)
+            computeEncoder?.setBuffer(randomSeedsInBuffer[i], offset: 0, index: 14)
+            computeEncoder?.setBuffer(randomSeedsOutBuffer[i], offset: 0, index: 15)
+            
+            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 16)
             computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
         }
           
@@ -656,6 +676,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
         swap(&oldTimeBuffer, &newTimeBuffer)
         swap(&isAttachedInBuffer, &isAttachedOutBuffer)
+        swap(&randomSeedsInBuffer, &randomSeedsOutBuffer)
           
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)

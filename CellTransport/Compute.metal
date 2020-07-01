@@ -7,6 +7,10 @@
 //
 
 #include <metal_stdlib>
+
+#define wON 0.9
+#define wOFF 0.99
+
 using namespace metal;
 
 // Get CellID of a position in x,y,z coordinates
@@ -74,7 +78,9 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device int32_t *indexToPoints [[buffer(11)]],
                     device int32_t *isAttachedIn [[buffer(12)]],
                     device int32_t *isAttachedOut [[buffer(13)]],
-                    constant simulation_parameters & parameters [[buffer(14)]],
+                    device float *randomSeedsIn [[buffer(14)]],
+                    device float *randomSeedsOut [[buffer(15)]],
+                    constant simulation_parameters & parameters [[buffer(16)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
@@ -84,41 +90,74 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
     
+    //Flag wether or not the particle should diffuse
+    
+    bool diffuseFlag = true;
+    
+    //Microtubule attachment/dettachment
+    
     if (isAttachedIn[i] != -1){
-        //Check that the particle hasn't reached the end of the MT
-        if (MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius &&
-            MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius &&
-            MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius){
-            
-            //isAttachedOut[i] = -1;
-            
+        
+        float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
+        randomSeedsOut[i] = randNumber;
+        
+        //Probability that the particle detaches
+        if (randNumber > wOFF){
+            isAttachedOut[i] = -1;
         }else{
-            
-            positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
-            isAttachedOut[i] = isAttachedIn[i] + 1;
-            
+            //Check that the particle hasn't reached the end of the MT
+            if (MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius &&
+                MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius &&
+                MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius){
+                
+                //If the particle reached the end of the MT, detach immediately
+                isAttachedOut[i] = -1;
+            }else{
+                positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
+                isAttachedOut[i] = isAttachedIn[i] + 1;
+                diffuseFlag = false;
+            }
         }
-        
-    }else if (cellIDtoNMTs[currentCellID] != 0){
-        
-        int nMTs = cellIDtoNMTs[currentCellID];
-        int chosenMT = int(rand(int(positionsIn[i].x*1000000), int(positionsIn[i].y*1000000), int(positionsIn[i].z*1000000))*nMTs);
-        
-        int MTindex = cellIDtoIndex[currentCellID];
-        float3 MTpointOfAttachment = MTpoints[indexToPoints[MTindex + chosenMT]];
-        positionsOut[i] = MTpointOfAttachment;
-        
-        isAttachedOut[i] = indexToPoints[MTindex + chosenMT];
-        
     }else{
-        float randNumberX = 2*rand(int(positionsIn[i].x*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1;
-        float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].z*10000), int(positionsIn[i].z*10000)) - 1;
-        float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1;
         
-        positionsOut[i] = positionsIn[i]  + 0.01*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
+        float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
+        randomSeedsOut[i] = randNumber;
+        
+        //Probability that the particle attaches
+        if (randNumber > wON){
+            
+            //Check if it can attach to anything
+            if (cellIDtoNMTs[currentCellID] != 0){
+                
+                int nMTs = cellIDtoNMTs[currentCellID];
+                int chosenMT = int(rand(int(positionsIn[i].x*1000000), int(positionsIn[i].y*1000000), int(positionsIn[i].z*1000000))*nMTs);
+                
+                int MTindex = cellIDtoIndex[currentCellID];
+                float3 MTpointOfAttachment = MTpoints[indexToPoints[MTindex + chosenMT]];
+                positionsOut[i] = MTpointOfAttachment;
+                
+                isAttachedOut[i] = indexToPoints[MTindex + chosenMT];
+                diffuseFlag = false;
+            }
+        }
+    }
+    
+    // If the particle should diffuse (is not attached to a MT), diffuse
+    
+    if (diffuseFlag){
+        
+        float randNumber1 = rand(int(randomSeedsIn[i]*100000), 0, 0);
+        float randNumber2 = rand(int(randNumber1*100000), 0, 0);
+        float randNumber3 = rand(int(randNumber2*100000), int(randNumber1*100000), 0);
+        randomSeedsOut[i] = randNumber3;
+        
+        float randNumberX = 2*rand(int(randNumber1*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1;
+        float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(randNumber2*10000), int(positionsIn[i].z*10000)) - 1;
+        float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].x*10000), int(randNumber3*10000)) - 1;
+        
+        positionsOut[i] = positionsIn[i] + 0.005*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
         
         isAttachedOut[i] = -1;
-        
     }
     
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
