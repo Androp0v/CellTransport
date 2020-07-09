@@ -13,7 +13,7 @@ import simd
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
     let segmentLength:Float = 50 //200 //0.01*cellRadius
-    let localAngle: Float = 0.05 //0.15 //1.115265 //Radians, about 63.9º
+    let localAngle: Float = 0.015 //0.15 //1.115265 //Radians, about 63.9º
     let maxLocalAngle: Float = 1*localAngle
     let angleSlope: Float = (maxLocalAngle - localAngle)/(0.1*cellRadius)
     let maxNSegments = 800 //200

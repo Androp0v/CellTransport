@@ -8,8 +8,10 @@
 
 #include <metal_stdlib>
 
-#define wON 0.9
-#define wOFF 0.99
+#define wON 25
+#define wOFF 1
+#define stepsPerMTPoint 5
+#define n_w 1
 
 using namespace metal;
 
@@ -80,16 +82,19 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device int32_t *isAttachedOut [[buffer(13)]],
                     device float *randomSeedsIn [[buffer(14)]],
                     device float *randomSeedsOut [[buffer(15)]],
-                    constant simulation_parameters & parameters [[buffer(16)]],
+                    device int32_t *MTstepNumberIn [[buffer(16)]],
+                    device int32_t *MTstepNumberOut [[buffer(17)]],
+                    constant simulation_parameters & parameters [[buffer(18)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + parameters.deltat * parameters.cellRadius;
+    newTime[i] = oldTime[i] + parameters.deltat/stepsPerMTPoint * parameters.cellRadius;
     
     int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
     
     int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
     
+        
     //Flag wether or not the particle should diffuse
     
     bool diffuseFlag = true;
@@ -102,7 +107,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         randomSeedsOut[i] = randNumber;
         
         //Probability that the particle detaches
-        if (randNumber > wOFF){
+        if (randNumber < wOFF*parameters.deltat/stepsPerMTPoint){
             isAttachedOut[i] = -1;
         }else{
             //Check that the particle hasn't reached the end of the MT
@@ -113,8 +118,20 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 //If the particle reached the end of the MT, detach immediately
                 isAttachedOut[i] = -1;
             }else{
-                positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
-                isAttachedOut[i] = isAttachedIn[i] + 1;
+                
+                /*positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
+                isAttachedOut[i] = isAttachedIn[i] + 1;*/
+                
+                MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
+                
+                if (MTstepNumberIn[i] == stepsPerMTPoint){
+                    positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
+                    isAttachedOut[i] = isAttachedIn[i] + 1;
+                    MTstepNumberOut[i] = 1;
+                }else{
+                    isAttachedOut[i] = isAttachedIn[i];
+                }
+                
                 diffuseFlag = false;
             }
         }
@@ -124,7 +141,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         randomSeedsOut[i] = randNumber;
         
         //Probability that the particle attaches
-        if (randNumber > wON){
+        if (randNumber < wON*parameters.deltat/stepsPerMTPoint){
             
             //Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){
@@ -155,7 +172,13 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(randNumber2*10000), int(positionsIn[i].z*10000)) - 1;
         float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].x*10000), int(randNumber3*10000)) - 1;
         
-        positionsOut[i] = positionsIn[i] + 0.005*parameters.cellRadius*float3(randNumberX,randNumberY,randNumberZ);
+        //Compute the diffusion movement factor
+        float diffusivity = 1.59349*pow(float(10), float(6))/n_w;
+        float deltatMT = parameters.deltat/stepsPerMTPoint;
+        float msqdistance = sqrt(6*diffusivity*deltatMT);
+        float factor = msqdistance/0.866;
+        
+        positionsOut[i] = positionsIn[i] + factor*float3(randNumberX,randNumberY,randNumberZ);
         
         isAttachedOut[i] = -1;
     }
@@ -179,9 +202,5 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     distances[i] = distance;
         
-    //Check if new point is near a microtubule
-    
-    //int cellID = getCellID(positionsOut[i].x, positionsOut[i].y, positionsOut[i].z, parameters.cellRadius);
-    
 }
 

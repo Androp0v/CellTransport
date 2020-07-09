@@ -18,20 +18,23 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 80 //Number of biological cells to simulate simultaneously
+    let nCells: Int = 40 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
-    let nbodies: Int = 400000 //524288 //4194304 // 16777216
-    let nMicrotubules: Int = 120 //400
-    let cellRadius: Float = 14000 //nm
+    let nbodies: Int = 200000 //524288 //4194304 // 16777216
+    let nMicrotubules: Int = 150 //400
+    let cellRadius: Float = 12000 //nm
     let centrosomeRadius: Float = 1400 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
     let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
-    public let deltat: Float = 0.00001
     
+    let microtubuleSpeed: Float = 800 //nm/s
+    let microtubuleSegmentLength: Float = 50 //nm
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
     var microtubuleNSegments: [Int] = []
     var microtubulePointsArray: [simd_float3] = []
+    
+    var deltat: Float = 0.0 //Later modified to microtubuleSegmentLength/microtubuleSpeed
     
     // CellID to MT dictionaries and arrays
     
@@ -144,6 +147,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     fileprivate var randomSeedsInBuffer: [MTLBuffer?] = []
     fileprivate var randomSeedsOutBuffer: [MTLBuffer?] = []
+    
+    fileprivate var MTstepNumberInBuffer: [MTLBuffer?] = []
+    fileprivate var MTstepNumberOutBuffer: [MTLBuffer?] = []
     
     fileprivate var buffer: MTLCommandBuffer?
     
@@ -308,6 +314,17 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             length: isAttachedIn.count * MemoryLayout<Int32>.stride
         ))
         
+        let stepNumbers = [Int32](repeatElement(0, count: nbodies))
+        
+        MTstepNumberInBuffer.append(device.makeBuffer(
+            bytes: stepNumbers,
+            length: nbodies * MemoryLayout<Int32>.stride
+        ))
+        MTstepNumberOutBuffer.append(device.makeBuffer(
+            bytes: stepNumbers,
+            length: nbodies * MemoryLayout<Int32>.stride
+        ))
+        
     }
     
     func spawnBoundingBox() -> SCNNode{
@@ -448,6 +465,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Compute global variables
+        
+        deltat = microtubuleSegmentLength/microtubuleSpeed;
         
         // initialize Metal for GPU calculations
         initializeMetal()
@@ -665,18 +686,22 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             computeEncoder?.setBuffer(randomSeedsInBuffer[i], offset: 0, index: 14)
             computeEncoder?.setBuffer(randomSeedsOutBuffer[i], offset: 0, index: 15)
             
-            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 16)
+            computeEncoder?.setBuffer(MTstepNumberInBuffer[i], offset: 0, index: 16)
+            computeEncoder?.setBuffer(MTstepNumberOutBuffer[i], offset: 0, index: 17)
+            
+            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 18)
             computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
         }
           
         computeEncoder?.endEncoding()
         buffer!.commit()
-          
+                
         swap(&positionsIn, &positionsOut)
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
         swap(&oldTimeBuffer, &newTimeBuffer)
         swap(&isAttachedInBuffer, &isAttachedOutBuffer)
         swap(&randomSeedsInBuffer, &randomSeedsOutBuffer)
+        swap(&MTstepNumberInBuffer, &MTstepNumberOutBuffer)
           
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
