@@ -16,9 +16,7 @@ class LineChart: UIView{
     private let gradientLayer: CAGradientLayer = CAGradientLayer()
     private let gridLayer: CALayer = CALayer()
     private var dataPoints: [CGPoint]?
-    
-    public var isBusy = false
-    
+        
     let bins: Int = 1000
     
     var histogramArray = [Float](repeating: 0.0, count: 1000)
@@ -33,9 +31,7 @@ class LineChart: UIView{
     }
     
     func drawChart(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, autoMerge: Bool) {
-        
-            isBusy = true
-            
+                    
             if !autoMerge{
                 clearHistogram()
             }
@@ -49,7 +45,6 @@ class LineChart: UIView{
                 lineLayer.strokeColor = UIColor.white.cgColor
                 lineLayer.fillColor = UIColor.clear.cgColor
                 self.layer.addSublayer(lineLayer)
-                self.isBusy = false
                 self.returnableArray = self.histogramArray
             }
     }
@@ -88,9 +83,7 @@ class LineChart: UIView{
     /*- MICROTUBULES HISTOGRAM -*/
     
     func drawChart(cellRadius: Float, points: [SCNVector3], autoMerge: Bool) {
-        
-            isBusy = true
-            
+                    
             if !autoMerge{
                 clearHistogram()
             }
@@ -104,7 +97,6 @@ class LineChart: UIView{
                 lineLayer.strokeColor = UIColor.white.cgColor
                 lineLayer.fillColor = UIColor.clear.cgColor
                 self.layer.addSublayer(lineLayer)
-                self.isBusy = false
                 self.returnableArray = self.histogramArray
             }
     }
@@ -145,9 +137,7 @@ class LineChart: UIView{
     /*- COUNTS HISTOGRAM -*/
     
     func drawChart(cellRadius: Float, counts: [Int], autoMerge: Bool) {
-        
-            isBusy = true
-            
+                    
             if !autoMerge{
                 clearHistogram()
             }
@@ -161,9 +151,9 @@ class LineChart: UIView{
                 lineLayer.strokeColor = UIColor.white.cgColor
                 lineLayer.fillColor = UIColor.clear.cgColor
                 self.layer.addSublayer(lineLayer)
-                self.isBusy = false
                 self.returnableArray = self.histogramArray
             }
+                    
     }
     
     func histogramPath(cellRadius: Float, counts: [Int]) -> UIBezierPath {
@@ -172,7 +162,7 @@ class LineChart: UIView{
         let coordinateOrigin = self.bounds.origin
         let width = CGFloat(self.frame.width)
         let height = CGFloat(self.frame.height)
-        let maxNSegments: Int = 800 //TO-DO PASS THIS AS ARGUMENT FFS
+        let maxNSegments: Int = 800 //TODO PASS THIS AS ARGUMENT FFS
         
         histogramArray = [Float](repeating: 0.0, count: maxNSegments)
         

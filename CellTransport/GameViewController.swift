@@ -27,7 +27,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
     let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
     
-    let microtubuleSpeed: Float = 801 //nm/s
+    let microtubuleSpeed: Float = 800 //nm/s
     let microtubuleSegmentLength: Float = 50 //nm
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
@@ -42,6 +42,17 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var cellIDtoIndex: [Int32] = [] //Array to translate cellID to MT index
     var cellIDtoNMTs: [Int16] = [] //Array to translate cellID to number of MTs in that specific cell
     var indexToPoint: [Int32] = [] //Array to translate MT index to MT point position (x,y,z)
+    
+    // GDC Queues
+    let queue1 = DispatchQueue(label: "TS-Histogram1", qos: .utility, attributes: .concurrent)
+    let queue2 = DispatchQueue(label: "TS-Histogram2", qos: .utility, attributes: .concurrent)
+    let queue3 = DispatchQueue(label: "TS-Histogram3", qos: .utility, attributes: .concurrent)
+    let queue4 = DispatchQueue(label: "TS-Histogram4", qos: .utility, attributes: .concurrent)
+    
+    var isBusy1 = false
+    var isBusy2 = false
+    var isBusy3 = false
+    var isBusy4 = false
     
     // UI outlets and variables
     
@@ -706,27 +717,43 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         
-        if !(self.secondChildTabVC?.histogramChart1?.isBusy ?? true){
-            DispatchQueue.global(qos: .default).async {
+        if !(self.isBusy1){
+            self.isBusy1 = true
+            queue1.async(){
                 self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances, nBodies: self.nbodies)
-            }
-        }
-            
-        if !(self.secondChildTabVC?.histogramChart2?.isBusy ?? true){
-            DispatchQueue.global(qos: .default).async {
-                self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps, nBodies: self.nbodies)
-            }
-        }
-            
-        if !(self.secondChildTabVC?.histogramChart3?.isBusy ?? true){
-            DispatchQueue.global(qos: .default).async {
-                self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, points: self.microtubulePoints)
+                DispatchQueue.main.async {
+                    self.isBusy1 = false
+                }
             }
         }
         
-        if !(self.secondChildTabVC?.histogramChart4?.isBusy ?? true){
-            DispatchQueue.global(qos: .default).async {
+        if !(self.isBusy2){
+            self.isBusy2 = true
+            queue2.async(){
+                self.secondChildTabVC?.setHistogramData2(cellRadius: self.cellRadius, distances: timeJumps, nBodies: self.nbodies)
+                DispatchQueue.main.async {
+                    self.isBusy2 = false
+                }
+            }
+        }
+        
+        if !(self.isBusy3){
+            self.isBusy3 = true
+            queue3.async(){
+                self.secondChildTabVC?.setHistogramData3(cellRadius: self.cellRadius, points: self.microtubulePoints)
+                DispatchQueue.main.async {
+                    self.isBusy3 = false
+                }
+            }
+        }
+        
+        if !(self.isBusy4){
+            self.isBusy4 = true
+            queue4.async(){
                 self.secondChildTabVC?.setHistogramData4(cellRadius: self.cellRadius, counts: self.microtubuleNSegments)
+                DispatchQueue.main.async {
+                    self.isBusy4 = false
+                }
             }
         }
                         

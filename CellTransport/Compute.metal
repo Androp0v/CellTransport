@@ -8,9 +8,9 @@
 
 #include <metal_stdlib>
 
-#define wON 25
+#define wON 5.0
 #define wOFF 1
-#define stepsPerMTPoint 5
+#define stepsPerMTPoint 40
 #define n_w 10
 
 using namespace metal;
@@ -161,7 +161,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         randomSeedsOut[i] = randNumber;
         
         //Probability that the particle attaches
-        if (randNumber < wON*parameters.deltat/stepsPerMTPoint){
+        if (randNumber < wON*parameters.deltat/stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
             
             //Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){
