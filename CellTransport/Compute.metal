@@ -8,7 +8,7 @@
 
 #include <metal_stdlib>
 
-#define wON 5.0
+#define wON 7.5
 #define wOFF 1
 #define stepsPerMTPoint 40
 #define n_w 10

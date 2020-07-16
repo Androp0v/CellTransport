@@ -756,6 +756,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 }
             }
         }
+        
+        // Every 1000 steps, clean the random numbers re-seeding them from Swift
+        if stepCounter % 1000 == 0{
+            let randomBufferToSwift = randomSeedsInBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+            for i in 0..<nbodies{
+                randomBufferToSwift[i] = Float.random(in: 0..<1)
+            }
+        }
                         
         stepCounter += 1
         
