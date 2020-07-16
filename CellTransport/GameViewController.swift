@@ -23,11 +23,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     let nbodies: Int = 200000 //524288 //4194304 // 16777216
     let nMicrotubules: Int = 150 //400
     let cellRadius: Float = 12000 //nm
-    let centrosomeRadius: Float = 1400 //nm
+    let centrosomeRadius: Float = 1200 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
     let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
     
-    let microtubuleSpeed: Float = 800 //nm/s
+    let microtubuleSpeed: Float = 801 //nm/s
     let microtubuleSegmentLength: Float = 50 //nm
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []

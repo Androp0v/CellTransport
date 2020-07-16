@@ -11,7 +11,7 @@
 #define wON 25
 #define wOFF 1
 #define stepsPerMTPoint 5
-#define n_w 1
+#define n_w 10
 
 using namespace metal;
 
@@ -109,14 +109,33 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         //Probability that the particle detaches
         if (randNumber < wOFF*parameters.deltat/stepsPerMTPoint){
             isAttachedOut[i] = -1;
+            MTstepNumberOut[i] = 1;
         }else{
             //Check that the particle hasn't reached the end of the MT
-            if (MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius &&
-                MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius &&
-                MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius){
+            if (abs(MTpoints[isAttachedIn[i] + 1].x - parameters.cellRadius) < 100 &&
+                abs(MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius) < 100 &&
+                abs(MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius) < 100){
                 
                 //If the particle reached the end of the MT, detach immediately
                 isAttachedOut[i] = -1;
+                MTstepNumberOut[i] = 1;
+                
+                /*int MTindexForSearch = i - 1;
+                
+                while (!(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius &&
+                       MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius &&
+                       MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius)){
+                    MTindexForSearch -= 1;
+                    if (MTindexForSearch == 0){
+                        break;
+                    }
+                    
+                    positionsOut[i] = MTpoints[MTindexForSearch];
+                    isAttachedOut[i] = MTindexForSearch;
+                    
+                }*/
+                
+                
             }else{
                 
                 /*positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
@@ -124,12 +143,13 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 
                 MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
                 
-                if (MTstepNumberIn[i] == stepsPerMTPoint){
+                if (MTstepNumberIn[i] >= stepsPerMTPoint){
                     positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
                     isAttachedOut[i] = isAttachedIn[i] + 1;
                     MTstepNumberOut[i] = 1;
                 }else{
                     isAttachedOut[i] = isAttachedIn[i];
+                    positionsOut[i] = positionsIn[i];
                 }
                 
                 diffuseFlag = false;
@@ -174,7 +194,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         
         //Compute the diffusion movement factor
         float diffusivity = 1.59349*pow(float(10), float(6))/n_w;
-        float deltatMT = parameters.deltat/stepsPerMTPoint;
+        float deltatMT = parameters.deltat/stepsPerMTPoint; //REDUCED DELTA T
         float msqdistance = sqrt(6*diffusivity*deltatMT);
         float factor = msqdistance/0.866;
         

@@ -19,6 +19,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
     let maxNSegments = 800 //200
     
     var pointsList:[SCNVector3] = []
+    let randomCutoff: Float = 0.0 //Float.random(in: 0.0..<0.0) //TODO
     
     for i in 0..<(maxNSegments-1){
         
@@ -82,7 +83,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
         }
         
         // Check wether microtubule has exceeded cell walls
-        if (sqrt(pow(newPoint.x, 2) + pow(newPoint.y, 2) + pow(newPoint.z, 2)) > cellRadius){
+        if (sqrt(pow(newPoint.x, 2) + pow(newPoint.y, 2) + pow(newPoint.z, 2)) > cellRadius*(1.0-randomCutoff)){
             //print("Microtubule length: " + String(pointsList.count))
             return pointsList
         }
