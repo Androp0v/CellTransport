@@ -62,6 +62,7 @@ func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout
     
     let maxNumberOfCells = cellsPerDimension*cellsPerDimension*cellsPerDimension
     var currentMTindex: Int = 0
+    var maxIndex: Int = 0;
     
     for i in 0..<nCells{
         for j in 0..<maxNumberOfCells{
@@ -70,6 +71,12 @@ func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout
             if cellIDDict[cellID] != nil{
                 //Count the numbers of MTs in that specific cell and add that to the array
                 cellIDtoNMTs.append(Int16(cellIDDict[cellID]!.count))
+                
+                //Debug
+                /*if (cellIDDict[cellID]!.count >= maxIndex && cellIDDict[cellID]!.count != 150){
+                    maxIndex = cellIDDict[cellID]!.count
+                    print(maxIndex)
+                }*/
                 
                 //Add the index of the FIRST MT in that specific cell to the cellIDtoIndex array
                 cellIDtoIndex.append(Int32(currentMTindex))
@@ -82,11 +89,12 @@ func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout
                 //Move the current MTindex
                 currentMTindex += cellIDDict[cellID]!.count
                 
+                
+                
             }else{
                 cellIDtoIndex.append(-1)
                 cellIDtoNMTs.append(0)
             }
-            
         }
     }
 }

@@ -8,7 +8,7 @@
 
 #include <metal_stdlib>
 
-#define wON 7.5
+#define wON 9.5
 #define wOFF 1
 #define stepsPerMTPoint 40
 #define n_w 10
@@ -176,6 +176,8 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 isAttachedOut[i] = indexToPoints[MTindex + chosenMT];
                 diffuseFlag = false;
             }
+        }else{
+            isAttachedOut[i] = isAttachedIn[i];
         }
     }
     
