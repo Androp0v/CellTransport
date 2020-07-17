@@ -62,7 +62,6 @@ func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout
     
     let maxNumberOfCells = cellsPerDimension*cellsPerDimension*cellsPerDimension
     var currentMTindex: Int = 0
-    var maxIndex: Int = 0;
     
     for i in 0..<nCells{
         for j in 0..<maxNumberOfCells{

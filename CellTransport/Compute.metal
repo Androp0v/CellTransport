@@ -8,9 +8,9 @@
 
 #include <metal_stdlib>
 
-#define wON 9.5
-#define wOFF 1
-#define stepsPerMTPoint 40
+#define wON 3.5
+#define wOFF 1.0
+#define stepsPerMTPoint 10
 #define n_w 10
 
 using namespace metal;
@@ -88,7 +88,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + parameters.deltat/stepsPerMTPoint * parameters.cellRadius;
+    newTime[i] = oldTime[i] + parameters.deltat/stepsPerMTPoint;
     
     int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
     
@@ -141,7 +141,6 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 /*positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
                 isAttachedOut[i] = isAttachedIn[i] + 1;*/
                 
-                MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
                 
                 if (MTstepNumberIn[i] >= stepsPerMTPoint){
                     positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
@@ -150,6 +149,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 }else{
                     isAttachedOut[i] = isAttachedIn[i];
                     positionsOut[i] = positionsIn[i];
+                    MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
                 }
                 
                 diffuseFlag = false;
@@ -211,7 +211,8 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     if (distance >= parameters.cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];
-        timeBetweenJumps[i] = newTime[i] - timeLastJump[i];
+        timeBetweenJumps[i] = oldTime[i] - timeLastJump[i];
+        isAttachedOut[i] = -1;
         
         float4 point = randomSpherePoint(0.1 * parameters.cellRadius, int(positionsIn[i].x*100000), int(positionsIn[i].y*100000), int(positionsIn[i].z*100000));
         
