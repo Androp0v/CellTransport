@@ -93,8 +93,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
     
     int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
-    
-        
+            
     //Flag wether or not the particle should diffuse
     
     bool diffuseFlag = true;
