@@ -140,6 +140,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var queue: MTLCommandQueue?
     fileprivate var library: MTLLibrary!
     fileprivate var computePipelineState: [MTLComputePipelineState?] = []
+    fileprivate var verifyCollisionsPipelineState: [MTLComputePipelineState?] = []
     fileprivate var positionsIn: [MTLBuffer?] = []
     fileprivate var positionsOut: [MTLBuffer?] = []
     fileprivate var distancesBuffer: [MTLBuffer?] = []
@@ -162,6 +163,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     fileprivate var MTstepNumberInBuffer: [MTLBuffer?] = []
     fileprivate var MTstepNumberOutBuffer: [MTLBuffer?] = []
+    
+    fileprivate var cellIDtoOccupiedInBuffer: [MTLBuffer?] = []
+    fileprivate var cellIDtoOccupiedOutBuffer: [MTLBuffer?] = []
     
     fileprivate var buffer: MTLCommandBuffer?
     
@@ -208,6 +212,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func initComputePipelineState(_ device: MTLDevice) {
         
         let compute = (library.makeFunction(name: "compute"))!
+        let verifyCollisions = (library.makeFunction(name: "verifyCollisions"))!
         
         
         for _ in 0..<nBuffers{
@@ -215,6 +220,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             do {
                 let computePipelineStatelocal = try device.makeComputePipelineState(function: compute)
                 computePipelineState.append(computePipelineStatelocal)
+            } catch {
+                print("Failed to create compute pipeline state")
+            }
+        }
+        
+        for _ in 0..<nBuffers{
+            
+            do {
+                let verifyCollisionsPipelineStatelocal = try device.makeComputePipelineState(function: verifyCollisions)
+                verifyCollisionsPipelineState.append(verifyCollisionsPipelineStatelocal)
             } catch {
                 print("Failed to create compute pipeline state")
             }
@@ -335,6 +350,20 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         MTstepNumberOutBuffer.append(device.makeBuffer(
             bytes: stepNumbers,
             length: nbodies * MemoryLayout<Int32>.stride
+        ))
+        
+        // Not strictly MT related, but useful to have  cellIDtoIndex.count available
+        
+        let cellIDtoOccupied = [Bool](repeating: false, count: cellIDtoNMTs.count)
+        
+        cellIDtoOccupiedInBuffer.append(device.makeBuffer(
+            bytes: cellIDtoOccupied,
+            length: cellIDtoOccupied.count * MemoryLayout<Bool>.stride
+        ))
+        
+        cellIDtoOccupiedOutBuffer.append(device.makeBuffer(
+            bytes: cellIDtoOccupied,
+            length: cellIDtoOccupied.count * MemoryLayout<Bool>.stride
         ))
         
     }
@@ -707,6 +736,22 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
           
         computeEncoder?.endEncoding()
         buffer!.commit()
+        
+        // Verify collisions
+        
+        buffer = queue?.makeCommandBuffer()
+        let verifyCollisionsEncoder = buffer!.makeComputeCommandEncoder()
+        
+        for i in 0..<nBuffers{
+            verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState[i]!)
+            verifyCollisionsEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
+            verifyCollisionsEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
+        }
+        
+        verifyCollisionsEncoder?.endEncoding()
+        buffer!.commit()
+        
+        // Swap in/out arrays
                 
         swap(&positionsIn, &positionsOut)
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
@@ -714,7 +759,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         swap(&isAttachedInBuffer, &isAttachedOutBuffer)
         swap(&randomSeedsInBuffer, &randomSeedsOutBuffer)
         swap(&MTstepNumberInBuffer, &MTstepNumberOutBuffer)
-          
+        
+        // Asynchronously launch histogram computations if not already running
+        
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         

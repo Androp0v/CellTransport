@@ -66,6 +66,13 @@ struct simulation_parameters {
     int32_t nCells;
 };
 
+kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
+                             device float3 *positionsOut [[buffer(1)]],
+                             device int32_t *cellIDtoOccupiedIn [[buffer(2)]],
+                             device int32_t *cellIDtoOccupiedTentative [[buffer(3)]]) {
+    
+}
+
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float3 *positionsOut [[buffer(1)]],
                     device float *distances [[buffer(2)]],
