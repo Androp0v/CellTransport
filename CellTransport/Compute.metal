@@ -68,8 +68,61 @@ struct simulation_parameters {
 
 kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                              device float3 *positionsOut [[buffer(1)]],
-                             device int32_t *cellIDtoOccupiedIn [[buffer(2)]],
-                             device int32_t *cellIDtoOccupiedTentative [[buffer(3)]]) {
+                             device int32_t *cellIDtoOccupied [[buffer(2)]],
+                             constant simulation_parameters & parameters [[buffer(3)]],
+                             uint i [[thread_position_in_grid]]){
+    
+    //int maxCellNumber = parameters.cellsPerDimension*parameters.cellsPerDimension*parameters.cellsPerDimension;
+    int particlesPerCell = parameters.nBodies/parameters.nCells;
+    
+    /*for (int j=0; j < particlesPerCell; j++){
+        positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+    }*/
+        
+    for(int j=0; j < particlesPerCell; j++){
+        //Update cellIDtoOccupied hypermatrix
+        cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
+                                   positionsIn[j + particlesPerCell*i].y,
+                                   positionsIn[j + particlesPerCell*i].z,
+                                   parameters.cellRadius,
+                                   parameters.cellsPerDimension,
+                                   i)] += 1;
+    }
+                                 
+    for (int j=0; j < particlesPerCell; j++){
+        
+        int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
+                                 positionsIn[j + particlesPerCell*i].y,
+                                 positionsIn[j + particlesPerCell*i].z,
+                                 parameters.cellRadius,
+                                 parameters.cellsPerDimension,
+                                 i);
+        int cellIdOut = getCellID(positionsOut[j + particlesPerCell*i].x,
+                                  positionsOut[j + particlesPerCell*i].y,
+                                  positionsOut[j + particlesPerCell*i].z,
+                                  parameters.cellRadius,
+                                  parameters.cellsPerDimension,
+                                  i);
+        
+        //Check if it moved into the same cell
+        if (cellIdOut == cellIdIn){
+            positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+        }else{
+            //Check if the new cell is not occupied
+            if (cellIDtoOccupied[cellIdOut] == 0){
+                //Move the particle
+                positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+                //Free the cell just left
+                cellIDtoOccupied[cellIdIn] -= 1;
+                cellIDtoOccupied[cellIdOut] += 1;
+            }else{
+                //Keep the particle in the same position
+                //Occupy the cell
+                //cellIDtoOccupied[cellIdIn] = 1;
+            }
+        }
+        
+    }
     
 }
 
@@ -230,6 +283,6 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     }
     
     distances[i] = distance;
-        
+    
 }
 

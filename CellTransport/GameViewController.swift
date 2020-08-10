@@ -737,23 +737,35 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeEncoder?.endEncoding()
         buffer!.commit()
         
-        // Verify collisions
+        // Verify collisions after some steps to avoid excessive initial crowding
         
-        buffer = queue?.makeCommandBuffer()
-        let verifyCollisionsEncoder = buffer!.makeComputeCommandEncoder()
-        
-        for i in 0..<nBuffers{
-            verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState[i]!)
-            verifyCollisionsEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
-            verifyCollisionsEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
+        if (stepCounter > 100){
+                        
+            buffer = queue?.makeCommandBuffer()
+            let threadsPerArrayCollisions = MTLSizeMake(nCells, 1, 1)
+            let verifyCollisionsEncoder = buffer!.makeComputeCommandEncoder()
+            
+            for i in 0..<nBuffers{
+                verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState[i]!)
+                verifyCollisionsEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
+                verifyCollisionsEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
+                verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedOutBuffer[i], offset: 0, index: 2)
+                
+                verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 3)
+                
+                verifyCollisionsEncoder?.dispatchThreads(threadsPerArrayCollisions, threadsPerThreadgroup: groupsize)
+            }
+            
+            verifyCollisionsEncoder?.endEncoding()
+            buffer!.commit()
+            
+        }else{
+            swap(&positionsIn, &positionsOut)
         }
-        
-        verifyCollisionsEncoder?.endEncoding()
-        buffer!.commit()
         
         // Swap in/out arrays
                 
-        swap(&positionsIn, &positionsOut)
+        //swap(&positionsIn, &positionsOut)
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
         swap(&oldTimeBuffer, &newTimeBuffer)
         swap(&isAttachedInBuffer, &isAttachedOutBuffer)
