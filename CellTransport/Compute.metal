@@ -68,19 +68,16 @@ struct simulation_parameters {
 
 kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                              device float3 *positionsOut [[buffer(1)]],
-                             device int32_t *cellIDtoOccupied [[buffer(2)]],
-                             constant simulation_parameters & parameters [[buffer(3)]],
+                             device int32_t *isAttachedIn [[buffer(2)]],
+                             device int32_t *isAttachedOut [[buffer(3)]],
+                             device int32_t *cellIDtoOccupied [[buffer(4)]],
+                             constant simulation_parameters & parameters [[buffer(5)]],
                              uint i [[thread_position_in_grid]]){
     
-    //int maxCellNumber = parameters.cellsPerDimension*parameters.cellsPerDimension*parameters.cellsPerDimension;
     int particlesPerCell = parameters.nBodies/parameters.nCells;
     
-    /*for (int j=0; j < particlesPerCell; j++){
-        positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
-    }*/
-        
+    //Update the cellIDtoOccupied hypermatrix
     for(int j=0; j < particlesPerCell; j++){
-        //Update cellIDtoOccupied hypermatrix
         cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
                                    positionsIn[j + particlesPerCell*i].y,
                                    positionsIn[j + particlesPerCell*i].z,
@@ -89,6 +86,7 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                                    i)] += 1;
     }
                                  
+    //Move each particle in the cell sequentially
     for (int j=0; j < particlesPerCell; j++){
         
         int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
@@ -104,24 +102,35 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                                   parameters.cellsPerDimension,
                                   i);
         
-        //Check if it moved into the same cell
+        //Check if it moved into the same cell and if it's the only particle in that cell
+        //if (cellIdOut == cellIdIn && cellIDtoOccupied[cellIdIn] == 1){
         if (cellIdOut == cellIdIn){
             positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+            isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
         }else{
             //Check if the new cell is not occupied
             if (cellIDtoOccupied[cellIdOut] == 0){
                 //Move the particle
                 positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+                isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
                 //Free the cell just left
                 cellIDtoOccupied[cellIdIn] -= 1;
                 cellIDtoOccupied[cellIdOut] += 1;
             }else{
                 //Keep the particle in the same position
-                //Occupy the cell
-                //cellIDtoOccupied[cellIdIn] = 1;
+                //The cell will still be occupied
             }
         }
-        
+    }
+    
+    //Clear the whole cellIdtoOccupied hypermatrix
+    for(int j=0; j < particlesPerCell; j++){
+        cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
+                                   positionsIn[j + particlesPerCell*i].y,
+                                   positionsIn[j + particlesPerCell*i].z,
+                                   parameters.cellRadius,
+                                   parameters.cellsPerDimension,
+                                   i)] = 0;
     }
     
 }

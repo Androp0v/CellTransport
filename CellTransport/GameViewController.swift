@@ -19,10 +19,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation parameters
     
-    let nCells: Int = 20 //Number of biological cells to simulate simultaneously
+    let nCells: Int = 80 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
     let nbodies: Int = 100000 //524288 //4194304 // 16777216
-    let nMicrotubules: Int = 150 //400
+    let nMicrotubules: Int = 50 //400
     let cellRadius: Float = 12000 //nm
     let centrosomeRadius: Float = 1200 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
@@ -749,9 +749,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState[i]!)
                 verifyCollisionsEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
                 verifyCollisionsEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
-                verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedOutBuffer[i], offset: 0, index: 2)
+                verifyCollisionsEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 2)
+                verifyCollisionsEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 3)
+                verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedOutBuffer[i], offset: 0, index: 4)
                 
-                verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 3)
+                verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 5)
                 
                 verifyCollisionsEncoder?.dispatchThreads(threadsPerArrayCollisions, threadsPerThreadgroup: groupsize)
             }
@@ -761,6 +763,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             
         }else{
             swap(&positionsIn, &positionsOut)
+            swap(&isAttachedInBuffer, &isAttachedOutBuffer)
         }
         
         // Swap in/out arrays
@@ -768,7 +771,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         //swap(&positionsIn, &positionsOut)
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
         swap(&oldTimeBuffer, &newTimeBuffer)
-        swap(&isAttachedInBuffer, &isAttachedOutBuffer)
+        //swap(&isAttachedInBuffer, &isAttachedOutBuffer)
         swap(&randomSeedsInBuffer, &randomSeedsOutBuffer)
         swap(&MTstepNumberInBuffer, &MTstepNumberOutBuffer)
         
