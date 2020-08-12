@@ -21,8 +21,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     let nCells: Int = 80 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
-    let nbodies: Int = 100000 //524288 //4194304 // 16777216
-    let nMicrotubules: Int = 50 //400
+    let nbodies: Int = 40000 //524288 //4194304 // 16777216
+    let nMicrotubules: Int = 150 //400
     let cellRadius: Float = 12000 //nm
     let centrosomeRadius: Float = 1200 //nm
     let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
@@ -737,9 +737,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeEncoder?.endEncoding()
         buffer!.commit()
         
-        // Verify collisions after some steps to avoid excessive initial crowding
+        // Verify collisions //after some steps to avoid excessive initial crowding
         
-        if (stepCounter > 100){
+        //if (stepCounter >= 0){
+        if (true){
                         
             buffer = queue?.makeCommandBuffer()
             let threadsPerArrayCollisions = MTLSizeMake(nCells, 1, 1)
@@ -752,8 +753,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 verifyCollisionsEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 2)
                 verifyCollisionsEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 3)
                 verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedOutBuffer[i], offset: 0, index: 4)
+                verifyCollisionsEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 5)
                 
-                verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 5)
+                verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 6)
                 
                 verifyCollisionsEncoder?.dispatchThreads(threadsPerArrayCollisions, threadsPerThreadgroup: groupsize)
             }

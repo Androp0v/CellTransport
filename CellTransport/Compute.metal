@@ -71,7 +71,8 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                              device int32_t *isAttachedIn [[buffer(2)]],
                              device int32_t *isAttachedOut [[buffer(3)]],
                              device int32_t *cellIDtoOccupied [[buffer(4)]],
-                             constant simulation_parameters & parameters [[buffer(5)]],
+                             device float *distances [[buffer(5)]],
+                             constant simulation_parameters & parameters [[buffer(6)]],
                              uint i [[thread_position_in_grid]]){
     
     int particlesPerCell = parameters.nBodies/parameters.nCells;
@@ -104,9 +105,12 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
         
         //Check if it moved into the same cell and if it's the only particle in that cell
         //if (cellIdOut == cellIdIn && cellIDtoOccupied[cellIdIn] == 1){
-        if (cellIdOut == cellIdIn){
+        if ((cellIdOut == cellIdIn) || distances[j + particlesPerCell*i] < parameters.cellRadius*0.1){
             positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
             isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
+            //Free the cell just left
+            cellIDtoOccupied[cellIdIn] -= 1;
+            cellIDtoOccupied[cellIdOut] += 1;
         }else{
             //Check if the new cell is not occupied
             if (cellIDtoOccupied[cellIdOut] == 0){
@@ -131,6 +135,12 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                                    parameters.cellRadius,
                                    parameters.cellsPerDimension,
                                    i)] = 0;
+        cellIDtoOccupied[getCellID(positionsOut[j + particlesPerCell*i].x,
+                                positionsOut[j + particlesPerCell*i].y,
+                                positionsOut[j + particlesPerCell*i].z,
+                                parameters.cellRadius,
+                                parameters.cellsPerDimension,
+                                i)] = 0;
     }
     
 }
