@@ -283,9 +283,15 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         isAttachedOut[i] = -1;
     }
     
+    //Precompute distance
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
-    //Check if new point is inside cell radius
+    //Ceck if particle is inside centrosome
+    if (distance <= parameters.cellRadius*0.1){
+        updatedTimeLastJump[i] = newTime[i];
+    }
+    
+    //Check if new point is outside cell radius
     if (distance >= parameters.cellRadius){
         
         updatedTimeLastJump[i] = newTime[i];

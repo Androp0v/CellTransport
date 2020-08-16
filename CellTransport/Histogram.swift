@@ -26,7 +26,7 @@ func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nDista
 func histogramTimes(times: UnsafeMutablePointer<Float>, nDistances: Int, bins: Int, histogramArray: inout [Float]){
     
     let binWidth: Float = 1.0/Float(bins)
-    let maxTime: Float = 20 // s
+    let maxTime: Float = 120 // s
     
     for i in 0..<nDistances{
         if times[i] >= 0 && times[i]/maxTime < 1{
