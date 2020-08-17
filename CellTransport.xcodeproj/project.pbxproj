@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C403DB4323F6B394008368CB /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C403DB4223F6B394008368CB /* LineChartView.swift */; };
+		C403DB4323F6B394008368CB /* LineChart1View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C403DB4223F6B394008368CB /* LineChart1View.swift */; };
+		C404E1B024EAF6AE00FD5489 /* LineChart2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C404E1AF24EAF6AE00FD5489 /* LineChart2View.swift */; };
+		C404E1B224EAF73C00FD5489 /* LineChart3View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C404E1B124EAF73C00FD5489 /* LineChart3View.swift */; };
 		C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = C406BBB723F6F57F0013A79B /* Histogram.swift */; };
 		C406BBBA23F743F60013A79B /* Histogram.metal in Sources */ = {isa = PBXBuildFile; fileRef = C406BBB923F743F60013A79B /* Histogram.metal */; };
+		C40F01CA24EB045500C9360B /* LineChart4View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F01C924EB045500C9360B /* LineChart4View.swift */; };
 		C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F0BCB241155E3008A5619 /* IOFunctions.swift */; };
 		C411F960241F0C88006BDEF3 /* CellMembrane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C411F95F241F0C88006BDEF3 /* CellMembrane.swift */; };
 		C4544D4D2402D86000EDB29A /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = C4544D4C2402D86000EDB29A /* Readme.md */; };
@@ -30,9 +33,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C403DB4223F6B394008368CB /* LineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
+		C403DB4223F6B394008368CB /* LineChart1View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChart1View.swift; sourceTree = "<group>"; };
+		C404E1AF24EAF6AE00FD5489 /* LineChart2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChart2View.swift; sourceTree = "<group>"; };
+		C404E1B124EAF73C00FD5489 /* LineChart3View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChart3View.swift; sourceTree = "<group>"; };
 		C406BBB723F6F57F0013A79B /* Histogram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Histogram.swift; sourceTree = "<group>"; };
 		C406BBB923F743F60013A79B /* Histogram.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Histogram.metal; sourceTree = "<group>"; };
+		C40F01C924EB045500C9360B /* LineChart4View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChart4View.swift; sourceTree = "<group>"; };
 		C40F0BCB241155E3008A5619 /* IOFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOFunctions.swift; sourceTree = "<group>"; };
 		C411F95F241F0C88006BDEF3 /* CellMembrane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellMembrane.swift; sourceTree = "<group>"; };
 		C4544D4C2402D86000EDB29A /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
@@ -66,6 +72,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C404E1AE24EAF68600FD5489 /* Histograms */ = {
+			isa = PBXGroup;
+			children = (
+				C406BBB723F6F57F0013A79B /* Histogram.swift */,
+				C403DB4223F6B394008368CB /* LineChart1View.swift */,
+				C404E1AF24EAF6AE00FD5489 /* LineChart2View.swift */,
+				C404E1B124EAF73C00FD5489 /* LineChart3View.swift */,
+				C40F01C924EB045500C9360B /* LineChart4View.swift */,
+			);
+			path = Histograms;
+			sourceTree = "<group>";
+		};
 		C4BD593823EA22E1000B871B = {
 			isa = PBXGroup;
 			children = (
@@ -94,8 +112,7 @@
 				C4BD596523EB15AA000B871B /* Microtubules.swift */,
 				C4BD596723EB4769000B871B /* ParametersViewController.swift */,
 				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
-				C403DB4223F6B394008368CB /* LineChartView.swift */,
-				C406BBB723F6F57F0013A79B /* Histogram.swift */,
+				C404E1AE24EAF68600FD5489 /* Histograms */,
 				C4BD594A23EA22E1000B871B /* Main.storyboard */,
 				C411F95F241F0C88006BDEF3 /* CellMembrane.swift */,
 				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
@@ -188,14 +205,17 @@
 				C406BBBA23F743F60013A79B /* Histogram.metal in Sources */,
 				C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
-				C403DB4323F6B394008368CB /* LineChartView.swift in Sources */,
+				C404E1B224EAF73C00FD5489 /* LineChart3View.swift in Sources */,
+				C403DB4323F6B394008368CB /* LineChart1View.swift in Sources */,
 				C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */,
+				C404E1B024EAF6AE00FD5489 /* LineChart2View.swift in Sources */,
 				C4BD596423EB14DD000B871B /* shaders.metal in Sources */,
 				C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */,
 				C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */,
 				C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */,
 				C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */,
 				C4BD596A23EB477F000B871B /* GraphsViewController.swift in Sources */,
+				C40F01CA24EB045500C9360B /* LineChart4View.swift in Sources */,
 				C4BD596223EB139C000B871B /* LineDrawing.swift in Sources */,
 				C411F960241F0C88006BDEF3 /* CellMembrane.swift in Sources */,
 				C4BD595E23EA3954000B871B /* Compute.metal in Sources */,

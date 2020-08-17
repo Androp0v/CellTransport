@@ -14,10 +14,10 @@ class GraphsViewController: UIViewController {
     
     @IBOutlet var scrollView: UIScrollView!
     
-    @IBOutlet var histogramChart1: LineChart?
-    @IBOutlet var histogramChart2: LineChart!
-    @IBOutlet var histogramChart3: LineChart!
-    @IBOutlet var histogramChart4: LineChart!
+    @IBOutlet var histogramChart1: LineChart1?
+    @IBOutlet var histogramChart2: LineChart2!
+    @IBOutlet var histogramChart3: LineChart3!
+    @IBOutlet var histogramChart4: LineChart4!
     
     @IBOutlet var histogramChart1Settings: UIButton!
     
@@ -57,7 +57,7 @@ class GraphsViewController: UIViewController {
     }
     
     func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int){
-        histogramChart2?.drawChartTimes(times: distances, nBodies: nBodies, autoMerge: false)
+        histogramChart2?.drawChart(times: distances, nBodies: nBodies, autoMerge: false)
     }
     
     func setHistogramData3(cellRadius: Float, points: [SCNVector3]){
