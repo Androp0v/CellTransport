@@ -222,7 +222,7 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
                 semifinalVertices[i].y += rDirection.y * noiseValue * modulator
                 semifinalVertices[i].z += rDirection.z * noiseValue * modulator
                 
-                noise.move(by: vector_double3(0,0,Double(-semifinalVertices[i].z)))
+                //noise.move(by: vector_double3(0,0,Double(-semifinalVertices[i].z)))
                 
             }
             
