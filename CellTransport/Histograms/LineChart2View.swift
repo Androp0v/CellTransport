@@ -16,6 +16,10 @@ class LineChart2: UIView{
     private let gradientLayer: CAGradientLayer = CAGradientLayer()
     private let gridLayer: CALayer = CALayer()
     private var dataPoints: [CGPoint]?
+    
+    private var graphWidth: CGFloat = 0
+    private var graphHeight: CGFloat = 0
+    private var graphOrigin: CGPoint = CGPoint(x: 0.0, y: 0.0)
         
     let bins: Int = 1000
     
@@ -36,7 +40,13 @@ class LineChart2: UIView{
             clearHistogram()
         }
         
-        let path = histogramPathTimes(times: times, nBodies: nBodies)
+        DispatchQueue.main.sync {
+            self.graphWidth = self.frame.width
+            self.graphHeight = self.frame.height
+            self.graphOrigin = self.bounds.origin
+        }
+        
+        let path = histogramPathTimes(times: times, nBodies: nBodies, width: self.graphWidth, height: self.graphHeight, coordinateOrigin: self.graphOrigin)
         
         DispatchQueue.main.sync {
             self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
@@ -49,12 +59,9 @@ class LineChart2: UIView{
         }
     }
     
-    func histogramPathTimes(times: UnsafeMutablePointer<Float>, nBodies: Int) -> UIBezierPath {
+    func histogramPathTimes(times: UnsafeMutablePointer<Float>, nBodies: Int, width: CGFloat, height: CGFloat, coordinateOrigin: CGPoint) -> UIBezierPath {
         
         let path = UIBezierPath()
-        let coordinateOrigin = self.bounds.origin
-        let width = CGFloat(self.frame.width)
-        let height = CGFloat(self.frame.height)
         
         histogramTimes(times: times, nDistances: nBodies, bins: bins, histogramArray: &histogramArray)
         

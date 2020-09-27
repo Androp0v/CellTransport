@@ -16,6 +16,10 @@ class LineChart1: UIView{
     private let gradientLayer: CAGradientLayer = CAGradientLayer()
     private let gridLayer: CALayer = CALayer()
     private var dataPoints: [CGPoint]?
+    
+    private var graphWidth: CGFloat = 0
+    private var graphHeight: CGFloat = 0
+    private var graphOrigin: CGPoint = CGPoint(x: 0.0, y: 0.0)
         
     let bins: Int = 1000
     
@@ -36,7 +40,14 @@ class LineChart1: UIView{
             clearHistogram()
         }
         
-        let path = histogramPath(cellRadius: cellRadius, distances: distances, nBodies: nBodies)
+        DispatchQueue.main.sync {
+            self.graphWidth = self.frame.width
+            self.graphHeight = self.frame.height
+            self.graphOrigin = self.bounds.origin
+        }
+        
+        let path = histogramPath(cellRadius: cellRadius, distances: distances, nBodies: nBodies, width: self.graphWidth, height: self.graphHeight, coordinateOrigin: self.graphOrigin)
+        
         
         DispatchQueue.main.sync {
             self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
@@ -49,13 +60,10 @@ class LineChart1: UIView{
         }
     }
     
-    func histogramPath(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int) -> UIBezierPath {
+    func histogramPath(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, width: CGFloat, height: CGFloat, coordinateOrigin: CGPoint) -> UIBezierPath {
         
         let path = UIBezierPath()
-        let coordinateOrigin = self.bounds.origin
-        let width = CGFloat(self.frame.width)
-        let height = CGFloat(self.frame.height)
-        
+ 
         histogram(cellRadius: cellRadius, distances: distances, nDistances: nBodies, bins: bins, histogramArray: &histogramArray)
         
         let baseLineHeight: CGFloat = 8.0
