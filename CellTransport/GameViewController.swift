@@ -785,11 +785,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+        let attachState = isAttachedInBuffer[0]!.contents().assumingMemoryBound(to: Int32.self)
         
         if !(self.isBusy1){
             self.isBusy1 = true
             queue1.async(){
-                self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances, nBodies: self.nbodies)
+                self.secondChildTabVC?.setHistogramData1(cellRadius: self.cellRadius, distances: distances, nBodies: self.nbodies, attachState: attachState)
                 DispatchQueue.main.async {
                     self.isBusy1 = false
                 }

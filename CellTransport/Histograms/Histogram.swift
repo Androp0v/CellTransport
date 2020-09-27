@@ -11,7 +11,7 @@ import Metal
 import simd
 import SceneKit
 
-func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nDistances: Int, bins: Int, histogramArray: inout [Float]){
+func histogramWithAttachState(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nDistances: Int, attachState: UnsafeMutablePointer<Int32>, bins: Int, histogramArray: inout [Float], histogramArrayMTAttached: inout [Float]){
     
     let binWidth: Float = 1.0/Float(bins)
     
@@ -19,6 +19,9 @@ func histogram(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nDista
         if distances[i] >= 0 && distances[i]/cellRadius < 1{
             let index: Int = Int(floor((distances[i]/cellRadius)/Float(binWidth)))
             histogramArray[index] += 1
+            if attachState[i] != -1{
+                histogramArrayMTAttached[index] += 1
+            }
         }
     }
 }
