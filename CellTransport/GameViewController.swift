@@ -19,7 +19,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation flags
     
-    let collisionsFlag = true
+    let collisionsFlag = false
     
     // Simulation parameters
     
@@ -168,8 +168,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var MTstepNumberInBuffer: [MTLBuffer?] = []
     fileprivate var MTstepNumberOutBuffer: [MTLBuffer?] = []
     
-    fileprivate var cellIDtoOccupiedInBuffer: [MTLBuffer?] = []
-    fileprivate var cellIDtoOccupiedOutBuffer: [MTLBuffer?] = []
+    fileprivate var cellIDtoOccupiedBuffer: [MTLBuffer?] = []
     
     fileprivate var buffer: MTLCommandBuffer?
     
@@ -359,13 +358,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Not strictly MT related, but useful to have  cellIDtoIndex.count available
         
         let cellIDtoOccupied = [Int32](repeating: 0, count: cellIDtoNMTs.count)
-        
-        cellIDtoOccupiedInBuffer.append(device.makeBuffer(
-            bytes: cellIDtoOccupied,
-            length: cellIDtoOccupied.count * MemoryLayout<Int32>.stride
-        ))
-        
-        cellIDtoOccupiedOutBuffer.append(device.makeBuffer(
+                
+        cellIDtoOccupiedBuffer.append(device.makeBuffer(
             bytes: cellIDtoOccupied,
             length: cellIDtoOccupied.count * MemoryLayout<Int32>.stride
         ))
@@ -756,7 +750,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 verifyCollisionsEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
                 verifyCollisionsEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 2)
                 verifyCollisionsEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 3)
-                verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedOutBuffer[i], offset: 0, index: 4)
+                verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedBuffer[i], offset: 0, index: 4)
                 verifyCollisionsEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 5)
                 
                 verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 6)
