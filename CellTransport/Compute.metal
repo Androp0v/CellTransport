@@ -90,6 +90,9 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
     //Move each particle in the cell sequentially
     for (int j=0; j < particlesPerCell; j++){
         
+        //positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i]; //DELETE
+        //isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i]; //DELETE
+        
         int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
                                  positionsIn[j + particlesPerCell*i].y,
                                  positionsIn[j + particlesPerCell*i].z,

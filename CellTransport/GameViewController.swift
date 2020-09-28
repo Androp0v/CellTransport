@@ -19,11 +19,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Simulation flags
     
-    let collisionsFlag = false
+    let collisionsFlag = true
     
     // Simulation parameters
     
-    let nCells: Int = 20 //Number of biological cells to simulate simultaneously
+    let nCells: Int = 40 //Number of biological cells to simulate simultaneously
     let cellsPerDimension = 100 //Cells are subdivided in cubic cells: cellsPerDimension for each side
     let nbodies: Int = 80000 //524288 //4194304 // 16777216
     let nMicrotubules: Int = 150 //400
@@ -358,16 +358,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Not strictly MT related, but useful to have  cellIDtoIndex.count available
         
-        let cellIDtoOccupied = [Bool](repeating: false, count: cellIDtoNMTs.count)
+        let cellIDtoOccupied = [Int32](repeating: 0, count: cellIDtoNMTs.count)
         
         cellIDtoOccupiedInBuffer.append(device.makeBuffer(
             bytes: cellIDtoOccupied,
-            length: cellIDtoOccupied.count * MemoryLayout<Bool>.stride
+            length: cellIDtoOccupied.count * MemoryLayout<Int32>.stride
         ))
         
         cellIDtoOccupiedOutBuffer.append(device.makeBuffer(
             bytes: cellIDtoOccupied,
-            length: cellIDtoOccupied.count * MemoryLayout<Bool>.stride
+            length: cellIDtoOccupied.count * MemoryLayout<Int32>.stride
         ))
         
     }
