@@ -15,6 +15,15 @@ class ParametersViewController: UIViewController {
     @IBOutlet var nBodies: UILabel!
     @IBOutlet var nMicrotubules: UITextField!
     
+    @IBOutlet weak var collisionsSwitch: UISwitch!
+    @IBAction func collisionsSwitchChange(_ sender: Any) {
+        if collisionsSwitch.isOn == true {
+            parameters.collisionsFlag = true
+        } else {
+            parameters.collisionsFlag = false
+        }
+    }
+    
     func changenCellsText(text: String){
         self.nCells.text = text
     }
@@ -35,6 +44,11 @@ class ParametersViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        if parameters.collisionsFlag == true {
+            collisionsSwitch.setOn(true, animated: false)
+        }else{
+            collisionsSwitch.setOn(false, animated: false)
+        }
     }
     
 

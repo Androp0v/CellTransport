@@ -23,13 +23,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var microtubulePointsArray: [simd_float3] = []
         
     // CellID to MT dictionaries and arrays
-    
     var cellIDDict: Dictionary<Int, [Int]> = [:]
     var cellIDtoIndex: [Int32] = [] //Array to translate cellID to MT index
     var cellIDtoNMTs: [Int16] = [] //Array to translate cellID to number of MTs in that specific cell
     var indexToPoint: [Int32] = [] //Array to translate MT index to MT point position (x,y,z)
     
-    // GDC Queues
+    // GDC Queues and control variables
     let queue1 = DispatchQueue(label: "TS-Histogram1", qos: .utility, attributes: .concurrent)
     let queue2 = DispatchQueue(label: "TS-Histogram2", qos: .utility, attributes: .concurrent)
     let queue3 = DispatchQueue(label: "TS-Histogram3", qos: .utility, attributes: .concurrent)
