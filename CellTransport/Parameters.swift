@@ -12,9 +12,9 @@ import SceneKit
 struct parameters {
     
     /* FIXED PARAMETERS */
-    static let nCells: Int = 10 //Number of biological cells to simulate simultaneously
+    static let nCells: Int = 80 //Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 //Cells are divided in cubic cells: cellsPerDimension for each side
-    static let nbodies: Int = 20000 //524288 //4194304 // 16777216
+    static let nbodies: Int = 160000 //524288 //4194304 // 16777216
     static let nMicrotubules: Int = 150 //400
     static let cellRadius: Float = 12000 //nm
     static let centrosomeRadius: Float = 1200 //nm
