@@ -229,7 +229,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="QI6-PT-1wb">
-                                <rect key="frame" x="4" y="97.5" width="292" height="562"/>
+                                <rect key="frame" x="4" y="97.5" width="292" height="608"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="cMD-f3-mjv" userLabel="SimulationsStack">
                                         <rect key="frame" x="0.0" y="0.0" width="292" height="36.5"/>
@@ -482,7 +482,7 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="n7d-0j-k0g" userLabel="Attachment">
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="n7d-0j-k0g" userLabel="Detachment">
                                         <rect key="frame" x="0.0" y="482" width="292" height="42"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Detachment probability: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-bj-qSE">
@@ -502,8 +502,29 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="kcP-Z0-an5" userLabel="Detachment">
+                                        <rect key="frame" x="0.0" y="528" width="292" height="42"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Water viscosity: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vuh-Fe-6x0">
+                                                <rect key="frame" x="12" y="0.0" width="131.5" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10.0" borderStyle="roundedRect" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="jk5-F0-Szj">
+                                                <rect key="frame" x="149.5" y="0.0" width="130.5" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                                <connections>
+                                                    <action selector="viscosityChanged:" destination="dnB-nK-sbK" eventType="editingDidEnd" id="CVc-oF-1Rn"/>
+                                                    <action selector="wOFFChanged:" destination="dnB-nK-sbK" eventType="editingDidEnd" id="5D7-VB-Zcv"/>
+                                                </connections>
+                                            </textField>
+                                        </subviews>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
+                                    </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nqa-RH-LnJ">
-                                        <rect key="frame" x="0.0" y="528" width="292" height="34"/>
+                                        <rect key="frame" x="0.0" y="574" width="292" height="34"/>
                                         <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                                         <color key="tintColor" systemColor="systemRedColor"/>
                                         <state key="normal" title=" Restart simulation">
@@ -528,6 +549,7 @@
                         <outlet property="nCells" destination="MFO-p4-fxg" id="wF8-e0-woa"/>
                         <outlet property="nMicrotubules" destination="F6Y-YU-r1p" id="UoH-8g-ifB"/>
                         <outlet property="nParticlesPerCell" destination="ObS-3y-RK3" id="oKK-lX-RhZ"/>
+                        <outlet property="viscosity" destination="jk5-F0-Szj" id="Xwi-SF-z1j"/>
                         <outlet property="wOFF" destination="rbS-QU-Zch" id="egJ-Ue-7Zd"/>
                         <outlet property="wON" destination="cs2-zk-gCD" id="X90-Lp-Oi3"/>
                     </connections>

@@ -8,10 +8,7 @@
 
 #include <metal_stdlib>
 
-//#define wON 3.5
-//#define wOFF 1.0
 #define stepsPerMTPoint 10
-#define n_w 10
 
 using namespace metal;
 
@@ -66,6 +63,7 @@ struct simulation_parameters {
     int32_t nCells;
     float wON;
     float wOFF;
+    float n_w;
 };
 
 kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
@@ -278,7 +276,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].x*10000), int(randNumber3*10000)) - 1;
         
         //Compute the diffusion movement factor
-        float diffusivity = 1.59349*pow(float(10), float(6))/n_w;
+        float diffusivity = 1.59349*pow(float(10), float(6))/parameters.n_w;
         float deltatMT = parameters.deltat/stepsPerMTPoint; //REDUCED DELTA T
         float msqdistance = sqrt(6*diffusivity*deltatMT);
         float factor = msqdistance/0.866;

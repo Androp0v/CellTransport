@@ -16,6 +16,7 @@ class ParametersViewController: UIViewController {
     @IBOutlet var nMicrotubules: UITextField!
     @IBOutlet weak var wON: UITextField!
     @IBOutlet weak var wOFF: UITextField!
+    @IBOutlet weak var viscosity: UITextField!
     
     @IBOutlet weak var collisionsSwitch: UISwitch!
     @IBAction func collisionsSwitchChange(_ sender: Any) {
@@ -47,6 +48,19 @@ class ParametersViewController: UIViewController {
         } else {
             // Default the textfield text to the previous valid value
             wOFF.text = String(parameters.wOFF)
+        }
+    }
+    
+    @IBAction func viscosityChanged(_ sender: Any) {
+        // Check that the input value is a number
+        if Float(String(viscosity.text!)) != nil {
+            // Set parameter used in the simulation
+            parameters.n_w = Float(String(viscosity.text!))!
+            // Rewrite the text in the textfield to properly format numbers without decimal separator
+            viscosity.text = String(parameters.n_w)
+        } else {
+            // Default the textfield text to the previous valid value
+            viscosity.text = String(parameters.n_w)
         }
     }
     

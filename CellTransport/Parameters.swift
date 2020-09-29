@@ -18,16 +18,17 @@ struct parameters {
     static let nMicrotubules: Int = 150 //400
     static let cellRadius: Float = 12000 //nm
     static let centrosomeRadius: Float = 1200 //nm
-    static let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000)
-    static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0)
+    static let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000) //nm
+    static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0) //nm
     static let microtubuleSpeed: Float = 800 //nm/s
     static let microtubuleSegmentLength: Float = 50 //nm
     
     /* VARIABLE PARAMETERS */
-    static var collisionsFlag = false
-    static var deltat: Float = 0.0
-    static var wON: Float = 3.5
-    static var wOFF: Float = 1.0
+    static var collisionsFlag = false //Enables or disables collisions
+    static var deltat: Float = 0.0 //Timestep
+    static var wON: Float = 3.5 //Probability of attachment
+    static var wOFF: Float = 1.0 //Probability of dettachment
+    static var n_w: Float = 10 //Viscosity in water viscosity units
 }
 
 public func computeDeltaT() {
