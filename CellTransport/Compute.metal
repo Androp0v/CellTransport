@@ -8,8 +8,8 @@
 
 #include <metal_stdlib>
 
-#define wON 3.5
-#define wOFF 1.0
+//#define wON 3.5
+//#define wOFF 1.0
 #define stepsPerMTPoint 10
 #define n_w 10
 
@@ -64,6 +64,8 @@ struct simulation_parameters {
     int32_t cellsPerDimension;
     int32_t nBodies;
     int32_t nCells;
+    float wON;
+    float wOFF;
 };
 
 kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
@@ -188,7 +190,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         randomSeedsOut[i] = randNumber;
         
         //Probability that the particle detaches
-        if (randNumber < wOFF*parameters.deltat/stepsPerMTPoint){
+        if (randNumber < parameters.wOFF*parameters.deltat/stepsPerMTPoint){
             isAttachedOut[i] = -1;
             MTstepNumberOut[i] = 1;
         }else{
@@ -242,7 +244,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         randomSeedsOut[i] = randNumber;
         
         //Probability that the particle attaches
-        if (randNumber < wON*parameters.deltat/stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
+        if (randNumber < parameters.wON*parameters.deltat/stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
             
             //Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){

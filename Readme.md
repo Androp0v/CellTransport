@@ -15,10 +15,10 @@ Parameter | Explanation
 **Cell radius** | Cell radius, in nanometers. Particles will be reinjected in the centrosome if found outside this radius.
 **Centrosome radius** | Centrosome radius, in nanometers. Particles are reinjected here.
 **Microtubule speed** | Speed at which particles travel through the microtubules, in nanometers per second.
-**Microtubule segment lenght** | Segment length of the microtubules. These segments are straight but the angle at which they join is randomly varied to build a realistic microtubule. Several segments are joined to form a full microtubule.
+**Microtubule segment lenght** | Segment length of the microtubules. These segments are straight but the angle at which they join is randomly varied to build a realistic microtubule. Several segments are joined to form a full microtubule. Particles have a probability of attaching to every **segment** in their vicinity.
 **Collisions enabled** | Wether or not collisions (excluded volume) is enabled.
 **Diffusion delta time** | Timestep used for the simulation. May be broken into smaller steps if necessary.
-**Cells per dimension** | Number of spatial cells in which the space is subdivided on each dimension. Only used internally (non-biological meaning), but is related to the volume the particles have in collisions.
+**Cells per dimension** | Number of spatial cells in which the space is subdivided on each dimension. Only used internally (non-biological meaning), but is related to the volume the particles have in collisions (there can only be one particle on each of these cells).
 
 ## Compatibility
 Works in macOS 10.15 or later and iOS 13 or later. Requires a Metal-compatible graphic card.

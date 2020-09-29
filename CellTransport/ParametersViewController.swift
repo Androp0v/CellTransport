@@ -9,11 +9,13 @@
 import UIKit
 
 class ParametersViewController: UIViewController {
-    
+        
     @IBOutlet var nCells: UITextField!
     @IBOutlet var nParticlesPerCell: UITextField!
     @IBOutlet var nBodies: UILabel!
     @IBOutlet var nMicrotubules: UITextField!
+    @IBOutlet weak var wON: UITextField!
+    @IBOutlet weak var wOFF: UITextField!
     
     @IBOutlet weak var collisionsSwitch: UISwitch!
     @IBAction func collisionsSwitchChange(_ sender: Any) {
@@ -21,6 +23,30 @@ class ParametersViewController: UIViewController {
             parameters.collisionsFlag = true
         } else {
             parameters.collisionsFlag = false
+        }
+    }
+    @IBAction func wONChanged(_ sender: Any) {
+        // Check that the input value is a number
+        if Float(String(wON.text!)) != nil {
+            // Set parameter used in the simulation
+            parameters.wON = Float(String(wON.text!))!
+            // Rewrite the text in the textfield to properly format numbers without decimal separator
+            wON.text = String(parameters.wON)
+        } else {
+            // Default the textfield text to the previous valid value
+            wON.text = String(parameters.wON)
+        }
+    }
+    @IBAction func wOFFChanged(_ sender: Any) {
+        // Check that the input value is a number
+        if Float(String(wOFF.text!)) != nil {
+            // Set parameter used in the simulation
+            parameters.wOFF = Float(String(wOFF.text!))!
+            // Rewrite the text in the textfield to properly format numbers without decimal separator
+            wOFF.text = String(parameters.wOFF)
+        } else {
+            // Default the textfield text to the previous valid value
+            wOFF.text = String(parameters.wOFF)
         }
     }
     
@@ -49,6 +75,11 @@ class ParametersViewController: UIViewController {
         }else{
             collisionsSwitch.setOn(false, animated: false)
         }
+        
+        wON.keyboardType = .numberPad
+        wON.text = String(parameters.wON)
+        wOFF.keyboardType = .numberPad
+        wOFF.text = String(parameters.wOFF)
     }
     
 
