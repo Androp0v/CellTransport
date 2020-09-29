@@ -90,7 +90,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     // Save to .txt code
-    
     @IBAction func exportToFile(_ sender: Any) {
         // Create a document picker for directories.
         let documentPicker = UIDocumentPickerViewController(documentTypes: [kUTTypeFolder as String], in: .open)
@@ -103,6 +102,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         //Execute code after picking an export folder with exportToFile()
+        exportParametersToFile(folderURL: urls[0], filename: "Parameters")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 1)) ?? [], folderURL: urls[0], filename: "Hist1")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 2)) ?? [], folderURL: urls[0], filename: "Hist2")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 3)) ?? [], folderURL: urls[0], filename: "Hist3")
