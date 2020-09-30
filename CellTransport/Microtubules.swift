@@ -12,16 +12,11 @@ import simd
 
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
-    let segmentLength:Float = 50 //200 //0.01*cellRadius
-    let localAngle: Float = 0.015 //0.15 //1.115265 //Radians, about 63.9º
-    let maxLocalAngle: Float = 1*localAngle
-    let angleSlope: Float = (maxLocalAngle - localAngle)/(0.1*cellRadius)
-    let maxNSegments = 800 //200
-    
+    let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(0.1*cellRadius)
     var pointsList:[SCNVector3] = []
     let randomCutoff: Float = 0.0 //Float.random(in: 0.0..<0.0) //TODO
     
-    for i in 0..<(maxNSegments-1){
+    for i in 0..<(parameters.maxNSegments-1){
         
         var newPoint:SCNVector3
         
@@ -44,34 +39,34 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             let tmpZ = pointsList[0].z // Float.random(in: -1...1)
             let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
             
-            newPoint = SCNVector3(centrosomeLocation.x + p0.x + segmentLength*tmpX/normalConstant,
-                                  centrosomeLocation.y + p0.y + segmentLength*tmpY/normalConstant,
-                                  centrosomeLocation.z + p0.z + segmentLength*tmpZ/normalConstant)
+            newPoint = SCNVector3(centrosomeLocation.x + p0.x + parameters.microtubuleSegmentLength*tmpX/normalConstant,
+                                  centrosomeLocation.y + p0.y + parameters.microtubuleSegmentLength*tmpY/normalConstant,
+                                  centrosomeLocation.z + p0.z + parameters.microtubuleSegmentLength*tmpZ/normalConstant)
         }else{
             
-            let directionvector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/segmentLength,
-                                             (pointsList[i].y - pointsList[i-1].y)/segmentLength,
-                                             (pointsList[i].z - pointsList[i-1].z)/segmentLength)
+            let directionvector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/parameters.microtubuleSegmentLength,
+                                             (pointsList[i].y - pointsList[i-1].y)/parameters.microtubuleSegmentLength,
+                                             (pointsList[i].z - pointsList[i-1].z)/parameters.microtubuleSegmentLength)
             
             let currentDistance = sqrt(pow(pointsList[i].x,2) + pow(pointsList[i].y,2) + pow(pointsList[i].z,2))
             
-            var localAngleMod = localAngle
+            var localAngleMod = parameters.localAngle
             
             if currentDistance > 0.90*cellRadius{
-                localAngleMod = localAngle + (currentDistance - 0.90*cellRadius)*angleSlope
+                localAngleMod = parameters.localAngle + (currentDistance - 0.90*cellRadius)*angleSlope
             }
             
             newPoint = pointsList[i]
-            newPoint.x += directionvector.x*segmentLength*Float(cos(localAngleMod))
-            newPoint.y += directionvector.y*segmentLength*Float(cos(localAngleMod))
-            newPoint.z += directionvector.z*segmentLength*Float(cos(localAngleMod))
+            newPoint.x += directionvector.x*parameters.microtubuleSegmentLength*Float(cos(localAngleMod))
+            newPoint.y += directionvector.y*parameters.microtubuleSegmentLength*Float(cos(localAngleMod))
+            newPoint.z += directionvector.z*parameters.microtubuleSegmentLength*Float(cos(localAngleMod))
             
             let testX = normalize(cross(normalize(simd_float3(Float.random(in: -1...1),Float.random(in: -1...1),Float.random(in: -1...1))), normalize(simd_float3(directionvector))))
             let testY = normalize(cross(normalize(simd_float3(testX)), normalize(simd_float3(directionvector))))
                         
             let randomPhi = Float.random(in: 0..<(2*Float.pi))
-            let xvalue = segmentLength*Float(sin(localAngleMod))*Float(sin(randomPhi))
-            let yvalue = segmentLength*Float(sin(localAngleMod))*Float(cos(randomPhi))
+            let xvalue = parameters.microtubuleSegmentLength*Float(sin(localAngleMod))*Float(sin(randomPhi))
+            let yvalue = parameters.microtubuleSegmentLength*Float(sin(localAngleMod))*Float(cos(randomPhi))
             
             let randomX = SCNVector3(testX.x*xvalue, testX.y*xvalue, testX.z*xvalue)
             let randomY = SCNVector3(testY.x*yvalue, testY.y*yvalue, testY.z*yvalue)

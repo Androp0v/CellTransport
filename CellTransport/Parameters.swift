@@ -22,6 +22,9 @@ struct parameters {
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0) //nm
     static let microtubuleSpeed: Float = 800 //nm/s
     static let microtubuleSegmentLength: Float = 50 //nm
+    static let localAngle: Float = 0.015 //0.15 //Radians
+    static let maxLocalAngle: Float = 2*localAngle //Radians
+    static let maxNSegments = 800 //200
     
     /* VARIABLE PARAMETERS */
     static var collisionsFlag = false //Enables or disables collisions

@@ -46,6 +46,9 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Centrosome radius: " + String(parameters.centrosomeRadius) + " nm\n"
     parametersString += "Microtubule speed: " + String(parameters.microtubuleSpeed) + " nm/s\n"
     parametersString += "Microtubule segment length: " + String(parameters.microtubuleSegmentLength) + " nm\n"
+    parametersString += "Microtubule local angle: " + String(parameters.localAngle) + " radians\n"
+    parametersString += "Microtubule max local angle: " + String(parameters.maxLocalAngle) + " radians\n"
+    parametersString += "Microtubule max segments: " + String(parameters.maxNSegments) + "\n"
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
     parametersString += "Diffusion delta time: " + String(parameters.deltat) + " s\n"
     parametersString += "Cells per dimension: " + String(parameters.cellsPerDimension)

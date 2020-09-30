@@ -16,6 +16,9 @@ Parameter | Explanation
 **Centrosome radius** | Centrosome radius, in nanometers. Particles are reinjected here.
 **Microtubule speed** | Speed at which particles travel through the microtubules, in nanometers per second.
 **Microtubule segment lenght** | Segment length of the microtubules. These segments are straight but the angle at which they join is randomly varied to build a realistic microtubule. Several segments are joined to form a full microtubule. Particles have a probability of attaching to every **segment** in their vicinity.
+**Microtubule local angle** | Maximum angle at which new microtubule segments can join the previous segment. In radians.
+**Microtubule max local angle** | Maximum angle at which new microtubule segments close to the cell membrane can join the previous segment. In radians.
+**Microtubule max segments** | Maximum number of segments that can be joined to form a full microtubule. Segments are added to a forming microtubule upon generation until either the cell membrane is reached or the microtubule max segments count is reached.
 **Collisions enabled** | Wether or not collisions (excluded volume) is enabled.
 **Diffusion delta time** | Timestep used for the simulation. May be broken into smaller steps if necessary.
 **Cells per dimension** | Number of spatial cells in which the space is subdivided on each dimension. Only used internally (non-biological meaning), but is related to the volume the particles have in collisions (there can only be one particle on each of these cells).
