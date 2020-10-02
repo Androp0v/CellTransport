@@ -49,7 +49,11 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Microtubule local angle: " + String(parameters.localAngle) + " radians\n"
     parametersString += "Microtubule max local angle: " + String(parameters.maxLocalAngle) + " radians\n"
     parametersString += "Microtubule max segments: " + String(parameters.maxNSegments) + "\n"
+    
+    // Append variable parameters
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
+    parametersString += "Attachment probability: " + String(parameters.wON) + "nm^3*s^-1"
+    parametersString += "Dettachment probability: " + String(parameters.wON) + "s^-1"
     parametersString += "Diffusion delta time: " + String(parameters.deltat) + " s\n"
     parametersString += "Cells per dimension: " + String(parameters.cellsPerDimension)
     

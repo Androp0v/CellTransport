@@ -240,9 +240,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         
         float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
         randomSeedsOut[i] = randNumber;
+        float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
         
         //Probability that the particle attaches
-        if (randNumber < parameters.wON*parameters.deltat/stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
+        //if (randNumber < parameters.wON*parameters.deltat/stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
+        if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat/stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
             
             //Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){

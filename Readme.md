@@ -20,7 +20,9 @@ Parameter | Explanation
 **Microtubule max local angle** | Maximum angle at which new microtubule segments close to the cell membrane can join the previous segment. In radians.
 **Microtubule max segments** | Maximum number of segments that can be joined to form a full microtubule. Segments are added to a forming microtubule upon generation until either the cell membrane is reached or the microtubule max segments count is reached.
 **Collisions enabled** | Wether or not collisions (excluded volume) is enabled.
-**Diffusion delta time** | Timestep used for the simulation. May be broken into smaller steps if necessary.
+**Attachment probability** | Factor of the probability of diffusive particles to attach to microtubules, in nm<sup>3</sup>s<sup>-1</sup>.
+**Dettachment probability** | Factor of the probability of transported particles to dettach from microtubules, in s<sup>-1</sup>).
+**Diffusion delta time** | Timestep used for the simulation. May be broken into smaller steps if necessary. Mostly used internally, since actual diffusion timestep may be smaller if each timestep is broken into smaller steps. Fixed by microtubule speed.
 **Cells per dimension** | Number of spatial cells in which the space is subdivided on each dimension. Only used internally (non-biological meaning), but is related to the volume the particles have in collisions (there can only be one particle on each of these cells).
 
 ## Compatibility

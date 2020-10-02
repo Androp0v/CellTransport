@@ -13,6 +13,7 @@ import simd
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
     let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(0.1*cellRadius)
+    
     var pointsList:[SCNVector3] = []
     let randomCutoff: Float = 0.0 //Float.random(in: 0.0..<0.0) //TODO
     

@@ -63,24 +63,22 @@ class LineChart4: UIView{
     func histogramPath(cellRadius: Float, counts: [Int], width: CGFloat, height: CGFloat, coordinateOrigin: CGPoint) -> UIBezierPath {
         
         let path = UIBezierPath()
-
-        let maxNSegments: Int = 800 //TODO PASS THIS AS ARGUMENT FFS
         
-        histogramArray = [Float](repeating: 0.0, count: maxNSegments)
+        histogramArray = [Float](repeating: 0.0, count: parameters.maxNSegments)
         
         histogramLengths(lengths: counts, histogramArray: &histogramArray)
                 
         let baseLineHeight: CGFloat = 8.0
         let topMargin: CGFloat = 8.0
         
-        let binDrawWidth: CGFloat = CGFloat(width)/CGFloat(maxNSegments)
+        let binDrawWidth: CGFloat = CGFloat(width)/CGFloat(parameters.maxNSegments)
         let binDrawHeight: CGFloat = (height - topMargin - baseLineHeight)/CGFloat(histogramArray.max()!)
         
         var newPosition = CGPoint(x: coordinateOrigin.x, y: height - baseLineHeight - CGFloat(histogramArray[0])*binDrawHeight)
         
         path.move(to: newPosition)
         
-        for i in 0..<(maxNSegments - 1){
+        for i in 0..<(parameters.maxNSegments - 1){
             newPosition = CGPoint(x: newPosition.x + binDrawWidth, y: newPosition.y)
             path.addLine(to: newPosition)
             newPosition = CGPoint(x: newPosition.x, y: height - baseLineHeight - CGFloat(histogramArray[i + 1])*binDrawHeight)
