@@ -8,21 +8,41 @@
 
 import UIKit
 
+protocol MotorPickerDelegate: class {
+    func motorSelected(boundaryCondition: Int32)
+    func doneButtonPressed()
+}
+
 class MotorPickerController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBOutlet weak var motorPicker: UIPickerView!
+    @IBAction func pickDone(_ sender: Any) {
+        delegate?.doneButtonPressed()
+    }
     
     let pickerOptions: [String] = ["Kinesins", "Dyneins"]
+    
+    weak var delegate: MotorPickerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Set popover size
-        self.preferredContentSize = CGSize(width: 250, height: 100)
+        self.preferredContentSize = CGSize(width: 250, height: 150)
         
         // Set motorPicker delegate
         self.motorPicker.delegate = self
         self.motorPicker.dataSource = self
+        
+        // Select current row
+        switch parameters.boundaryConditions {
+        case parameters.KINESIN_ONLY:
+            motorPicker.selectRow(0, inComponent: 0, animated: false)
+        case parameters.DYNEIN_ONLY:
+            motorPicker.selectRow(1, inComponent: 0, animated: false)
+        default:
+            motorPicker.selectRow(0, inComponent: 0, animated: false)
+        }
     }
     
     // Number of columns of data
@@ -44,6 +64,17 @@ class MotorPickerController: UIViewController, UIPickerViewDelegate, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // This method is triggered whenever the user makes a change to the picker selection.
         // The parameter named row and component represents what was selected.
+        var motorID: Int32 = 0
+        
+        switch row {
+        case 0:
+            motorID = parameters.KINESIN_ONLY
+        case 1:
+            motorID = parameters.DYNEIN_ONLY
+        default:
+            motorID = parameters.KINESIN_ONLY
+        }
+        delegate?.motorSelected(boundaryCondition: motorID)
     }
 
 }

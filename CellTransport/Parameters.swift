@@ -31,7 +31,7 @@ struct parameters {
     static let maxNSegments = 800 //200
     
     /* VARIABLE PARAMETERS */
-    static var boundaryConditions: Int32 = DYNEIN_ONLY //Molecular motor choice and boundary conditions
+    static var boundaryConditions: Int32 = KINESIN_ONLY //Molecular motor choice and boundary conditions
     static var collisionsFlag: Bool = false //Enables or disables collisions
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed.
     static var wON: Float = 99385000 //3.5 //Probability of attachment, nm^3/s

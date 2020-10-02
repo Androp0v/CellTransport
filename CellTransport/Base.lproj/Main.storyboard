@@ -536,9 +536,7 @@
                                                 <rect key="frame" x="166.5" y="0.0" width="113.5" height="30"/>
                                                 <state key="normal" title="Kinesins"/>
                                                 <connections>
-                                                    <segue destination="Y0e-VI-f5n" kind="popoverPresentation" popoverAnchorView="akP-w1-Kk3" id="gna-r8-Sre">
-                                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                                    </segue>
+                                                    <action selector="motorPickerButtonPressed:" destination="dnB-nK-sbK" eventType="touchUpInside" id="Igt-pN-y9M"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -566,6 +564,7 @@
                     <size key="freeformSize" width="300" height="1024"/>
                     <connections>
                         <outlet property="collisionsSwitch" destination="D1d-lC-A8P" id="SP5-Cx-SvF"/>
+                        <outlet property="motorPickerButton" destination="akP-w1-Kk3" id="Zlv-Tb-6HV"/>
                         <outlet property="nBodies" destination="bnH-Eq-Jjr" id="rKd-1C-lC3"/>
                         <outlet property="nCells" destination="MFO-p4-fxg" id="wF8-e0-woa"/>
                         <outlet property="nMicrotubules" destination="F6Y-YU-r1p" id="UoH-8g-ifB"/>
@@ -582,32 +581,44 @@
         <!--Motor Picker Controller-->
         <scene sceneID="Axk-VJ-LkF">
             <objects>
-                <viewController id="Y0e-VI-f5n" customClass="MotorPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MotorPickerViewControllerID" id="Y0e-VI-f5n" customClass="MotorPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="TCY-pM-7cS">
-                        <rect key="frame" x="0.0" y="0.0" width="250" height="130"/>
+                        <rect key="frame" x="0.0" y="0.0" width="250" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o5n-tA-JoR">
-                                <rect key="frame" x="0.0" y="0.0" width="250" height="130"/>
+                                <rect key="frame" x="0.0" y="0.0" width="250" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="lms-aX-F4Y"/>
+                                </constraints>
                             </pickerView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G4p-nf-ZDH">
+                                <rect key="frame" x="106.5" y="108" width="37" height="24"/>
+                                <state key="normal" title="Done"/>
+                                <connections>
+                                    <action selector="pickDone:" destination="Y0e-VI-f5n" eventType="touchUpInside" id="73d-Wb-JSH"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="qqd-zd-7c0"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="qqd-zd-7c0" firstAttribute="bottom" secondItem="G4p-nf-ZDH" secondAttribute="bottom" constant="8" id="439-DY-b2T"/>
+                            <constraint firstItem="G4p-nf-ZDH" firstAttribute="top" secondItem="o5n-tA-JoR" secondAttribute="bottom" constant="8" id="FgA-UG-oxx"/>
                             <constraint firstItem="o5n-tA-JoR" firstAttribute="trailing" secondItem="qqd-zd-7c0" secondAttribute="trailing" id="Hy0-ga-AV4"/>
-                            <constraint firstItem="qqd-zd-7c0" firstAttribute="bottom" secondItem="o5n-tA-JoR" secondAttribute="bottom" id="nEq-NT-y1M"/>
+                            <constraint firstItem="G4p-nf-ZDH" firstAttribute="centerX" secondItem="o5n-tA-JoR" secondAttribute="centerX" id="osh-rY-Kb2"/>
                             <constraint firstItem="o5n-tA-JoR" firstAttribute="top" secondItem="qqd-zd-7c0" secondAttribute="top" id="sAo-NB-DQz"/>
                             <constraint firstItem="o5n-tA-JoR" firstAttribute="leading" secondItem="qqd-zd-7c0" secondAttribute="leading" id="yxF-wk-Se0"/>
                         </constraints>
                     </view>
-                    <size key="freeformSize" width="250" height="150"/>
+                    <size key="freeformSize" width="250" height="140"/>
                     <connections>
                         <outlet property="motorPicker" destination="o5n-tA-JoR" id="SOX-d4-VYl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FwO-P4-zfk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="507" y="577"/>
+            <point key="canvasLocation" x="457" y="573"/>
         </scene>
         <!--Graphs View Controller-->
         <scene sceneID="88h-fh-YjL">

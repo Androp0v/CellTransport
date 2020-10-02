@@ -8,8 +8,8 @@
 
 import UIKit
 
-class ParametersViewController: UIViewController {
-        
+class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopoverPresentationControllerDelegate{
+    
     @IBOutlet var nCells: UITextField!
     @IBOutlet var nParticlesPerCell: UITextField!
     @IBOutlet var nBodies: UILabel!
@@ -17,6 +17,35 @@ class ParametersViewController: UIViewController {
     @IBOutlet weak var wON: UITextField!
     @IBOutlet weak var wOFF: UITextField!
     @IBOutlet weak var viscosity: UITextField!
+    @IBOutlet weak var motorPickerButton: UIButton!
+    
+    var selectedMotorFromPicker: Int32 = 0
+    var motorPickerViewController: MotorPickerController = MotorPickerController()
+    
+    @IBAction func motorPickerButtonPressed(_ sender: Any) {
+        motorPickerViewController = self.storyboard?.instantiateViewController(withIdentifier: "MotorPickerViewControllerID") as! MotorPickerController
+        motorPickerViewController.modalPresentationStyle = .popover
+        motorPickerViewController.popoverPresentationController?.sourceView = motorPickerButton
+        motorPickerViewController.presentationController?.delegate = self
+        motorPickerViewController.delegate = self
+        self.present(motorPickerViewController, animated: true, completion: nil)
+
+    }
+    
+    // Called when motorPickerViewControlled is dismissed
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        print(selectedMotorFromPicker)
+        switch selectedMotorFromPicker {
+        case parameters.KINESIN_ONLY:
+            motorPickerButton.setTitle("Kinesins", for: .normal)
+        case parameters.DYNEIN_ONLY:
+            motorPickerButton.setTitle("Dyneins", for: .normal)
+        default:
+            motorPickerButton.setTitle("Kinesins", for: .normal)
+        }
+        
+        parameters.boundaryConditions = selectedMotorFromPicker
+    }
     
     @IBOutlet weak var collisionsSwitch: UISwitch!
     @IBAction func collisionsSwitchChange(_ sender: Any) {
@@ -80,6 +109,15 @@ class ParametersViewController: UIViewController {
         self.nMicrotubules.text = text
     }
     
+    func motorSelected(boundaryCondition: Int32) {
+        selectedMotorFromPicker = boundaryCondition
+    }
+    
+    func doneButtonPressed() {
+        self.presentationControllerDidDismiss(motorPickerViewController.presentationController!)
+        motorPickerViewController.dismiss(animated: true, completion: nil)
+    }
+        
     override func viewDidLoad() {
         super.viewDidLoad()
 
