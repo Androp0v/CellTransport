@@ -19,6 +19,7 @@ Parameter | Explanation
 **Microtubule local angle** | Maximum angle at which new microtubule segments can join the previous segment. In radians.
 **Microtubule max local angle** | Maximum angle at which new microtubule segments close to the cell membrane can join the previous segment. In radians.
 **Microtubule max segments** | Maximum number of segments that can be joined to form a full microtubule. Segments are added to a forming microtubule upon generation until either the cell membrane is reached or the microtubule max segments count is reached.
+**Molecular motors** | Wether the simulation is using KINESIN_ONLY (outward traveling motors) or DYNEIN_ONLY (inward traveling motors).
 **Collisions enabled** | Wether or not collisions (excluded volume) is enabled.
 **Attachment probability** | Factor of the probability of diffusive particles to attach to microtubules, in nm<sup>3</sup>s<sup>-1</sup>.
 **Dettachment probability** | Factor of the probability of transported particles to dettach from microtubules, in s<sup>-1</sup>).

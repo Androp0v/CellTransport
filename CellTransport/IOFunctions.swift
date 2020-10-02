@@ -30,6 +30,17 @@ func exportHistogramToFile(histogram: [Float], folderURL: URL, filename: String)
     
 }
 
+func getMolecularMotorName(boundaryConditions: Int32) -> String {
+    switch boundaryConditions {
+    case parameters.KINESIN_ONLY:
+        return "KINESIN_ONLY"
+    case parameters.KINESIN_ONLY:
+        return "DYNEIN_ONLY"
+    default:
+        return "DEFAULT_TO_KINESIN_ONLY"
+    }
+}
+
 func exportParametersToFile(folderURL: URL, filename: String) {
     
     var exportURL = folderURL
@@ -51,6 +62,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Microtubule max segments: " + String(parameters.maxNSegments) + "\n"
     
     // Append variable parameters
+    parametersString += "Molecular motors: " + getMolecularMotorName(boundaryConditions: parameters.boundaryConditions) + "\n"
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
     parametersString += "Attachment probability: " + String(parameters.wON) + "nm^3*s^-1"
     parametersString += "Dettachment probability: " + String(parameters.wON) + "s^-1"

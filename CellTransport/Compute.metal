@@ -16,8 +16,6 @@ constant int KINESIN_ONLY = 0;
 constant int DYNEIN_ONLY = 1;
 //constant int KINESIN_&_DYNEIN = 2;
 
-constant int boundaryConditions = DYNEIN_ONLY; //Default to kinesin (original) model
-
 /*- PARAMETERS STRUCT -*/
 
 struct simulation_parameters {
@@ -29,6 +27,7 @@ struct simulation_parameters {
     float wON;
     float wOFF;
     float n_w;
+    int32_t boundaryConditions;
 };
 
 /*- HELPER FUNCTIONS -*/
@@ -94,7 +93,7 @@ float4 randomSurfaceSpherePoint(float radius, int x, int y, int z){
 }
 
 // Check if particle is outside bounds
-bool isOutsideBounds(float distance, float cellRadius) {
+bool isOutsideBounds(int32_t boundaryConditions, float distance, float cellRadius) {
     switch (boundaryConditions) {
         case KINESIN_ONLY:
             if (distance >= cellRadius){
@@ -119,7 +118,7 @@ bool isOutsideBounds(float distance, float cellRadius) {
 }
 
 // Retrieve reinjection point for the current boundary conditions
-float4 reinjectPosition(float distance, float cellRadius, float3 position) {
+float4 reinjectPosition(int32_t boundaryConditions, float distance, float cellRadius, float3 position) {
     switch (boundaryConditions) {
         case KINESIN_ONLY: {
             // Reinject inside the centrosome
@@ -197,7 +196,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     
                     int MTdirection;
                     
-                    switch (boundaryConditions) {
+                    switch (parameters.boundaryConditions) {
                         case KINESIN_ONLY:
                             // Move outward
                             MTdirection = 1;
@@ -285,14 +284,14 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     }
     
     //Check if new point is outside cell radius
-    if (isOutsideBounds(distance, parameters.cellRadius)) {
+    if (isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius)) {
         
         updatedTimeLastJump[i] = newTime[i];
         timeBetweenJumps[i] = oldTime[i] - timeLastJump[i];
         isAttachedOut[i] = -1;
         
         // Reinject point in the correct position given boundary conditions
-        float4 point = reinjectPosition(distance, parameters.cellRadius, positionsIn[i]);
+        float4 point = reinjectPosition(parameters.boundaryConditions, distance, parameters.cellRadius, positionsIn[i]);
         
         positionsOut[i].x = point.x;
         positionsOut[i].y = point.y;

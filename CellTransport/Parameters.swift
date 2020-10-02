@@ -11,6 +11,10 @@ import SceneKit
 
 struct parameters {
     
+    /* CONSTANTS */
+    static let KINESIN_ONLY: Int32 = 0 //Kinesin molecular motors for MTs (outward)
+    static let DYNEIN_ONLY: Int32 = 1 //Dynein molecular motors for MTs (inward)
+    
     /* FIXED PARAMETERS */
     static let nCells: Int = 20 //Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 //Cells are divided in cubic cells: cellsPerDimension for each side
@@ -27,7 +31,8 @@ struct parameters {
     static let maxNSegments = 800 //200
     
     /* VARIABLE PARAMETERS */
-    static var collisionsFlag = false //Enables or disables collisions
+    static var boundaryConditions: Int32 = DYNEIN_ONLY //Molecular motor choice and boundary conditions
+    static var collisionsFlag: Bool = false //Enables or disables collisions
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed.
     static var wON: Float = 99385000 //3.5 //Probability of attachment, nm^3/s
     static var wOFF: Float = 1.0 //Probability of dettachment
