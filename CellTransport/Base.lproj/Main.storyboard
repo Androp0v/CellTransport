@@ -229,7 +229,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="QI6-PT-1wb">
-                                <rect key="frame" x="4" y="97.5" width="292" height="608"/>
+                                <rect key="frame" x="4" y="97.5" width="292" height="650"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="cMD-f3-mjv" userLabel="SimulationsStack">
                                         <rect key="frame" x="0.0" y="0.0" width="292" height="36.5"/>
@@ -523,8 +523,29 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="pHb-cZ-LCO" userLabel="Water viscosity">
+                                        <rect key="frame" x="0.0" y="574" width="292" height="38"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Molecular motors: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Au5-rc-0vE">
+                                                <rect key="frame" x="12" y="0.0" width="148.5" height="30"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akP-w1-Kk3">
+                                                <rect key="frame" x="166.5" y="0.0" width="113.5" height="30"/>
+                                                <state key="normal" title="Kinesins"/>
+                                                <connections>
+                                                    <segue destination="Y0e-VI-f5n" kind="popoverPresentation" popoverAnchorView="akP-w1-Kk3" id="gna-r8-Sre">
+                                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                                    </segue>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
+                                    </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nqa-RH-LnJ">
-                                        <rect key="frame" x="0.0" y="574" width="292" height="34"/>
+                                        <rect key="frame" x="0.0" y="616" width="292" height="34"/>
                                         <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                                         <color key="tintColor" systemColor="systemRedColor"/>
                                         <state key="normal" title=" Restart simulation">
@@ -557,6 +578,36 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eKa-hu-qex" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="331.62518301610538" y="468.74999999999994"/>
+        </scene>
+        <!--Motor Picker Controller-->
+        <scene sceneID="Axk-VJ-LkF">
+            <objects>
+                <viewController id="Y0e-VI-f5n" customClass="MotorPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="TCY-pM-7cS">
+                        <rect key="frame" x="0.0" y="0.0" width="250" height="130"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o5n-tA-JoR">
+                                <rect key="frame" x="0.0" y="0.0" width="250" height="130"/>
+                            </pickerView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="qqd-zd-7c0"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="o5n-tA-JoR" firstAttribute="trailing" secondItem="qqd-zd-7c0" secondAttribute="trailing" id="Hy0-ga-AV4"/>
+                            <constraint firstItem="qqd-zd-7c0" firstAttribute="bottom" secondItem="o5n-tA-JoR" secondAttribute="bottom" id="nEq-NT-y1M"/>
+                            <constraint firstItem="o5n-tA-JoR" firstAttribute="top" secondItem="qqd-zd-7c0" secondAttribute="top" id="sAo-NB-DQz"/>
+                            <constraint firstItem="o5n-tA-JoR" firstAttribute="leading" secondItem="qqd-zd-7c0" secondAttribute="leading" id="yxF-wk-Se0"/>
+                        </constraints>
+                    </view>
+                    <size key="freeformSize" width="250" height="150"/>
+                    <connections>
+                        <outlet property="motorPicker" destination="o5n-tA-JoR" id="SOX-d4-VYl"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FwO-P4-zfk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="507" y="577"/>
         </scene>
         <!--Graphs View Controller-->
         <scene sceneID="88h-fh-YjL">
