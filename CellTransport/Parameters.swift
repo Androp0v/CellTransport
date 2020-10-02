@@ -29,7 +29,7 @@ struct parameters {
     /* VARIABLE PARAMETERS */
     static var collisionsFlag = false //Enables or disables collisions
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed.
-    static var wON: Float = 48385000 //3.5 //Probability of attachment, nm^3/s
+    static var wON: Float = 99385000 //3.5 //Probability of attachment, nm^3/s
     static var wOFF: Float = 1.0 //Probability of dettachment
     static var n_w: Float = 10 //Viscosity in water viscosity units
 }

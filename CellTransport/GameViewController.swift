@@ -370,6 +370,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         var cellsPointsNumber: [Int] = []
         
+        // Introduce initial separator
+        microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+        
+        // Generate MTs for each cell
         for i in 0..<(parameters.nCells){
             
             var cellPoints: Int = 0
@@ -383,7 +387,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                     microtubulePointsArray.append(simd_float3(point))
                 }
                 
-                //Introduce separators after each MT (situated at an impossible point)
+                // Introduce separators after each MT (situated at an impossible point)
                 microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
                 
                 //Update the number of MT points in the cell (including separator, +1)

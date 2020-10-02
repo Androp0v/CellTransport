@@ -12,6 +12,27 @@
 
 using namespace metal;
 
+constant int KINESIN_ONLY = 0;
+constant int DYNEIN_ONLY = 1;
+//constant int KINESIN_&_DYNEIN = 2;
+
+constant int boundaryConditions = DYNEIN_ONLY; //Default to kinesin (original) model
+
+/*- PARAMETERS STRUCT -*/
+
+struct simulation_parameters {
+    float deltat;
+    float cellRadius;
+    int32_t cellsPerDimension;
+    int32_t nBodies;
+    int32_t nCells;
+    float wON;
+    float wOFF;
+    float n_w;
+};
+
+/*- HELPER FUNCTIONS -*/
+
 // Get CellID of a position in x,y,z coordinates
 int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension, int currentCellNumber){
     
@@ -35,7 +56,7 @@ float rand(int x, int y, int z)
     return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
 }
 
-//Generate random sphere points
+// Generate random sphere points
 float4 randomSpherePoint(float radius, int x, int y, int z){
     
     float u = rand(x, y, z);
@@ -54,99 +75,69 @@ float4 randomSpherePoint(float radius, int x, int y, int z){
     return float4(xsphere,ysphere,zsphere,r);
 }
 
-//Try argument struct
-struct simulation_parameters {
-    float deltat;
-    float cellRadius;
-    int32_t cellsPerDimension;
-    int32_t nBodies;
-    int32_t nCells;
-    float wON;
-    float wOFF;
-    float n_w;
-};
+// Generate random sphere surface points
+float4 randomSurfaceSpherePoint(float radius, int x, int y, int z){
+    
+    float u = rand(x, y, z);
+    float v = rand(z, x, y);
+    float theta = u * 2.0 * M_PI_F;
+    float phi = acos(2.0 * v - 1.0);
+    float sinTheta = sin(theta);
+    float cosTheta = cos(theta);
+    float sinPhi = sin(phi);
+    float cosPhi = cos(phi);
+    float xsphere = radius * sinPhi * cosTheta;
+    float ysphere = radius * sinPhi * sinTheta;
+    float zsphere = radius * cosPhi;
+        
+    return float4(xsphere,ysphere,zsphere,radius);
+}
 
-kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
-                             device float3 *positionsOut [[buffer(1)]],
-                             device int32_t *isAttachedIn [[buffer(2)]],
-                             device int32_t *isAttachedOut [[buffer(3)]],
-                             device int32_t *cellIDtoOccupied [[buffer(4)]],
-                             device float *distances [[buffer(5)]],
-                             constant simulation_parameters & parameters [[buffer(6)]],
-                             uint i [[thread_position_in_grid]]){
-    
-    int particlesPerCell = parameters.nBodies/parameters.nCells;
-    
-    //Update the cellIDtoOccupied hypermatrix
-    for(int j=0; j < particlesPerCell; j++){
-        cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
-                                   positionsIn[j + particlesPerCell*i].y,
-                                   positionsIn[j + particlesPerCell*i].z,
-                                   parameters.cellRadius,
-                                   parameters.cellsPerDimension,
-                                   i)] += 1;
-    }
-                                 
-    //Move each particle in the cell sequentially
-    for (int j=0; j < particlesPerCell; j++){
-        
-        //positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i]; //DELETE
-        //isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i]; //DELETE
-        
-        int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
-                                 positionsIn[j + particlesPerCell*i].y,
-                                 positionsIn[j + particlesPerCell*i].z,
-                                 parameters.cellRadius,
-                                 parameters.cellsPerDimension,
-                                 i);
-        int cellIdOut = getCellID(positionsOut[j + particlesPerCell*i].x,
-                                  positionsOut[j + particlesPerCell*i].y,
-                                  positionsOut[j + particlesPerCell*i].z,
-                                  parameters.cellRadius,
-                                  parameters.cellsPerDimension,
-                                  i);
-        
-        //Check if it moved into the same cell and if it's the only particle in that cell
-        //if (cellIdOut == cellIdIn && cellIDtoOccupied[cellIdIn] == 1){
-        if ((cellIdOut == cellIdIn) || distances[j + particlesPerCell*i] < parameters.cellRadius*0.1){
-            positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
-            isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
-            //Free the cell just left
-            cellIDtoOccupied[cellIdIn] -= 1;
-            cellIDtoOccupied[cellIdOut] += 1;
-        }else{
-            //Check if the new cell is not occupied
-            if (cellIDtoOccupied[cellIdOut] == 0){
-                //Move the particle
-                positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
-                isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
-                //Free the cell just left
-                cellIDtoOccupied[cellIdIn] -= 1;
-                cellIDtoOccupied[cellIdOut] += 1;
+// Check if particle is outside bounds
+bool isOutsideBounds(float distance, float cellRadius) {
+    switch (boundaryConditions) {
+        case KINESIN_ONLY:
+            if (distance >= cellRadius){
+                return true;
             }else{
-                //Keep the particle in the same position
-                //The cell will still be occupied
+                return false;
             }
+        case DYNEIN_ONLY:
+            if (distance <= cellRadius*0.1 || distance > cellRadius){
+                return true;
+            } else {
+                return false;
+            }
+        default:
+            // Default is like KINESIN_ONLY
+            if (distance >= cellRadius){
+                return true;
+            }else{
+                return false;
+            }
+    }
+}
+
+// Retrieve reinjection point for the current boundary conditions
+float4 reinjectPosition(float distance, float cellRadius, float3 position) {
+    switch (boundaryConditions) {
+        case KINESIN_ONLY: {
+            // Reinject inside the centrosome
+            return randomSpherePoint(0.1 * cellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
+        }
+        case DYNEIN_ONLY: {
+            // Reinject at the cell membrane (surface only)
+            float almostCellRadius = 0.999*cellRadius; //To avoid z-fighting in membrane
+            return randomSurfaceSpherePoint(almostCellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
+        }
+        default: {
+            // Default is like KINESIN_ONLY
+            return randomSpherePoint(0.1 * cellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
         }
     }
-    
-    //Clear the whole cellIdtoOccupied hypermatrix
-    for(int j=0; j < particlesPerCell; j++){
-        cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
-                                   positionsIn[j + particlesPerCell*i].y,
-                                   positionsIn[j + particlesPerCell*i].z,
-                                   parameters.cellRadius,
-                                   parameters.cellsPerDimension,
-                                   i)] = 0;
-        cellIDtoOccupied[getCellID(positionsOut[j + particlesPerCell*i].x,
-                                positionsOut[j + particlesPerCell*i].y,
-                                positionsOut[j + particlesPerCell*i].z,
-                                parameters.cellRadius,
-                                parameters.cellsPerDimension,
-                                i)] = 0;
-    }
-    
 }
+
+/*- MAIN KERNEL FUNCTIONS -*/
 
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float3 *positionsOut [[buffer(1)]],
@@ -175,7 +166,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
     
     int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
-            
+                
     //Flag wether or not the particle should diffuse
     
     bool diffuseFlag = true;
@@ -187,45 +178,42 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
         randomSeedsOut[i] = randNumber;
         
-        //Probability that the particle detaches
+        // Probability that the particle detaches
         if (randNumber < parameters.wOFF*parameters.deltat/stepsPerMTPoint){
             isAttachedOut[i] = -1;
             MTstepNumberOut[i] = 1;
         }else{
-            //Check that the particle hasn't reached the end of the MT
-            if (abs(MTpoints[isAttachedIn[i] + 1].x - parameters.cellRadius) < 100 &&
-                abs(MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius) < 100 &&
-                abs(MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius) < 100){
+            // Check that the particle hasn't reached the end of the MT
+            if (abs(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius) &&
+                abs(MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius) &&
+                abs(MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius) ){
                 
-                //If the particle reached the end of the MT, detach immediately
+                // Since the particle has reached the end of the MT, detach immediately
                 isAttachedOut[i] = -1;
                 MTstepNumberOut[i] = 1;
                 
-                /*int MTindexForSearch = i - 1;
-                
-                while (!(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius &&
-                       MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius &&
-                       MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius)){
-                    MTindexForSearch -= 1;
-                    if (MTindexForSearch == 0){
-                        break;
+            }else{
+                if (MTstepNumberIn[i] >= stepsPerMTPoint){
+                    
+                    int MTdirection;
+                    
+                    switch (boundaryConditions) {
+                        case KINESIN_ONLY:
+                            // Move outward
+                            MTdirection = 1;
+                            break;
+                        case DYNEIN_ONLY:
+                            // Move inward
+                            MTdirection = -1;
+                            break;
+                        default:
+                            // Default to KINESIN_ONLY
+                            MTdirection = 1;
                     }
                     
-                    positionsOut[i] = MTpoints[MTindexForSearch];
-                    isAttachedOut[i] = MTindexForSearch;
-                    
-                }*/
-                
-                
-            }else{
-                
-                /*positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
-                isAttachedOut[i] = isAttachedIn[i] + 1;*/
-                
-                
-                if (MTstepNumberIn[i] >= stepsPerMTPoint){
-                    positionsOut[i] = MTpoints[isAttachedIn[i] + 1];
-                    isAttachedOut[i] = isAttachedIn[i] + 1;
+                    // Move in MTdirection
+                    positionsOut[i] = MTpoints[isAttachedIn[i] + MTdirection];
+                    isAttachedOut[i] = isAttachedIn[i] + MTdirection;
                     MTstepNumberOut[i] = 1;
                 }else{
                     isAttachedOut[i] = isAttachedIn[i];
@@ -297,13 +285,14 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     }
     
     //Check if new point is outside cell radius
-    if (distance >= parameters.cellRadius){
+    if (isOutsideBounds(distance, parameters.cellRadius)) {
         
         updatedTimeLastJump[i] = newTime[i];
         timeBetweenJumps[i] = oldTime[i] - timeLastJump[i];
         isAttachedOut[i] = -1;
         
-        float4 point = randomSpherePoint(0.1 * parameters.cellRadius, int(positionsIn[i].x*100000), int(positionsIn[i].y*100000), int(positionsIn[i].z*100000));
+        // Reinject point in the correct position given boundary conditions
+        float4 point = reinjectPosition(distance, parameters.cellRadius, positionsIn[i]);
         
         positionsOut[i].x = point.x;
         positionsOut[i].y = point.y;
@@ -316,3 +305,83 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
 }
 
+kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
+                             device float3 *positionsOut [[buffer(1)]],
+                             device int32_t *isAttachedIn [[buffer(2)]],
+                             device int32_t *isAttachedOut [[buffer(3)]],
+                             device int32_t *cellIDtoOccupied [[buffer(4)]],
+                             device float *distances [[buffer(5)]],
+                             constant simulation_parameters & parameters [[buffer(6)]],
+                             uint i [[thread_position_in_grid]]){
+    
+    int particlesPerCell = parameters.nBodies/parameters.nCells;
+    
+    //Update the cellIDtoOccupied hypermatrix
+    for(int j=0; j < particlesPerCell; j++){
+        cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
+                                   positionsIn[j + particlesPerCell*i].y,
+                                   positionsIn[j + particlesPerCell*i].z,
+                                   parameters.cellRadius,
+                                   parameters.cellsPerDimension,
+                                   i)] += 1;
+    }
+                                 
+    //Move each particle in the cell sequentially
+    for (int j=0; j < particlesPerCell; j++){
+        
+        //positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i]; //DELETE
+        //isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i]; //DELETE
+        
+        int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
+                                 positionsIn[j + particlesPerCell*i].y,
+                                 positionsIn[j + particlesPerCell*i].z,
+                                 parameters.cellRadius,
+                                 parameters.cellsPerDimension,
+                                 i);
+        int cellIdOut = getCellID(positionsOut[j + particlesPerCell*i].x,
+                                  positionsOut[j + particlesPerCell*i].y,
+                                  positionsOut[j + particlesPerCell*i].z,
+                                  parameters.cellRadius,
+                                  parameters.cellsPerDimension,
+                                  i);
+        
+        //Check if it moved into the same cell and if it's the only particle in that cell
+        if ((cellIdOut == cellIdIn) || distances[j + particlesPerCell*i] < parameters.cellRadius*0.1){
+            positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+            isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
+            //Free the cell just left
+            cellIDtoOccupied[cellIdIn] -= 1;
+            cellIDtoOccupied[cellIdOut] += 1;
+        }else{
+            //Check if the new cell is not occupied
+            if (cellIDtoOccupied[cellIdOut] == 0){
+                //Move the particle
+                positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
+                isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
+                //Free the cell just left
+                cellIDtoOccupied[cellIdIn] -= 1;
+                cellIDtoOccupied[cellIdOut] += 1;
+            }else{
+                //Keep the particle in the same position
+                //The cell will still be occupied
+            }
+        }
+    }
+    
+    //Clear the whole cellIdtoOccupied hypermatrix
+    for(int j=0; j < particlesPerCell; j++){
+        cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
+                                   positionsIn[j + particlesPerCell*i].y,
+                                   positionsIn[j + particlesPerCell*i].z,
+                                   parameters.cellRadius,
+                                   parameters.cellsPerDimension,
+                                   i)] = 0;
+        cellIDtoOccupied[getCellID(positionsOut[j + particlesPerCell*i].x,
+                                positionsOut[j + particlesPerCell*i].y,
+                                positionsOut[j + particlesPerCell*i].z,
+                                parameters.cellRadius,
+                                parameters.cellsPerDimension,
+                                i)] = 0;
+    }
+    
+}
