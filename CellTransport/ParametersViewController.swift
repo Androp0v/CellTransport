@@ -34,7 +34,7 @@ class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopover
     
     // Called when motorPickerViewControlled is dismissed
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        print(selectedMotorFromPicker)
+        
         switch selectedMotorFromPicker {
         case parameters.KINESIN_ONLY:
             motorPickerButton.setTitle("Kinesins", for: .normal)
@@ -44,7 +44,7 @@ class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopover
             motorPickerButton.setTitle("Kinesins", for: .normal)
         }
         
-        parameters.boundaryConditions = selectedMotorFromPicker
+        parameters.molecularMotors = selectedMotorFromPicker
     }
     
     @IBOutlet weak var collisionsSwitch: UISwitch!
@@ -109,8 +109,8 @@ class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopover
         self.nMicrotubules.text = text
     }
     
-    func motorSelected(boundaryCondition: Int32) {
-        selectedMotorFromPicker = boundaryCondition
+    func motorSelected(molecularMotor: Int32) {
+        selectedMotorFromPicker = molecularMotor
     }
     
     func doneButtonPressed() {

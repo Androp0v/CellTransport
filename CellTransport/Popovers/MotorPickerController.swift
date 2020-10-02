@@ -9,7 +9,7 @@
 import UIKit
 
 protocol MotorPickerDelegate: class {
-    func motorSelected(boundaryCondition: Int32)
+    func motorSelected(molecularMotor: Int32)
     func doneButtonPressed()
 }
 
@@ -35,7 +35,7 @@ class MotorPickerController: UIViewController, UIPickerViewDelegate, UIPickerVie
         self.motorPicker.dataSource = self
         
         // Select current row
-        switch parameters.boundaryConditions {
+        switch parameters.molecularMotors {
         case parameters.KINESIN_ONLY:
             motorPicker.selectRow(0, inComponent: 0, animated: false)
         case parameters.DYNEIN_ONLY:
@@ -74,7 +74,7 @@ class MotorPickerController: UIViewController, UIPickerViewDelegate, UIPickerVie
         default:
             motorID = parameters.KINESIN_ONLY
         }
-        delegate?.motorSelected(boundaryCondition: motorID)
+        delegate?.motorSelected(molecularMotor: motorID)
     }
 
 }

@@ -14,7 +14,14 @@ using namespace metal;
 
 constant int KINESIN_ONLY = 0;
 constant int DYNEIN_ONLY = 1;
-//constant int KINESIN_&_DYNEIN = 2;
+
+constant int REINJECT_INSIDE = 0;
+constant int REINJECT_OUTSIDE = 1;
+constant int CONTAIN_INSIDE = 2;
+
+constant int OUTSIDE_AND_COUNT_TIME = 0;
+constant int INSIDE = 1;
+constant int OUTSIDE_AND_NOT_COUNT_TIME = 2;
 
 /*- PARAMETERS STRUCT -*/
 
@@ -28,6 +35,7 @@ struct simulation_parameters {
     float wOFF;
     float n_w;
     int32_t boundaryConditions;
+    int32_t molecularMotors;
 };
 
 /*- HELPER FUNCTIONS -*/
@@ -93,45 +101,80 @@ float4 randomSurfaceSpherePoint(float radius, int x, int y, int z){
 }
 
 // Check if particle is outside bounds
-bool isOutsideBounds(int32_t boundaryConditions, float distance, float cellRadius) {
+int isOutsideBounds(int32_t boundaryConditions, float distance, float cellRadius) {
     switch (boundaryConditions) {
-        case KINESIN_ONLY:
+        case REINJECT_INSIDE: {
             if (distance >= cellRadius){
-                return true;
+                return OUTSIDE_AND_COUNT_TIME;
             }else{
-                return false;
+                return INSIDE;
             }
-        case DYNEIN_ONLY:
-            if (distance <= cellRadius*0.1 || distance > cellRadius){
-                return true;
+        }
+        case CONTAIN_INSIDE: {
+            if (distance >= cellRadius){
+                return OUTSIDE_AND_NOT_COUNT_TIME;
+            }else{
+                return INSIDE;
+            }
+        }
+        case REINJECT_OUTSIDE:{
+            if (distance <= cellRadius*0.1) {
+                return OUTSIDE_AND_COUNT_TIME;
+            } else if (distance > cellRadius) {
+                return OUTSIDE_AND_NOT_COUNT_TIME;
             } else {
-                return false;
+                return INSIDE;
             }
-        default:
-            // Default is like KINESIN_ONLY
+        }
+        default: {
             if (distance >= cellRadius){
-                return true;
+                return OUTSIDE_AND_COUNT_TIME;
             }else{
-                return false;
+                return INSIDE;
             }
+        }
     }
 }
 
 // Retrieve reinjection point for the current boundary conditions
-float4 reinjectPosition(int32_t boundaryConditions, float distance, float cellRadius, float3 position) {
+float4 reinjectPosition(int32_t boundaryConditions, float distance, float cellRadius, float3 position, float3 positionOld) {
     switch (boundaryConditions) {
-        case KINESIN_ONLY: {
+        case REINJECT_INSIDE: {
             // Reinject inside the centrosome
             return randomSpherePoint(0.1 * cellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
         }
-        case DYNEIN_ONLY: {
+        case REINJECT_OUTSIDE: {
             // Reinject at the cell membrane (surface only)
             float almostCellRadius = 0.999*cellRadius; //To avoid z-fighting in membrane
             return randomSurfaceSpherePoint(almostCellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
         }
+        case CONTAIN_INSIDE: {
+            float distance = sqrt(pow(positionOld.x, 2) + pow(positionOld.y, 2) + pow(positionOld.z, 2));
+            return float4(positionOld.x,positionOld.y,positionOld.z,distance);
+        }
         default: {
             // Default is like KINESIN_ONLY
             return randomSpherePoint(0.1 * cellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
+        }
+    }
+}
+
+// Check if time should be reset
+bool shouldResetTime(int32_t boundaryConditions, float cellRadius, float distance) {
+    switch (boundaryConditions) {
+        case REINJECT_INSIDE: {
+            if (distance < 0.1*cellRadius) {
+                return true;
+            }
+        }
+        case REINJECT_OUTSIDE: {
+            return false;
+        }
+        case CONTAIN_INSIDE: {
+            return false;
+        }
+        default: {
+            return false;
         }
     }
 }
@@ -196,7 +239,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     
                     int MTdirection;
                     
-                    switch (parameters.boundaryConditions) {
+                    switch (parameters.molecularMotors) {
                         case KINESIN_ONLY:
                             // Move outward
                             MTdirection = 1;
@@ -279,25 +322,50 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
     //Ceck if particle is inside centrosome
-    if (distance <= parameters.cellRadius*0.1){
+    if (shouldResetTime(parameters.boundaryConditions, parameters.cellRadius, distance)){
         updatedTimeLastJump[i] = newTime[i];
     }
     
     //Check if new point is outside cell radius
-    if (isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius)) {
-        
-        updatedTimeLastJump[i] = newTime[i];
-        timeBetweenJumps[i] = oldTime[i] - timeLastJump[i];
-        isAttachedOut[i] = -1;
-        
-        // Reinject point in the correct position given boundary conditions
-        float4 point = reinjectPosition(parameters.boundaryConditions, distance, parameters.cellRadius, positionsIn[i]);
-        
-        positionsOut[i].x = point.x;
-        positionsOut[i].y = point.y;
-        positionsOut[i].z = point.z;
-        
-        distance = point.w;
+    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius);
+    
+    switch (outsideBounds) {
+        case OUTSIDE_AND_COUNT_TIME: {
+            updatedTimeLastJump[i] = newTime[i];
+            timeBetweenJumps[i] = oldTime[i] - timeLastJump[i];
+            isAttachedOut[i] = -1;
+            
+            // Reinject point in the correct position given boundary conditions
+            float4 point = reinjectPosition(parameters.boundaryConditions, distance, parameters.cellRadius, positionsOut[i], positionsIn[i]);
+            
+            positionsOut[i].x = point.x;
+            positionsOut[i].y = point.y;
+            positionsOut[i].z = point.z;
+            
+            distance = point.w;
+            break;
+        }
+        case OUTSIDE_AND_NOT_COUNT_TIME: {
+            isAttachedOut[i] = -1;
+            
+            // Reinject point in the correct position given boundary conditions
+            float4 point = reinjectPosition(parameters.boundaryConditions, distance, parameters.cellRadius, positionsOut[i], positionsIn[i]);
+            
+            positionsOut[i].x = point.x;
+            positionsOut[i].y = point.y;
+            positionsOut[i].z = point.z;
+            
+            distance = point.w;
+            break;
+        }
+        case INSIDE: {
+            //Don't do anything
+            break;
+        }
+        default: {
+            //Don't do anything
+            break;
+        }
     }
     
     distances[i] = distance;
