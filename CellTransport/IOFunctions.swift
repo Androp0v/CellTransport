@@ -80,7 +80,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
     parametersString += "Attachment probability: " + String(parameters.wON) + " nm^3*s^-1\n"
     parametersString += "Detachment probability: " + String(parameters.wON) + " s^-1\n"
-    parametersString += "Diffusion delta time: " + String(parameters.deltat) + " s\n"
+    parametersString += "Timestep: " + String(parameters.deltat / Float(parameters.stepsPerMTPoint)) + " s\n"
     parametersString += "Cells per dimension: " + String(parameters.cellsPerDimension)
     
     // Write to file (atomically!)

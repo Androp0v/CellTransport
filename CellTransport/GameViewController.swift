@@ -673,13 +673,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var n_w: Float;
         var boundaryConditions: Int32;
         var molecularMotors: Int32;
+        var stepsPerMTPoint: Int32;
     }
     
     func metalUpdaterChild(){
         
         // Create simulationParameters struct
         
-        var simulationParametersObject = simulationParameters(deltat_to_metal: parameters.deltat, cellRadius_to_metal: parameters.cellRadius, cellsPerDimension_to_metal: Int32(parameters.cellsPerDimension), nBodies_to_Metal: Int32(parameters.nbodies), nCells_to_Metal: Int32(parameters.nCells), wON: parameters.wON, wOFF: parameters.wOFF, n_w: parameters.n_w, boundaryConditions: parameters.boundaryConditions, molecularMotors: parameters.molecularMotors)
+        var simulationParametersObject = simulationParameters(deltat_to_metal: parameters.deltat, cellRadius_to_metal: parameters.cellRadius, cellsPerDimension_to_metal: Int32(parameters.cellsPerDimension), nBodies_to_Metal: Int32(parameters.nbodies), nCells_to_Metal: Int32(parameters.nCells), wON: parameters.wON, wOFF: parameters.wOFF, n_w: parameters.n_w, boundaryConditions: parameters.boundaryConditions, molecularMotors: parameters.molecularMotors, stepsPerMTPoint: parameters.stepsPerMTPoint)
         
         // Update MTLBuffers thorugh compute pipeline
             

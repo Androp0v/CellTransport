@@ -8,8 +8,6 @@
 
 #include <metal_stdlib>
 
-#define stepsPerMTPoint 10
-
 using namespace metal;
 
 constant int KINESIN_ONLY = 0;
@@ -36,6 +34,7 @@ struct simulation_parameters {
     float n_w;
     int32_t boundaryConditions;
     int32_t molecularMotors;
+    int32_t stepsPerMTPoint;
 };
 
 /*- HELPER FUNCTIONS -*/
@@ -203,7 +202,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + parameters.deltat/stepsPerMTPoint;
+    newTime[i] = oldTime[i] + parameters.deltat/parameters.stepsPerMTPoint;
     
     int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
     
@@ -221,7 +220,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         randomSeedsOut[i] = randNumber;
         
         // Probability that the particle detaches
-        if (randNumber < parameters.wOFF*parameters.deltat/stepsPerMTPoint){
+        if (randNumber < parameters.wOFF*parameters.deltat/parameters.stepsPerMTPoint){
             isAttachedOut[i] = -1;
             MTstepNumberOut[i] = 1;
         }else{
@@ -235,7 +234,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 MTstepNumberOut[i] = 1;
                 
             }else{
-                if (MTstepNumberIn[i] >= stepsPerMTPoint){
+                if (MTstepNumberIn[i] >= parameters.stepsPerMTPoint){
                     
                     int MTdirection;
                     
@@ -273,8 +272,8 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
         
         //Probability that the particle attaches
-        //if (randNumber < parameters.wON*parameters.deltat/stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
-        if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat/stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
+        //if (randNumber < parameters.wON*parameters.deltat/parameters.stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
+        if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat/parameters.stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
             
             //Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){
@@ -309,7 +308,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         
         //Compute the diffusion movement factor
         float diffusivity = 1.59349*pow(float(10), float(6))/parameters.n_w;
-        float deltatMT = parameters.deltat/stepsPerMTPoint; //REDUCED DELTA T
+        float deltatMT = parameters.deltat/parameters.stepsPerMTPoint; //REDUCED DELTA T
         float msqdistance = sqrt(6*diffusivity*deltatMT);
         float factor = msqdistance/0.866;
         

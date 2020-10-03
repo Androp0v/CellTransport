@@ -21,8 +21,8 @@ class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPop
     @IBOutlet weak var boundaryPickerButton: UIButton!
     
     
-    var selectedMotorFromPicker: Int32 = 0
-    var selectedBoundaryFromPicker: Int32 = 0
+    var selectedMotorFromPicker: Int32 = parameters.molecularMotors
+    var selectedBoundaryFromPicker: Int32 = parameters.boundaryConditions
     var currentPickerViewController: ParameterPickerController = ParameterPickerController()
     
     @IBAction func boundaryPickerButtonPressed(_ sender: Any) {
@@ -210,6 +210,7 @@ class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPop
         wON.text = String(parameters.wON)
         wOFF.keyboardType = .numberPad
         wOFF.text = String(parameters.wOFF)
+        
     }
     
 

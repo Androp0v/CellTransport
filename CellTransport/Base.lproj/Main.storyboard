@@ -601,7 +601,7 @@
         <!--Parameter Picker Controller-->
         <scene sceneID="Axk-VJ-LkF">
             <objects>
-                <viewController storyboardIdentifier="MotorPickerViewControllerID" id="Y0e-VI-f5n" customClass="ParameterPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ParameterPickerViewControllerID" id="Y0e-VI-f5n" customClass="ParameterPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="TCY-pM-7cS">
                         <rect key="frame" x="0.0" y="0.0" width="250" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
