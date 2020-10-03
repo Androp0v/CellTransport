@@ -229,7 +229,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="QI6-PT-1wb">
-                                <rect key="frame" x="4" y="97.5" width="292" height="650"/>
+                                <rect key="frame" x="4" y="97.5" width="292" height="692"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="cMD-f3-mjv" userLabel="SimulationsStack">
                                         <rect key="frame" x="0.0" y="0.0" width="292" height="36.5"/>
@@ -523,7 +523,7 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="pHb-cZ-LCO" userLabel="Water viscosity">
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="pHb-cZ-LCO" userLabel="Molecular motors">
                                         <rect key="frame" x="0.0" y="574" width="292" height="38"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Molecular motors: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Au5-rc-0vE">
@@ -532,7 +532,7 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akP-w1-Kk3">
+                                            <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="600" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akP-w1-Kk3">
                                                 <rect key="frame" x="166.5" y="0.0" width="113.5" height="30"/>
                                                 <state key="normal" title="Kinesins"/>
                                                 <connections>
@@ -542,8 +542,27 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="fCu-QQ-VNO" userLabel="Molecular motors">
+                                        <rect key="frame" x="0.0" y="616" width="292" height="38"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Boundary conditions: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lA9-MZ-aGT">
+                                                <rect key="frame" x="12" y="0.0" width="173.5" height="30"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="600" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2AW-7I-eBf">
+                                                <rect key="frame" x="191.5" y="0.0" width="88.5" height="30"/>
+                                                <state key="normal" title="Reinject inside"/>
+                                                <connections>
+                                                    <action selector="boundaryPickerButtonPressed:" destination="dnB-nK-sbK" eventType="touchUpInside" id="gOP-YC-Z7S"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
+                                    </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nqa-RH-LnJ">
-                                        <rect key="frame" x="0.0" y="616" width="292" height="34"/>
+                                        <rect key="frame" x="0.0" y="658" width="292" height="34"/>
                                         <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                                         <color key="tintColor" systemColor="systemRedColor"/>
                                         <state key="normal" title=" Restart simulation">
@@ -563,6 +582,7 @@
                     </view>
                     <size key="freeformSize" width="300" height="1024"/>
                     <connections>
+                        <outlet property="boundaryPickerButton" destination="2AW-7I-eBf" id="k1A-Qk-VEK"/>
                         <outlet property="collisionsSwitch" destination="D1d-lC-A8P" id="SP5-Cx-SvF"/>
                         <outlet property="motorPickerButton" destination="akP-w1-Kk3" id="Zlv-Tb-6HV"/>
                         <outlet property="nBodies" destination="bnH-Eq-Jjr" id="rKd-1C-lC3"/>
@@ -578,10 +598,10 @@
             </objects>
             <point key="canvasLocation" x="331.62518301610538" y="468.74999999999994"/>
         </scene>
-        <!--Motor Picker Controller-->
+        <!--Parameter Picker Controller-->
         <scene sceneID="Axk-VJ-LkF">
             <objects>
-                <viewController storyboardIdentifier="MotorPickerViewControllerID" id="Y0e-VI-f5n" customClass="MotorPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ParameterPickerViewControllerID" id="Y0e-VI-f5n" customClass="ParameterPickerController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="TCY-pM-7cS">
                         <rect key="frame" x="0.0" y="0.0" width="250" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

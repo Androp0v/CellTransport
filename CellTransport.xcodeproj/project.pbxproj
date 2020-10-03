@@ -32,7 +32,7 @@
 		C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596523EB15AA000B871B /* Microtubules.swift */; };
 		C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596723EB4769000B871B /* ParametersViewController.swift */; };
 		C4BD596A23EB477F000B871B /* GraphsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596923EB477F000B871B /* GraphsViewController.swift */; };
-		C4F35DB72527A5BC001D8F3A /* MotorPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F35DB62527A5BC001D8F3A /* MotorPickerController.swift */; };
+		C4F35DB72527A5BC001D8F3A /* ParameterPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,7 +64,7 @@
 		C4BD596523EB15AA000B871B /* Microtubules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Microtubules.swift; sourceTree = "<group>"; };
 		C4BD596723EB4769000B871B /* ParametersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersViewController.swift; sourceTree = "<group>"; };
 		C4BD596923EB477F000B871B /* GraphsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphsViewController.swift; sourceTree = "<group>"; };
-		C4F35DB62527A5BC001D8F3A /* MotorPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotorPickerController.swift; sourceTree = "<group>"; };
+		C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterPickerController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,7 +140,7 @@
 		C4F35DB02527A54B001D8F3A /* Popovers */ = {
 			isa = PBXGroup;
 			children = (
-				C4F35DB62527A5BC001D8F3A /* MotorPickerController.swift */,
+				C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */,
 			);
 			path = Popovers;
 			sourceTree = "<group>";
@@ -224,7 +224,7 @@
 				C406BBBA23F743F60013A79B /* Histogram.metal in Sources */,
 				C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
-				C4F35DB72527A5BC001D8F3A /* MotorPickerController.swift in Sources */,
+				C4F35DB72527A5BC001D8F3A /* ParameterPickerController.swift in Sources */,
 				C404E1B224EAF73C00FD5489 /* LineChart3View.swift in Sources */,
 				C403DB4323F6B394008368CB /* LineChart1View.swift in Sources */,
 				C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */,

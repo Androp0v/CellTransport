@@ -8,23 +8,24 @@
 
 import UIKit
 
-protocol MotorPickerDelegate: class {
-    func motorSelected(molecularMotor: Int32)
-    func doneButtonPressed()
+protocol ParameterPickerDelegate: class {
+    func parameterPicked(parameterInt32Value: Int32, parameterTag: String)
+    func doneButtonPressed(parameterTag: String)
 }
 
 class ParameterPickerController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBOutlet weak var motorPicker: UIPickerView!
     @IBAction func pickDone(_ sender: Any) {
-        delegate?.doneButtonPressed()
+        delegate?.doneButtonPressed(parameterTag: parameterTag)
     }
     
     var pickerOptions: [String] = [String]()
     var pickedIDs: [Int32] = [Int32]()
     var currentlySelectedRow: Int = 0
+    var parameterTag: String = ""
     
-    weak var delegate: MotorPickerDelegate?
+    weak var delegate: ParameterPickerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,7 +61,7 @@ class ParameterPickerController: UIViewController, UIPickerViewDelegate, UIPicke
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // This method is triggered whenever the user makes a change to the picker selection.
         // The parameter named row and component represents what was selected.
-        delegate?.motorSelected(molecularMotor: pickedIDs[row])
+        delegate?.parameterPicked(parameterInt32Value: pickedIDs[row], parameterTag: parameterTag)
     }
 
 }

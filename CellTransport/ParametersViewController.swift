@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopoverPresentationControllerDelegate{
+class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPopoverPresentationControllerDelegate{
     
     @IBOutlet var nCells: UITextField!
     @IBOutlet var nParticlesPerCell: UITextField!
@@ -18,33 +18,66 @@ class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopover
     @IBOutlet weak var wOFF: UITextField!
     @IBOutlet weak var viscosity: UITextField!
     @IBOutlet weak var motorPickerButton: UIButton!
+    @IBOutlet weak var boundaryPickerButton: UIButton!
+    
     
     var selectedMotorFromPicker: Int32 = 0
-    var motorPickerViewController: MotorPickerController = MotorPickerController()
+    var selectedBoundaryFromPicker: Int32 = 0
+    var currentPickerViewController: ParameterPickerController = ParameterPickerController()
     
+    @IBAction func boundaryPickerButtonPressed(_ sender: Any) {
+        self.self.currentPickerViewController = self.storyboard?.instantiateViewController(withIdentifier: "ParameterPickerViewControllerID") as! ParameterPickerController
+        self.currentPickerViewController.parameterTag = "boundaryConditions"
+        self.currentPickerViewController.modalPresentationStyle = .popover
+        self.currentPickerViewController.popoverPresentationController?.sourceView = boundaryPickerButton
+        self.currentPickerViewController.presentationController?.delegate = self
+        self.currentPickerViewController.delegate = self
+        
+        self.currentPickerViewController.pickerOptions = ["Reinject inside","Reinject outside","Contain inside"]
+        self.currentPickerViewController.pickedIDs = [parameters.REINJECT_INSIDE, parameters.REINJECT_OUTSIDE, parameters.CONTAIN_INSIDE]
+        
+        switch parameters.boundaryConditions {
+        case parameters.REINJECT_INSIDE:
+            self.currentPickerViewController.currentlySelectedRow = 0
+        case parameters.REINJECT_OUTSIDE:
+            self.currentPickerViewController.currentlySelectedRow = 1
+        case parameters.CONTAIN_INSIDE:
+            self.currentPickerViewController.currentlySelectedRow = 2
+        default:
+            self.currentPickerViewController.currentlySelectedRow = 0
+        }
+        
+        self.present(self.currentPickerViewController, animated: true, completion: nil)
+    }
     @IBAction func motorPickerButtonPressed(_ sender: Any) {
-        motorPickerViewController = self.storyboard?.instantiateViewController(withIdentifier: "MotorPickerViewControllerID") as! MotorPickerController
-        motorPickerViewController.modalPresentationStyle = .popover
-        motorPickerViewController.popoverPresentationController?.sourceView = motorPickerButton
-        motorPickerViewController.presentationController?.delegate = self
-        motorPickerViewController.delegate = self
-        self.present(motorPickerViewController, animated: true, completion: nil)
+        self.currentPickerViewController = self.storyboard?.instantiateViewController(withIdentifier: "ParameterPickerViewControllerID") as! ParameterPickerController
+        self.currentPickerViewController.parameterTag = "molecularMotors"
+        self.currentPickerViewController.modalPresentationStyle = .popover
+        self.currentPickerViewController.popoverPresentationController?.sourceView = motorPickerButton
+        self.currentPickerViewController.presentationController?.delegate = self
+        self.currentPickerViewController.delegate = self
+        
+        self.currentPickerViewController.pickerOptions = ["Kinesins","Dyneins"]
+        self.currentPickerViewController.pickedIDs = [parameters.KINESIN_ONLY, parameters.DYNEIN_ONLY]
+        
+        switch parameters.molecularMotors {
+        case parameters.KINESIN_ONLY:
+            self.currentPickerViewController.currentlySelectedRow = 0
+        case parameters.DYNEIN_ONLY:
+            self.currentPickerViewController.currentlySelectedRow = 1
+        default:
+            self.currentPickerViewController.currentlySelectedRow = 0
+        }
+        
+        self.present(self.currentPickerViewController, animated: true, completion: nil)
 
     }
     
     // Called when motorPickerViewControlled is dismissed
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         
-        switch selectedMotorFromPicker {
-        case parameters.KINESIN_ONLY:
-            motorPickerButton.setTitle("Kinesins", for: .normal)
-        case parameters.DYNEIN_ONLY:
-            motorPickerButton.setTitle("Dyneins", for: .normal)
-        default:
-            motorPickerButton.setTitle("Kinesins", for: .normal)
-        }
+        print("presentationControllerDidDismiss")
         
-        parameters.molecularMotors = selectedMotorFromPicker
     }
     
     @IBOutlet weak var collisionsSwitch: UISwitch!
@@ -109,13 +142,58 @@ class ParametersViewController: UIViewController, MotorPickerDelegate, UIPopover
         self.nMicrotubules.text = text
     }
     
-    func motorSelected(molecularMotor: Int32) {
-        selectedMotorFromPicker = molecularMotor
+    // ParameterPickerDelegate methods
+    
+    func parameterPicked(parameterInt32Value: Int32, parameterTag: String) {
+        
+        print("parameterPicked")
+        
+        switch parameterTag {
+        case "molecularMotors":
+            selectedMotorFromPicker = parameterInt32Value
+        case "boundaryConditions":
+            selectedBoundaryFromPicker = parameterInt32Value
+        default:
+            break
+        }
     }
     
-    func doneButtonPressed() {
-        self.presentationControllerDidDismiss(motorPickerViewController.presentationController!)
-        motorPickerViewController.dismiss(animated: true, completion: nil)
+    func doneButtonPressed(parameterTag: String) {
+        
+        print("doneButtonPressed",parameterTag)
+        
+        switch parameterTag {
+        
+        case "molecularMotors":
+            switch selectedMotorFromPicker {
+            case parameters.KINESIN_ONLY:
+                motorPickerButton.setTitle("Kinesins", for: .normal)
+            case parameters.DYNEIN_ONLY:
+                motorPickerButton.setTitle("Dyneins", for: .normal)
+            default:
+                motorPickerButton.setTitle("Kinesins", for: .normal)
+            }
+            parameters.molecularMotors = selectedMotorFromPicker
+            
+        case "boundaryConditions":
+            switch selectedBoundaryFromPicker {
+            case parameters.REINJECT_INSIDE:
+                boundaryPickerButton.setTitle("Reinject inside", for: .normal)
+            case parameters.REINJECT_OUTSIDE:
+                boundaryPickerButton.setTitle("Reinject outside", for: .normal)
+            case parameters.CONTAIN_INSIDE:
+                boundaryPickerButton.setTitle("Contain inside", for: .normal)
+            default:
+                boundaryPickerButton.setTitle("einject inside", for: .normal)
+            }
+            parameters.boundaryConditions = selectedBoundaryFromPicker
+            
+        default:
+            break
+        }
+        
+        self.currentPickerViewController.dismiss(animated: true, completion: nil)
+        
     }
         
     override func viewDidLoad() {
