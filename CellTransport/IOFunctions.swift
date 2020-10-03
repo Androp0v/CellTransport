@@ -78,8 +78,8 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Molecular motors: " + getMolecularMotorName(molecularMotors: parameters.molecularMotors) + "\n"
     parametersString += "Boundary conditions: " + getBoundaryName(boundaryConditions: parameters.boundaryConditions) + "\n"
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
-    parametersString += "Attachment probability: " + String(parameters.wON) + "nm^3*s^-1"
-    parametersString += "Dettachment probability: " + String(parameters.wON) + "s^-1"
+    parametersString += "Attachment probability: " + String(parameters.wON) + " nm^3*s^-1\n"
+    parametersString += "Detachment probability: " + String(parameters.wON) + " s^-1\n"
     parametersString += "Diffusion delta time: " + String(parameters.deltat) + " s\n"
     parametersString += "Cells per dimension: " + String(parameters.cellsPerDimension)
     

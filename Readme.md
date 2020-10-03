@@ -2,7 +2,7 @@
 
 ![Main Screenshot](MainScreenshot.png)
 
-Metal simulation (GPU) to study intracellular transport by diffusion and active transport through microtubules. Particles diffuse freely through the cell and have a probability to attach and dettach to microtubules when in close contact to them. When particles diffuse outside the cell membrane they are automatically reinjected into the centrosome (innermost part of the cell) to provide a easy contour condition for the study. Collisions can be enabled and disabled (even in real time) to study the effect of excluded volume.
+Metal simulation (GPU) to study intracellular transport by diffusion and active transport through microtubules. Particles diffuse freely through the cell and have a probability to attach and detach to microtubules when in close contact to them. When particles diffuse outside the cell membrane they are automatically reinjected into the centrosome (innermost part of the cell) to provide a easy contour condition for the study. Collisions can be enabled and disabled (even in real time) to study the effect of excluded volume.
 
 Data in the histograms can be exported to a .txt for further analysis in Python or other languages. A separate Parameters.txt file is also exported with the histogram data reflecting the parameters being used for the simulation. A list of those parameters can be found below.
 
@@ -23,7 +23,7 @@ Parameter | Explanation
 **Boundary conditions** | Wether the simulation is using *REINJECT_INSIDE* (particles further than the cell membrane are reinjected in the centrosome), *REINJECT_OUTSIDE* (particles in the centrosome are reinjected in the cell membrane or *CONTAIN_INSIDE* (particles are not reinjected anywhere and can't travel outside the cell membrane).
 **Collisions enabled** | Wether or not collisions (excluded volume) is enabled.
 **Attachment probability** | Factor of the probability of diffusive particles to attach to microtubules, in *nm<sup>3</sup>s<sup>-1</sup>*.
-**Dettachment probability** | Factor of the probability of transported particles to dettach from microtubules, in *s<sup>-1</sup>*).
+**Detachment probability** | Factor of the probability of transported particles to detach from microtubules, in *s<sup>-1</sup>*).
 **Diffusion delta time** | Timestep used for the simulation. May be broken into smaller steps if necessary. Mostly used internally, since actual diffusion timestep may be smaller if each timestep is broken into smaller steps. Fixed by microtubule speed.
 **Cells per dimension** | Number of spatial cells in which the space is subdivided on each dimension. Only used internally (non-biological meaning), but is related to the volume the particles have in collisions (there can only be one particle on each of these cells).
 

@@ -10,6 +10,18 @@ import Foundation
 import SceneKit
 import simd
 
+// Check if a MT point is inside the nucleus
+func checkIfInsideNucleus(MTPoint: SCNVector3, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> Bool {
+    
+    if distance(simd_float3(MTPoint), simd_float3(centrosomeLocation)) < centrosomeRadius {
+        return true
+    } else {
+        return false
+    }
+    
+}
+
+// Generate a whole microtubule
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
     
     let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(0.1*cellRadius)
@@ -45,6 +57,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
                                   centrosomeLocation.z + p0.z + parameters.microtubuleSegmentLength*tmpZ/normalConstant)
         }else{
             
+            // Once there is at least one MT point created
             let directionvector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/parameters.microtubuleSegmentLength,
                                              (pointsList[i].y - pointsList[i-1].y)/parameters.microtubuleSegmentLength,
                                              (pointsList[i].z - pointsList[i-1].z)/parameters.microtubuleSegmentLength)
