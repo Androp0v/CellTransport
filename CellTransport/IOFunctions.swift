@@ -30,14 +30,27 @@ func exportHistogramToFile(histogram: [Float], folderURL: URL, filename: String)
     
 }
 
-func getMolecularMotorName(boundaryConditions: Int32) -> String {
-    switch boundaryConditions {
+func getMolecularMotorName(molecularMotors: Int32) -> String {
+    switch molecularMotors {
     case parameters.KINESIN_ONLY:
         return "KINESIN_ONLY"
     case parameters.KINESIN_ONLY:
         return "DYNEIN_ONLY"
     default:
         return "DEFAULT_TO_KINESIN_ONLY"
+    }
+}
+
+func getBoundaryName(boundaryConditions: Int32) -> String {
+    switch boundaryConditions {
+    case parameters.REINJECT_INSIDE:
+        return "REINJECT_INSIDE"
+    case parameters.REINJECT_OUTSIDE:
+        return "REINJECT_OUTSIDE"
+    case parameters.CONTAIN_INSIDE:
+        return "CONTAIN_INSIDE"
+    default:
+        return "DEFAULT_TO_REINJECT_INSIDE"
     }
 }
 
@@ -62,7 +75,8 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Microtubule max segments: " + String(parameters.maxNSegments) + "\n"
     
     // Append variable parameters
-    parametersString += "Molecular motors: " + getMolecularMotorName(boundaryConditions: parameters.boundaryConditions) + "\n"
+    parametersString += "Molecular motors: " + getMolecularMotorName(molecularMotors: parameters.molecularMotors) + "\n"
+    parametersString += "Boundary conditions: " + getBoundaryName(boundaryConditions: parameters.boundaryConditions) + "\n"
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
     parametersString += "Attachment probability: " + String(parameters.wON) + "nm^3*s^-1"
     parametersString += "Dettachment probability: " + String(parameters.wON) + "s^-1"
