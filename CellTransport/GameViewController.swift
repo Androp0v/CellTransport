@@ -379,7 +379,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             var cellPoints: Int = 0
             
             for _ in 0..<parameters.nMicrotubules{
-                let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation)
+                let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation)
                 microtubuleNSegments.append(points.count)
                 
                 for point in points{
@@ -470,7 +470,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func spawnCellNucleus() -> SCNNode{
         var nucleus:SCNGeometry
         
-        nucleus = SCNSphere(radius: CGFloat(0.3*parameters.cellRadius))
+        nucleus = SCNSphere(radius: CGFloat(parameters.nucleusRadius))
         nucleus.firstMaterial?.diffuse.contents = UIColor.purple
         nucleus.firstMaterial?.diffuse.contents = UIImage(named: "cellmembrane.png")
         let nucleusNode = SCNNode(geometry: nucleus)

@@ -13,6 +13,12 @@ import simd
 // Check if a MT point is inside the nucleus
 func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> Bool {
     
+    // Always return false if the nucleus is not enabled
+    if !parameters.nucleusEnabled {
+        return false
+    }
+        
+    // Check if it's inside the (spherical) nucleus
     if distance(simd_float3(MTPoint), simd_float3(nucleusLocation)) < nucleusRadius {
         return true
     } else {
@@ -22,31 +28,38 @@ func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLoca
 }
 
 // Try to generate first microtubule pint, fail after 1000 tries
-func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> (SCNVector3,SCNVector3) {
+func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]? {
     
-    //Initialize first microtubule point inside the centrosome
-    var p0 = vector_float3(10*centrosomeRadius,10*centrosomeRadius,10*centrosomeRadius)
+    // Initialize first microtubule point inside the centrosome
+    var p0: vector_float3
+    var trials: Int = 0
+    var firstMTPoint: SCNVector3
+    
+    // Try to generate a valid starting point or return nil after too many trials
     repeat{
+        // Generate a random point and move it relative to the centrosome radius
         p0 = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius))
-    } while sqrt(pow(p0.x,2) + pow(p0.y,2) + pow(p0.z,2)) > centrosomeRadius && !checkIfInsideNucleus(MTPoint: SCNVector3(p0), nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation)
-    
-    let firstMTPoint = SCNVector3(centrosomeLocation.x + p0.x, centrosomeLocation.y + p0.y, centrosomeLocation.z + p0.z)
-    
-    //Initialize second microtubule point (random direction)
-    
-    let tmpX = firstMTPoint.x // Float.random(in: -1...1)
-    let tmpY = firstMTPoint.y // Float.random(in: -1...1)
-    let tmpZ = firstMTPoint.z // Float.random(in: -1...1)
+        firstMTPoint = SCNVector3(centrosomeLocation.x + p0.x, centrosomeLocation.y + p0.y, centrosomeLocation.z + p0.z)
+        // Return nil if too many trials happen
+        if trials > 1000 {
+            return nil
+        }
+        trials += 1
+    } while distance(simd_float3(firstMTPoint), simd_float3(centrosomeLocation)) > centrosomeRadius && !checkIfInsideNucleus(MTPoint: SCNVector3(p0), nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation)
+        
+    //Initialize second microtubule point in an exactly radial direction
+    let tmpX = firstMTPoint.x
+    let tmpY = firstMTPoint.y
+    let tmpZ = firstMTPoint.z
     let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
     
     let secondMTPoint = SCNVector3(centrosomeLocation.x + p0.x + parameters.microtubuleSegmentLength*tmpX/normalConstant, centrosomeLocation.y + p0.y + parameters.microtubuleSegmentLength*tmpY/normalConstant, centrosomeLocation.z + p0.z + parameters.microtubuleSegmentLength*tmpZ/normalConstant)
     
-    return (firstMTPoint,secondMTPoint)
-    
+    return [firstMTPoint,secondMTPoint]
 }
 
 // Generate a whole microtubule
-func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> [SCNVector3]{
+func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]{
     
     let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(0.1*cellRadius)
     
@@ -59,26 +72,13 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
         
         if i == 0{
             
-            //Initialize first microtubule point inside the centrosome
-            var p0 = vector_float3(10*centrosomeRadius,10*centrosomeRadius,10*centrosomeRadius)
-            repeat{
-                p0 = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius))
-            } while sqrt(pow(p0.x,2) + pow(p0.y,2) + pow(p0.z,2)) > centrosomeRadius
+            // Generate first MT segment
+            let firstMTSegment = generateFirstMTSegment(centrosomeRadius: centrosomeRadius, centrosomeLocation: centrosomeLocation, nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation)
             
-            pointsList.append(SCNVector3(centrosomeLocation.x + p0.x,
-                                    centrosomeLocation.y + p0.y,
-                                    centrosomeLocation.z + p0.z))
+            // Append first MT segment, crash if nil
+            pointsList.append(firstMTSegment![0])
+            pointsList.append(firstMTSegment![1])
             
-            //Initialize second microtubule point (random direction)
-            
-            let tmpX = pointsList[0].x // Float.random(in: -1...1)
-            let tmpY = pointsList[0].y // Float.random(in: -1...1)
-            let tmpZ = pointsList[0].z // Float.random(in: -1...1)
-            let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
-            
-            newPoint = SCNVector3(centrosomeLocation.x + p0.x + parameters.microtubuleSegmentLength*tmpX/normalConstant,
-                                  centrosomeLocation.y + p0.y + parameters.microtubuleSegmentLength*tmpY/normalConstant,
-                                  centrosomeLocation.z + p0.z + parameters.microtubuleSegmentLength*tmpZ/normalConstant)
         }else{
             
             // Once there is at least one MT point created
@@ -113,14 +113,15 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             newPoint.y += randomX.y + randomY.y
             newPoint.z += randomX.z + randomY.z
             
+            // Check wether microtubule has exceeded cell walls
+            if distance(simd_float3(newPoint), simd_float3(0,0,0)) > cellRadius*(1.0-randomCutoff) || checkIfInsideNucleus(MTPoint: newPoint, nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation){
+                //print("Microtubule length: " + String(pointsList.count))
+                return pointsList
+            }
+            pointsList.append(newPoint)
+            
         }
-        
-        // Check wether microtubule has exceeded cell walls
-        if (sqrt(pow(newPoint.x, 2) + pow(newPoint.y, 2) + pow(newPoint.z, 2)) > cellRadius*(1.0-randomCutoff)){
-            //print("Microtubule length: " + String(pointsList.count))
-            return pointsList
-        }
-        pointsList.append(newPoint)
+
     }
     
     //print("Microtubule length: " + String(pointsList.count))

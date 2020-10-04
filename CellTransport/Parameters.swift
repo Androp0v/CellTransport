@@ -26,17 +26,18 @@ struct parameters {
     static let nMicrotubules: Int = 200 //400
     static let cellRadius: Float = 12000 //nm
     static let centrosomeRadius: Float = 1200 //nm
-    static let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,0.2*14000) //nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0) //nm
+    static let nucleusRadius: Float = 4000 //nm
+    static let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,4800) //nm
     static let microtubuleSpeed: Float = 800 //nm/s
     static let microtubuleSegmentLength: Float = 50 //nm
     static let localAngle: Float = 0.05 //0.015 //Radians
     static let maxLocalAngle: Float = 2*localAngle //Radians
     static let maxNSegments = 800 //200
-    static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not
+    static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
     
     /* VARIABLE PARAMETERS */
-    static var boundaryConditions: Int32 = REINJECT_OUTSIDE //Molecular motor choice and boundary conditions
+    static var boundaryConditions: Int32 = REINJECT_INSIDE //Molecular motor choice and boundary conditions
     static var molecularMotors: Int32 = KINESIN_ONLY //Molecular motor choice and boundary conditions
     static var collisionsFlag: Bool = false //Enables or disables collisions
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed
