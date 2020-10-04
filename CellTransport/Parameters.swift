@@ -33,6 +33,7 @@ struct parameters {
     static let localAngle: Float = 0.05 //0.015 //Radians
     static let maxLocalAngle: Float = 2*localAngle //Radians
     static let maxNSegments = 800 //200
+    static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = REINJECT_OUTSIDE //Molecular motor choice and boundary conditions

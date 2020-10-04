@@ -565,26 +565,29 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     func initializeSimulation(){
-        // spawn the bounding box
+        // Spawn the bounding box
         DispatchQueue.main.async {
             self.alertLabel.text = "Drawing bounding box"
             self.alertView.backgroundColor = UIColor.init(cgColor: CGColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.5))
         }
         let boundingBox = spawnBoundingBox()
         
-        // spawn the cell membrane
+        // Spawn the cell membrane
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating cellular membrane"
         }
         let membrane = spawnCellMembrane()
         
-        // spawn the cell nucleus
+        // Spawn the cell nucleus
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating cellular nucleus"
         }
-        //let nucleus = spawnCellNucleus()
+        var nucleus: SCNNode = SCNNode()
+        if parameters.nucleusEnabled {
+            nucleus = spawnCellNucleus()
+        }
         
-        // spawn the microtubules
+        // Spawn the microtubules
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure"
         }
@@ -600,7 +603,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         self.secondChildTabVC?.setHistogramData3(cellRadius: parameters.cellRadius, points: microtubulePoints)
         
-        // spawn points
+        // Spawn points
         DispatchQueue.main.async {
             self.alertLabel.text = "Initializing all particle positions"
         }
@@ -634,7 +637,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             microtubule.geometry?.firstMaterial?.lightingModel = .constant
             microtubule.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
-        //nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        if parameters.nucleusEnabled{
+            nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        }
         
         //Set renderer delegate to start animation loop
         DispatchQueue.main.async {

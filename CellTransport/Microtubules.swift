@@ -11,13 +11,37 @@ import SceneKit
 import simd
 
 // Check if a MT point is inside the nucleus
-func checkIfInsideNucleus(MTPoint: SCNVector3, centrosomeRadius: Float, centrosomeLocation: SCNVector3) -> Bool {
+func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> Bool {
     
-    if distance(simd_float3(MTPoint), simd_float3(centrosomeLocation)) < centrosomeRadius {
+    if distance(simd_float3(MTPoint), simd_float3(nucleusLocation)) < nucleusRadius {
         return true
     } else {
         return false
     }
+    
+}
+
+// Try to generate first microtubule pint, fail after 1000 tries
+func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> (SCNVector3,SCNVector3) {
+    
+    //Initialize first microtubule point inside the centrosome
+    var p0 = vector_float3(10*centrosomeRadius,10*centrosomeRadius,10*centrosomeRadius)
+    repeat{
+        p0 = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius))
+    } while sqrt(pow(p0.x,2) + pow(p0.y,2) + pow(p0.z,2)) > centrosomeRadius && !checkIfInsideNucleus(MTPoint: SCNVector3(p0), nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation)
+    
+    let firstMTPoint = SCNVector3(centrosomeLocation.x + p0.x, centrosomeLocation.y + p0.y, centrosomeLocation.z + p0.z)
+    
+    //Initialize second microtubule point (random direction)
+    
+    let tmpX = firstMTPoint.x // Float.random(in: -1...1)
+    let tmpY = firstMTPoint.y // Float.random(in: -1...1)
+    let tmpZ = firstMTPoint.z // Float.random(in: -1...1)
+    let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
+    
+    let secondMTPoint = SCNVector3(centrosomeLocation.x + p0.x + parameters.microtubuleSegmentLength*tmpX/normalConstant, centrosomeLocation.y + p0.y + parameters.microtubuleSegmentLength*tmpY/normalConstant, centrosomeLocation.z + p0.z + parameters.microtubuleSegmentLength*tmpZ/normalConstant)
+    
+    return (firstMTPoint,secondMTPoint)
     
 }
 
