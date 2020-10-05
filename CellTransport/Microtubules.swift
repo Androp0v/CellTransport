@@ -10,6 +10,9 @@ import Foundation
 import SceneKit
 import simd
 
+let maxStartPointTries = 1000
+let maxNextPointTries = 10
+
 // Check if a MT point is inside the nucleus
 func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> Bool {
     
@@ -27,7 +30,7 @@ func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLoca
     
 }
 
-// Try to generate first microtubule pint, fail after 1000 tries
+// Try to generate first microtubule pint, fail after maxStartPointTries tries
 func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]? {
     
     // Initialize first microtubule point inside the centrosome
@@ -41,7 +44,7 @@ func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVect
         p0 = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius),Float.random(in: -centrosomeRadius...centrosomeRadius))
         firstMTPoint = SCNVector3(centrosomeLocation.x + p0.x, centrosomeLocation.y + p0.y, centrosomeLocation.z + p0.z)
         // Return nil if too many trials happen
-        if trials > 1000 {
+        if trials > maxStartPointTries {
             return nil
         }
         trials += 1
@@ -58,6 +61,40 @@ func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVect
     return [firstMTPoint,secondMTPoint]
 }
 
+// Generate the next MT point. Null if impossible (after maxNextPointTries tries)
+func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVector3, localAngle: Float) -> SCNVector3? {
+    
+    // Start from last MT point
+    var newPoint: SCNVector3 = lastPoint
+    
+    // Move in the direction the last segment is pointing to
+    newPoint.x += directionVector.x*parameters.microtubuleSegmentLength*Float(cos(localAngle))
+    newPoint.y += directionVector.y*parameters.microtubuleSegmentLength*Float(cos(localAngle))
+    newPoint.z += directionVector.z*parameters.microtubuleSegmentLength*Float(cos(localAngle))
+    
+    let testX = normalize(cross(normalize(simd_float3(Float.random(in: -1...1),Float.random(in: -1...1),Float.random(in: -1...1))), normalize(simd_float3(directionVector))))
+    let testY = normalize(cross(normalize(simd_float3(testX)), normalize(simd_float3(directionVector))))
+    
+    // Chose a random phi value
+    let randomPhi = Float.random(in: 0..<(2*Float.pi))
+    let xvalue = parameters.microtubuleSegmentLength*Float(sin(localAngle))*Float(sin(randomPhi))
+    let yvalue = parameters.microtubuleSegmentLength*Float(sin(localAngle))*Float(cos(randomPhi))
+    
+    let randomX = SCNVector3(testX.x*xvalue, testX.y*xvalue, testX.z*xvalue)
+    let randomY = SCNVector3(testY.x*yvalue, testY.y*yvalue, testY.z*yvalue)
+    
+    newPoint.x += randomX.x + randomY.x
+    newPoint.y += randomX.y + randomY.y
+    newPoint.z += randomX.z + randomY.z
+        
+    // Check that the point is not inside the nucleus, else return nil
+    if checkIfInsideNucleus(MTPoint: newPoint, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation) {
+        return nil
+    } else {
+        return newPoint
+    }
+}
+
 // Generate a whole microtubule
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]{
     
@@ -68,7 +105,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
     
     for i in 0..<(parameters.maxNSegments-1){
         
-        var newPoint:SCNVector3
+        var newPoint: SCNVector3?
         
         if i == 0{
             
@@ -82,11 +119,11 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
         }else{
             
             // Once there is at least one MT point created
-            let directionvector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/parameters.microtubuleSegmentLength,
+            let directionVector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/parameters.microtubuleSegmentLength,
                                              (pointsList[i].y - pointsList[i-1].y)/parameters.microtubuleSegmentLength,
                                              (pointsList[i].z - pointsList[i-1].z)/parameters.microtubuleSegmentLength)
             
-            let currentDistance = sqrt(pow(pointsList[i].x,2) + pow(pointsList[i].y,2) + pow(pointsList[i].z,2))
+            let currentDistance = distance(simd_float3(pointsList[i]), simd_float3(repeating: 0))
             
             var localAngleMod = parameters.localAngle
             
@@ -94,36 +131,27 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
                 localAngleMod = parameters.localAngle + (currentDistance - 0.90*cellRadius)*angleSlope
             }
             
-            newPoint = pointsList[i]
-            newPoint.x += directionvector.x*parameters.microtubuleSegmentLength*Float(cos(localAngleMod))
-            newPoint.y += directionvector.y*parameters.microtubuleSegmentLength*Float(cos(localAngleMod))
-            newPoint.z += directionvector.z*parameters.microtubuleSegmentLength*Float(cos(localAngleMod))
+            // Repeat until a valid (non-null) point is found or until maxNextPointTries is reached
+            var nextPointTries: Int = 0
+            repeat {
+                newPoint = generateNextMTPoint(directionVector: directionVector, lastPoint: pointsList[i], localAngle: localAngleMod)
+                nextPointTries += 1
+            } while newPoint == nil && nextPointTries < maxNextPointTries
             
-            let testX = normalize(cross(normalize(simd_float3(Float.random(in: -1...1),Float.random(in: -1...1),Float.random(in: -1...1))), normalize(simd_float3(directionvector))))
-            let testY = normalize(cross(normalize(simd_float3(testX)), normalize(simd_float3(directionvector))))
-                        
-            let randomPhi = Float.random(in: 0..<(2*Float.pi))
-            let xvalue = parameters.microtubuleSegmentLength*Float(sin(localAngleMod))*Float(sin(randomPhi))
-            let yvalue = parameters.microtubuleSegmentLength*Float(sin(localAngleMod))*Float(cos(randomPhi))
-            
-            let randomX = SCNVector3(testX.x*xvalue, testX.y*xvalue, testX.z*xvalue)
-            let randomY = SCNVector3(testY.x*yvalue, testY.y*yvalue, testY.z*yvalue)
-            
-            newPoint.x += randomX.x + randomY.x
-            newPoint.y += randomX.y + randomY.y
-            newPoint.z += randomX.z + randomY.z
-            
-            // Check wether microtubule has exceeded cell walls
-            if distance(simd_float3(newPoint), simd_float3(0,0,0)) > cellRadius*(1.0-randomCutoff) || checkIfInsideNucleus(MTPoint: newPoint, nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation){
-                //print("Microtubule length: " + String(pointsList.count))
+            // Check wether next MT point has exceeded cell walls or couldn't be created (null)
+            if newPoint == nil {
                 return pointsList
+            } else {
+                if distance(simd_float3(newPoint!), simd_float3(0,0,0)) > cellRadius*(1.0-randomCutoff) {
+                    return pointsList
+                }
             }
-            pointsList.append(newPoint)
             
+            // Append new MT point to list now that it's been verified to be valid
+            pointsList.append(newPoint!)
         }
-
     }
     
-    //print("Microtubule length: " + String(pointsList.count))
+    // Return MT if maximum MT segments is reached
     return pointsList
 }
