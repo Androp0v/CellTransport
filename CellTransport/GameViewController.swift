@@ -470,7 +470,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func spawnCellNucleus() -> SCNNode{
         var nucleus:SCNGeometry
         
-        nucleus = SCNSphere(radius: CGFloat(parameters.nucleusRadius))
+        //nucleus = SCNSphere(radius: CGFloat(parameters.nucleusRadius))
+        nucleus = SCNIcosphere(radius: parameters.nucleusRadius, translucid: false, modulator: 0.00001, allowTexture: true)
         nucleus.firstMaterial?.diffuse.contents = UIColor.purple
         nucleus.firstMaterial?.diffuse.contents = UIImage(named: "cellmembrane.png")
         let nucleusNode = SCNNode(geometry: nucleus)

@@ -10,7 +10,7 @@ import Foundation
 import SceneKit
 import GameplayKit
 
-func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
+func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = true, modulator: Float = 0.000001, allowTexture: Bool = false) -> SCNGeometry{
     
     let t: Float = (1.0 + sqrt(5.0)) / 2.0
     
@@ -214,7 +214,6 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
                 let yPosition = semifinalVertices[i].y
                             
                 let noiseValue = noise.value(atPosition: vector_float2(xPosition,yPosition))
-                let modulator: Float = 0.000001
                                     
                 vertexNoise[newVerticesList[i]] = noiseValue*modulator
                 
@@ -235,14 +234,16 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
     }
     
     //Smoothen noise
-    /*for j in stride(from: 0, to: indices.count, by: 3){
-        let v0 = verticesList[Int(indices[j])]
-        let v1 = verticesList[Int(indices[j+1])]
-        let v2 = verticesList[Int(indices[j+2])]
-        
-        vertexNoise[v0]! = (vertexNoise[v1]! + vertexNoise[v2]!)/2
-        vertexNoise[v1]! = (vertexNoise[v0]! + vertexNoise[v2]!)/2
-        vertexNoise[v2]! = (vertexNoise[v0]! + vertexNoise[v1]!)/2
+    /*if smooth {
+        for j in stride(from: 0, to: indices.count, by: 3){
+            let v0 = verticesList[Int(indices[j])]
+            let v1 = verticesList[Int(indices[j+1])]
+            let v2 = verticesList[Int(indices[j+2])]
+            
+            vertexNoise[v0]! = (vertexNoise[v1]! + vertexNoise[v2]!)/2
+            vertexNoise[v1]! = (vertexNoise[v0]! + vertexNoise[v2]!)/2
+            vertexNoise[v2]! = (vertexNoise[v0]! + vertexNoise[v1]!)/2
+        }
     }*/
     
     //Add noise
@@ -254,6 +255,23 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
         newVerticesList[i].y += rDirection.y * (noiseValue ?? 0.0) * radius
         newVerticesList[i].z += rDirection.z * (noiseValue ?? 0.0) * radius
     }
+    
+    //Smoothen noise
+    /*if smooth {
+        // Do 3 passes
+        for _ in 0...3{
+            // Loop over all triangles
+            for j in stride(from: 0, to: indices.count, by: 3){
+                let v0 = verticesList[Int(indices[j])]
+                let v1 = verticesList[Int(indices[j+1])]
+                let v2 = verticesList[Int(indices[j+2])]
+                
+                vertexNoise[v0]! = (vertexNoise[v1]! + vertexNoise[v2]!)/2
+                vertexNoise[v1]! = (vertexNoise[v0]! + vertexNoise[v2]!)/2
+                vertexNoise[v2]! = (vertexNoise[v0]! + vertexNoise[v1]!)/2
+            }
+        }
+    }*/
     
     //Convert to SCNVector3
     var finalVertices: [SCNVector3] = [SCNVector3]()
@@ -267,20 +285,49 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7) -> SCNGeometry{
         finalVertices[i].y += radius*Float.random(in: -1..<1)*0.0025
         finalVertices[i].z += radius*Float.random(in: -1..<1)*0.0025
     }
-                            
+    
     //Make SceneKit things
     let source = SCNGeometrySource(vertices: finalVertices)
     let element = SCNGeometryElement(indices: newIndices, primitiveType: .triangles)
-    let geometry = SCNGeometry(sources: [source], elements: [element])
-            
-    let material = SCNMaterial()
-    material.diffuse.contents = UIColor.black
-    material.reflective.contents = UIColor(red: 0.2, green: 0.764, blue: 1, alpha: 1)
-    material.reflective.intensity = 1
-    material.transparent.contents = UIColor.black.withAlphaComponent(0.15)
-    material.transparencyMode = .default
-    material.fresnelExponent = 4
-    geometry.materials = [material]
-                    
+    var geometry = SCNGeometry()
+    
+    // Create UV mapping to allow textures
+    if allowTexture {
+        var uvList:[vector_float2] = []
+        for i in 0..<finalVertices.count {
+            let radialVector = normalize(simd_float3(finalVertices[i]))
+            let u = 0.5 + atan2(radialVector.x, radialVector.z)/(2*Float.pi)
+            let v = 0.5 + asin(radialVector.y)/Float.pi
+            uvList.append(vector_float2(u,v))
+        }
+        let uvData = NSData(bytes: uvList, length: uvList.count * MemoryLayout<vector_float2>.stride)
+        let uvSource = SCNGeometrySource(data: uvData as Data,
+                                         semantic: SCNGeometrySource.Semantic.texcoord,
+                                         vectorCount: uvList.count,
+                                         usesFloatComponents: true,
+                                         componentsPerVector: 2,
+                                         bytesPerComponent: MemoryLayout<Float>.size,
+                                         dataOffset: 0,
+                                         dataStride: MemoryLayout<vector_float2>.stride)
+        geometry = SCNGeometry(sources: [source,uvSource], elements: [element])
+    } else {
+        geometry = SCNGeometry(sources: [source], elements: [element])
+    }
+    
+    // Set material properties
+    if translucid {
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.black
+        material.reflective.contents = UIColor(red: 0.2, green: 0.764, blue: 1, alpha: 1)
+        material.reflective.intensity = 1
+        material.transparent.contents = UIColor.black.withAlphaComponent(0.15)
+        material.transparencyMode = .default
+        material.fresnelExponent = 4
+        geometry.materials = [material]
+    } else {
+        let material = SCNMaterial()
+        geometry.materials = [material]
+    }
+    
     return geometry
 }
