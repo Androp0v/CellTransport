@@ -38,6 +38,17 @@ private func checkIfInsideNucleus(MTPoint: SCNVector3) -> Bool {
     }
 }
 
+// Check if a MT point is inside the nucleus
+private func checkIfOutsideCell(MTPoint: SCNVector3) -> Bool {
+
+    // Check if it's inside the (spherical) cell
+    if distance(simd_float3(MTPoint), simd_float3(repeating: 0)) > parameters.cellRadius {
+        return true
+    } else {
+        return false
+    }
+}
+
 // Compute the local angle based on proximity to cell wall or nucleus
 private func computeLocalAngle(MTPoint: SCNVector3, angleSlope: Float) -> Float {
         
@@ -52,7 +63,7 @@ private func computeLocalAngle(MTPoint: SCNVector3, angleSlope: Float) -> Float 
     if distanceCellWallValue < parameters.nonFreeMTdistance {
         localAngle = max(parameters.localAngle + (parameters.nonFreeMTdistance - distanceCellWallValue)*angleSlope, localAngle)
     }
-    if distanceNucleusValue < parameters.nonFreeMTdistance {
+    if distanceNucleusValue < parameters.nonFreeMTdistance && parameters.nucleusEnabled {
         localAngle = max(parameters.localAngle + (parameters.nonFreeMTdistance - distanceNucleusValue)*angleSlope, localAngle)
     }
     
@@ -151,11 +162,16 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
 
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]{
     
+    // Set a target length for the MT to reach
+    let targetLength: Float = 1.1*parameters.cellRadius
+    
+    // Compute the angle slope for MT points near the nucleus or cell wall
     let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(parameters.nonFreeMTdistance)
     
     var pointsList:[SCNVector3] = []
     let randomCutoff: Float = 0.0 //Float.random(in: 0.0..<0.0) //TODO
     
+    // Loop over the maximum number of segments
     for i in 0..<(parameters.maxNSegments-1){
         
         var newPoint: SCNVector3?
@@ -193,6 +209,11 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
                 if distance(simd_float3(newPoint!), simd_float3(0,0,0)) > cellRadius*(1.0-randomCutoff) {
                     return pointsList
                 }
+            }
+            
+            // If target length is reached, the MT is finished
+            if (Float(pointsList.count) - 1)*parameters.microtubuleSegmentLength >= targetLength {
+                return pointsList
             }
             
             // Append new MT point to list now that it's been verified to be valid
