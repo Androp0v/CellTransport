@@ -80,9 +80,9 @@ private func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation:
     } while distance(simd_float3(firstMTPoint), simd_float3(centrosomeLocation)) > centrosomeRadius && !checkIfInsideNucleus(MTPoint: SCNVector3(p0))
         
     //Initialize second microtubule point in an exactly radial direction
-    let tmpX = firstMTPoint.x
-    let tmpY = firstMTPoint.y
-    let tmpZ = firstMTPoint.z
+    let tmpX = p0.x
+    let tmpY = p0.y
+    let tmpZ = p0.z
     let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
     
     let secondMTPoint = SCNVector3(centrosomeLocation.x + p0.x + parameters.microtubuleSegmentLength*tmpX/normalConstant, centrosomeLocation.y + p0.y + parameters.microtubuleSegmentLength*tmpY/normalConstant, centrosomeLocation.z + p0.z + parameters.microtubuleSegmentLength*tmpZ/normalConstant)

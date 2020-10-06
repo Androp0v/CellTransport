@@ -26,7 +26,7 @@ struct parameters {
     static let nMicrotubules: Int = 200 //400
     static let cellRadius: Float = 12000 //nm
     static let centrosomeRadius: Float = 1200 //nm
-    static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0) //nm
+    static let centrosomeLocation: SCNVector3 = SCNVector3(-6500,0.0,0.0) //nm
     static let nucleusRadius: Float = 5000 //nm
     static let nucleusLocation: SCNVector3 = SCNVector3(6500,0.0,0.0) //nm
     static let microtubuleSpeed: Float = 800 //nm/s

@@ -469,13 +469,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     func spawnCellNucleus() -> SCNNode{
         var nucleus:SCNGeometry
-        
-        //nucleus = SCNSphere(radius: CGFloat(parameters.nucleusRadius))
-        nucleus = SCNIcosphere(radius: parameters.nucleusRadius, translucid: false, modulator: 0.00001, allowTexture: true)
+        // Generate nucleus as a perlin-noise biased icosphere. Low recursion level (vertex nuber) since texture will make it look good anyway
+        nucleus = SCNIcosphere(radius: parameters.nucleusRadius, recursionLevel: 4, translucid: false, modulator: 0.00001, allowTexture: true)
+        // Base color purple, not seen unless no image is found
         nucleus.firstMaterial?.diffuse.contents = UIColor.purple
+        // Cellular nucleus texture
         nucleus.firstMaterial?.diffuse.contents = UIImage(named: "cellmembrane.png")
-        let nucleusNode = SCNNode(geometry: nucleus)
         
+        // Create and move the SceneKit nodes
+        let nucleusNode = SCNNode(geometry: nucleus)
         let nucleusAxis = SCNNode()
         nucleusAxis.addChildNode(nucleusNode)
         
