@@ -35,6 +35,9 @@ struct simulation_parameters {
     int32_t boundaryConditions;
     int32_t molecularMotors;
     int32_t stepsPerMTPoint;
+    bool nucleusEnabled;
+    float nucleusRadius;
+    simd_float3 nucleusLocation;
 };
 
 /*- HELPER FUNCTIONS -*/
@@ -52,6 +55,21 @@ int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension
     cellID += maxCellNumber*currentCellNumber;
     
     return cellID;
+}
+
+// Check if a position is inside the cell nucleus
+bool checkIfInsideNucleus(float3 MTPoint, bool nucleusEnabled, float nucleusRadius, float3 nucleusLocation) {
+    // Always return false if the nucleus is not enabled
+    if (!nucleusEnabled) {
+        return false;
+    }
+        
+    // Check if it's inside the (spherical) nucleus
+    if (distance(MTPoint, nucleusLocation) < nucleusRadius) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
@@ -317,6 +335,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         isAttachedOut[i] = -1;
     }
     
+    // Avoid particle diffusing into the nucleus
+    if (checkIfInsideNucleus(positionsOut[i], parameters.nucleusEnabled, parameters.nucleusRadius, parameters.nucleusLocation)) {
+        positionsOut[i] = positionsIn[i];
+    }
+    
     //Precompute distance
     float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
     
@@ -325,9 +348,9 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         updatedTimeLastJump[i] = newTime[i];
     }
     
-    //Check if new point is outside cell radius
-    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius);
+    //Check if new point is outside specified boundary conditions
     
+    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius);
     switch (outsideBounds) {
         case OUTSIDE_AND_COUNT_TIME: {
             updatedTimeLastJump[i] = newTime[i];

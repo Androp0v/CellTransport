@@ -679,13 +679,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var boundaryConditions: Int32;
         var molecularMotors: Int32;
         var stepsPerMTPoint: Int32;
+        var nucleusEnabled: Bool;
+        var nucleusRadius: Float;
+        var nucleusLocation: simd_float3;
     }
     
     func metalUpdaterChild(){
         
         // Create simulationParameters struct
         
-        var simulationParametersObject = simulationParameters(deltat_to_metal: parameters.deltat, cellRadius_to_metal: parameters.cellRadius, cellsPerDimension_to_metal: Int32(parameters.cellsPerDimension), nBodies_to_Metal: Int32(parameters.nbodies), nCells_to_Metal: Int32(parameters.nCells), wON: parameters.wON, wOFF: parameters.wOFF, n_w: parameters.n_w, boundaryConditions: parameters.boundaryConditions, molecularMotors: parameters.molecularMotors, stepsPerMTPoint: parameters.stepsPerMTPoint)
+        var simulationParametersObject = simulationParameters(deltat_to_metal: parameters.deltat, cellRadius_to_metal: parameters.cellRadius, cellsPerDimension_to_metal: Int32(parameters.cellsPerDimension), nBodies_to_Metal: Int32(parameters.nbodies), nCells_to_Metal: Int32(parameters.nCells), wON: parameters.wON, wOFF: parameters.wOFF, n_w: parameters.n_w, boundaryConditions: parameters.boundaryConditions, molecularMotors: parameters.molecularMotors, stepsPerMTPoint: parameters.stepsPerMTPoint, nucleusEnabled: parameters.nucleusEnabled, nucleusRadius: parameters.nucleusRadius, nucleusLocation: simd_float3(parameters.nucleusLocation))
         
         // Update MTLBuffers thorugh compute pipeline
             
