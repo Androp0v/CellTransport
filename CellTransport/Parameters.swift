@@ -28,13 +28,14 @@ struct parameters {
     static let centrosomeRadius: Float = 1200 //nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0) //nm
     static let nucleusRadius: Float = 4000 //nm
-    static let nucleusLocation: SCNVector3 = SCNVector3(0.0,0.0,4800) //nm
+    static let nucleusLocation: SCNVector3 = SCNVector3(6000,0.0,0.0) //nm
     static let microtubuleSpeed: Float = 800 //nm/s
     static let microtubuleSegmentLength: Float = 50 //nm
     static let localAngle: Float = 0.05 //0.015 //Radians
     static let maxLocalAngle: Float = 2*localAngle //Radians
     static let maxNSegments = 800 //200
     static let nucleusEnabled: Bool = true //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
+    static let nonFreeMTdistance: Float = 1000 //nm
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = REINJECT_INSIDE //Molecular motor choice and boundary conditions

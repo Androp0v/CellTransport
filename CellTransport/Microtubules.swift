@@ -12,9 +12,18 @@ import simd
 
 let maxStartPointTries = 1000
 let maxNextPointTries = 10
+let biasMTBending = 0.15
+
+// Distances from a MT point to the cell wall or cell nucleus surface
+private func distanceCellWall(MTPoint: SCNVector3) -> Float {
+    return parameters.cellRadius - distance(simd_float3(MTPoint), simd_float3(repeating: 0))
+}
+private func distanceNucleus(MTPoint: SCNVector3) -> Float {
+    return distance(simd_float3(MTPoint), simd_float3(parameters.nucleusLocation)) - parameters.nucleusRadius
+}
 
 // Check if a MT point is inside the nucleus
-func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> Bool {
+private func checkIfInsideNucleus(MTPoint: SCNVector3) -> Bool {
     
     // Always return false if the nucleus is not enabled
     if !parameters.nucleusEnabled {
@@ -22,16 +31,36 @@ func checkIfInsideNucleus(MTPoint: SCNVector3, nucleusRadius: Float, nucleusLoca
     }
         
     // Check if it's inside the (spherical) nucleus
-    if distance(simd_float3(MTPoint), simd_float3(nucleusLocation)) < nucleusRadius {
+    if distance(simd_float3(MTPoint), simd_float3(parameters.nucleusLocation)) < parameters.nucleusRadius {
         return true
     } else {
         return false
     }
+}
+
+// Compute the local angle based on proximity to cell wall or nucleus
+private func computeLocalAngle(MTPoint: SCNVector3, angleSlope: Float) -> Float {
+        
+    // Compute distance to cell wall and nucleus
+    let distanceCellWallValue = distanceCellWall(MTPoint: MTPoint)
+    let distanceNucleusValue = distanceNucleus(MTPoint: MTPoint)
     
+    // Retrieve base localAngle from parameters
+    var localAngle = parameters.localAngle
+    
+    // Compute the angle next segments have, dependant of how close it is to cell wall or nucleus
+    if distanceCellWallValue < parameters.nonFreeMTdistance {
+        localAngle = max(parameters.localAngle + (parameters.nonFreeMTdistance - distanceCellWallValue)*angleSlope, localAngle)
+    }
+    if distanceNucleusValue < parameters.nonFreeMTdistance {
+        localAngle = max(parameters.localAngle + (parameters.nonFreeMTdistance - distanceNucleusValue)*angleSlope, localAngle)
+    }
+    
+    return localAngle
 }
 
 // Try to generate first microtubule pint, fail after maxStartPointTries tries
-func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]? {
+private func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]? {
     
     // Initialize first microtubule point inside the centrosome
     var p0: vector_float3
@@ -48,7 +77,7 @@ func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVect
             return nil
         }
         trials += 1
-    } while distance(simd_float3(firstMTPoint), simd_float3(centrosomeLocation)) > centrosomeRadius && !checkIfInsideNucleus(MTPoint: SCNVector3(p0), nucleusRadius: nucleusRadius, nucleusLocation: nucleusLocation)
+    } while distance(simd_float3(firstMTPoint), simd_float3(centrosomeLocation)) > centrosomeRadius && !checkIfInsideNucleus(MTPoint: SCNVector3(p0))
         
     //Initialize second microtubule point in an exactly radial direction
     let tmpX = firstMTPoint.x
@@ -62,43 +91,67 @@ func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVect
 }
 
 // Generate the next MT point. Null if impossible (after maxNextPointTries tries)
-func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVector3, localAngle: Float) -> SCNVector3? {
+private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVector3, localAngle: Float) -> SCNVector3? {
     
     // Start from last MT point
     var newPoint: SCNVector3 = lastPoint
     
+    // Modify direction vector if inside nonFreeMTdistance and current direction is set to collide with the nucleus
+    var directionVectorMod = directionVector
+    if distanceNucleus(MTPoint: lastPoint) < parameters.nonFreeMTdistance {
+        
+        // Raytracing
+        var willCollide = false
+        for i in 1...30 {
+            if checkIfInsideNucleus(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
+                willCollide = true
+                break
+            }
+        }
+        
+        // Bias the direction using the normal
+        if willCollide {
+            let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(parameters.nucleusLocation))
+            directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
+        }
+    }
+    
     // Move in the direction the last segment is pointing to
-    newPoint.x += directionVector.x*parameters.microtubuleSegmentLength*Float(cos(localAngle))
-    newPoint.y += directionVector.y*parameters.microtubuleSegmentLength*Float(cos(localAngle))
-    newPoint.z += directionVector.z*parameters.microtubuleSegmentLength*Float(cos(localAngle))
+    newPoint.x += directionVectorMod.x*parameters.microtubuleSegmentLength*Float(cos(localAngle))
+    newPoint.y += directionVectorMod.y*parameters.microtubuleSegmentLength*Float(cos(localAngle))
+    newPoint.z += directionVectorMod.z*parameters.microtubuleSegmentLength*Float(cos(localAngle))
     
-    let testX = normalize(cross(normalize(simd_float3(Float.random(in: -1...1),Float.random(in: -1...1),Float.random(in: -1...1))), normalize(simd_float3(directionVector))))
-    let testY = normalize(cross(normalize(simd_float3(testX)), normalize(simd_float3(directionVector))))
-    
-    // Chose a random phi value
+    // Coordinate system testX, testY where directionVector lies along the z axis
+    let testX = normalize(cross(normalize(simd_float3(Float.random(in: -1...1),Float.random(in: -1...1),Float.random(in: -1...1))), normalize(simd_float3(directionVectorMod))))
+    let testY = normalize(cross(normalize(simd_float3(testX)), normalize(simd_float3(directionVectorMod))))
+        
+    // Choose a random phi value and the x,y values in the coordinate system of a cone along the z axis
     let randomPhi = Float.random(in: 0..<(2*Float.pi))
     let xvalue = parameters.microtubuleSegmentLength*Float(sin(localAngle))*Float(sin(randomPhi))
     let yvalue = parameters.microtubuleSegmentLength*Float(sin(localAngle))*Float(cos(randomPhi))
     
-    let randomX = SCNVector3(testX.x*xvalue, testX.y*xvalue, testX.z*xvalue)
-    let randomY = SCNVector3(testY.x*yvalue, testY.y*yvalue, testY.z*yvalue)
+    // Move the xvalue, yvalue to the real coordinate system of the cell
+    let randomA = SCNVector3(testX.x*xvalue, testX.y*xvalue, testX.z*xvalue)
+    let randomB = SCNVector3(testY.x*yvalue, testY.y*yvalue, testY.z*yvalue)
     
-    newPoint.x += randomX.x + randomY.x
-    newPoint.y += randomX.y + randomY.y
-    newPoint.z += randomX.z + randomY.z
+    newPoint.x += randomA.x + randomB.x
+    newPoint.y += randomA.y + randomB.y
+    newPoint.z += randomA.z + randomB.z
         
     // Check that the point is not inside the nucleus, else return nil
-    if checkIfInsideNucleus(MTPoint: newPoint, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation) {
+    if checkIfInsideNucleus(MTPoint: newPoint) {
         return nil
     } else {
         return newPoint
     }
 }
 
-// Generate a whole microtubule
+
+/*- GENERATE A WHOLE MICROTUBULE -*/
+
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]{
     
-    let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(0.1*cellRadius)
+    let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(parameters.nonFreeMTdistance)
     
     var pointsList:[SCNVector3] = []
     let randomCutoff: Float = 0.0 //Float.random(in: 0.0..<0.0) //TODO
@@ -123,13 +176,8 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
                                              (pointsList[i].y - pointsList[i-1].y)/parameters.microtubuleSegmentLength,
                                              (pointsList[i].z - pointsList[i-1].z)/parameters.microtubuleSegmentLength)
             
-            let currentDistance = distance(simd_float3(pointsList[i]), simd_float3(repeating: 0))
-            
-            var localAngleMod = parameters.localAngle
-            
-            if currentDistance > 0.90*cellRadius{
-                localAngleMod = parameters.localAngle + (currentDistance - 0.90*cellRadius)*angleSlope
-            }
+            // Compute local angle based on distance to cell wall or nucleus
+            let localAngleMod = computeLocalAngle(MTPoint: pointsList[i], angleSlope: angleSlope)
             
             // Repeat until a valid (non-null) point is found or until maxNextPointTries is reached
             var nextPointTries: Int = 0
