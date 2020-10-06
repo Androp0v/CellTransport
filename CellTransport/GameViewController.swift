@@ -376,6 +376,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Generate MTs for each cell
         for i in 0..<(parameters.nCells){
             
+            DispatchQueue.main.async {
+                self.alertLabel.text = "Generating microtubule structure: " + String(i) + "/" + String(parameters.nCells)
+            }
+            
             var cellPoints: Int = 0
             
             for _ in 0..<parameters.nMicrotubules{

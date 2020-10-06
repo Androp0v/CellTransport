@@ -63,7 +63,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     var parametersString: String = String()
     
     // Append fixed parameters
-    parametersString += "FIXED PARAMETERS"
+    parametersString += "FIXED PARAMETERS\n"
     parametersString += "Number of biological cells: " + String(parameters.nCells) + "\n"
     parametersString += "Particles per cell: " + String(parameters.nbodies/parameters.nCells) + "\n"
     parametersString += "Microtubules per cell: " + String(parameters.nMicrotubules) + "\n"
@@ -77,7 +77,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Nucleus enabled: " + String(parameters.nucleusEnabled) + "\n"
     
     // Append variable parameters
-    parametersString += "\n VARIABLE PARAMETERS"
+    parametersString += "\n VARIABLE PARAMETERS\n"
     parametersString += "Molecular motors: " + getMolecularMotorName(molecularMotors: parameters.molecularMotors) + "\n"
     parametersString += "Boundary conditions: " + getBoundaryName(boundaryConditions: parameters.boundaryConditions) + "\n"
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
