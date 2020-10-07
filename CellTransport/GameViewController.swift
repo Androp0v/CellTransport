@@ -39,6 +39,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var isBusy3 = false
     var isBusy4 = false
     
+    // Main computing loop
+    func metalLoop() {
+        while !truePause {
+            DispatchQueue.global(qos: .background).sync {
+                metalUpdater()
+            }
+        }
+    }
+    
     // UI outlets and variables
     
     @IBOutlet var scnView: SCNView!
@@ -76,16 +85,21 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     var truePause = false
+    var pauseOnNextLoop = false
     @IBOutlet var pauseButton: UIButton!
     @IBAction func playPause(_ sender: Any) {
         if pauseButton.currentImage == UIImage.init(systemName: "pause.fill"){
-            scene.isPaused = true
-            truePause = true
+            pauseOnNextLoop = true
             pauseButton.setImage(UIImage.init(systemName: "play.fill"), for: .normal)
         }else{
-            scene.isPaused = false
-            truePause = false
+            pauseOnNextLoop = false
             pauseButton.setImage(UIImage.init(systemName: "pause.fill"), for: .normal)
+            if truePause {
+                truePause = false
+                DispatchQueue.global(qos: .background).async {
+                    self.metalLoop()
+                }
+            }
         }
     }
     
@@ -659,11 +673,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
         scnView.delegate = self
         
-        //TO-DO REMOVE
-        while true{
-            DispatchQueue.global(qos: .background).sync {
-                metalUpdaterChild()
-            }
+        // Start simulation loop
+        DispatchQueue.global(qos: .background).async {
+            self.metalLoop()
         }
     }
    
@@ -701,7 +713,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var nucleusLocation: simd_float3;
     }
     
-    func metalUpdaterChild(){
+    func metalUpdater() {
         
         // Create simulationParameters struct
         
@@ -843,22 +855,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                         
         stepCounter += 1
         
-    }
-    
-    func metalUpdater(){
-        
-        self.isRunning = true
-        
-        metalUpdaterChild()
-        
-        if !truePause{
-            while scene.isPaused{
-                DispatchQueue.global(qos: .background).sync {
-                    metalUpdaterChild()
-                }
-            }
+        // Set the global variable truePause to inform that the loop has finished if a pause was scheduled
+        if self.pauseOnNextLoop {
+            self.truePause = true
         }
-        self.isRunning = false
     }
     
 }
@@ -866,12 +866,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
 extension GameViewController: SCNSceneRendererDelegate {
     
   func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
-            
-    /*if !self.isRunning{
-        DispatchQueue.global(qos: .background).sync{
-            metalUpdater()
-        }
-    }*/
+    // Do things on SceneKit render loop
   }
     
 }
