@@ -42,10 +42,10 @@
                                         </constraints>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdv-XQ-5NM">
-                                        <rect key="frame" x="435.5" y="954" width="195.5" height="46"/>
+                                        <rect key="frame" x="429.5" y="954" width="207.5" height="46"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OIj-Cf-SeM">
-                                                <rect key="frame" x="90.5" y="12" width="14.5" height="22"/>
+                                                <rect key="frame" x="96.5" y="12" width="14.5" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="pause.fill" catalog="system">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -56,7 +56,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L8T-dy-2ou">
-                                                <rect key="frame" x="52" y="12" width="20.5" height="22"/>
+                                                <rect key="frame" x="58" y="12" width="20.5" height="22"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="22" id="9YC-uW-Ddd"/>
                                                     <constraint firstAttribute="width" constant="20.5" id="HXa-6i-bTS"/>
@@ -69,14 +69,14 @@
                                                     <action selector="freeze:" destination="BV1-FR-VrT" eventType="touchUpInside" id="81D-9a-YyB"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LKp-kt-PoI">
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LKp-kt-PoI">
                                                 <rect key="frame" x="123" y="12" width="24.5" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="camera.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
                                                 </state>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7y-hq-3N8">
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7y-hq-3N8">
                                                 <rect key="frame" x="165.5" y="12" width="18" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="arrow.down.doc.fill" catalog="system">
@@ -87,11 +87,14 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Hy-uh-Gk0">
-                                                <rect key="frame" x="12" y="12" width="22" height="22.5"/>
+                                                <rect key="frame" x="12" y="12" width="28" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <state key="normal" image="stopwatch.fill" catalog="system">
+                                                <state key="normal" image="hare.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
                                                 </state>
+                                                <connections>
+                                                    <action selector="slowModeToggle:" destination="BV1-FR-VrT" eventType="touchUpInside" id="Aez-3J-rQC"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <color key="backgroundColor" red="0.5" green="0.5" blue="0.5" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
@@ -213,6 +216,7 @@
                         <outlet property="pauseButton" destination="OIj-Cf-SeM" id="h1b-i0-jty"/>
                         <outlet property="scnView" destination="XiD-5r-A3n" id="S2J-eK-ZOM"/>
                         <outlet property="segmentedControl" destination="A0q-Od-ymt" id="NTq-5n-iRc"/>
+                        <outlet property="slowModeButton" destination="0Hy-uh-Gk0" id="8Y3-5P-fOk"/>
                         <outlet property="topBarBackground" destination="8BS-bg-Xv2" id="82R-1d-CIs"/>
                     </connections>
                 </viewController>
@@ -826,10 +830,10 @@
         <image name="GrandCentralDispatch" width="150" height="84.5"/>
         <image name="arrow.down.doc.fill" catalog="system" width="115" height="128"/>
         <image name="camera.fill" catalog="system" width="128" height="94"/>
+        <image name="hare.fill" catalog="system" width="128" height="91"/>
         <image name="info.circle" catalog="system" width="128" height="121"/>
         <image name="pause.fill" catalog="system" width="116" height="128"/>
         <image name="snow" catalog="system" width="121" height="128"/>
-        <image name="stopwatch.fill" catalog="system" width="121" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

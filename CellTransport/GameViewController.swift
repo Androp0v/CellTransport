@@ -16,6 +16,8 @@ import MobileCoreServices
 class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     var stepCounter: Int = 0
+    var slowMode: Bool = true
+    var waitingMode: Bool = false
     
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
@@ -42,8 +44,32 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     // Main computing loop
     func metalLoop() {
         while !truePause {
-            DispatchQueue.global(qos: .background).sync {
-                metalUpdater()
+            if slowMode && !scene.isPaused {
+                if !waitingMode {
+                    // Save the start time to compute elapsed time later
+                    let startTime = CACurrentMediaTime()
+                    
+                    // Launch one timestep of the simulation
+                    DispatchQueue.global(qos: .background).sync {
+                        metalUpdater()
+                    }
+                    
+                    // Compute elapsed time (in millionths of a second)
+                    let elapsedTime = (CACurrentMediaTime() - startTime)
+                    
+                    // Wait for the remaining time
+                    if elapsedTime < 1.0/120.0{
+                        let remainingTime = 1.0/120.0 - elapsedTime
+                        DispatchQueue.main.asyncAfter(deadline: .now() + remainingTime) {
+                            self.waitingMode = false
+                        }
+                        self.waitingMode = true
+                    }
+                }
+            } else{
+                DispatchQueue.global(qos: .background).sync {
+                    metalUpdater()
+                }
             }
         }
     }
@@ -102,6 +128,19 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             }
         }
     }
+    
+    // Enable/disable slow mode
+    @IBOutlet weak var slowModeButton: UIButton!
+    @IBAction func slowModeToggle(_ sender: Any) {
+        if slowModeButton.currentImage == UIImage.init(systemName: "hare.fill"){
+            slowModeButton.setImage(UIImage.init(systemName: "tortoise.fill"), for: .normal)
+            slowMode = false
+        }else{
+            slowModeButton.setImage(UIImage.init(systemName: "hare.fill"), for: .normal)
+            slowMode = true
+        }
+    }
+    
     
     // Save to .txt code
     @IBAction func exportToFile(_ sender: Any) {
