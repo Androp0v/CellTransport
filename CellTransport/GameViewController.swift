@@ -414,6 +414,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             cellsPointsNumber.append(cellPoints)
         }
         
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
+        }
+        
         //Add MTs to the CellID dictionary
         
         addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellRadius: parameters.cellRadius, cellsPerDimension: parameters.cellsPerDimension)
@@ -655,6 +659,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
         scnView.delegate = self
         
+        //TO-DO REMOVE
+        while true{
+            DispatchQueue.global(qos: .background).sync {
+                metalUpdaterChild()
+            }
+        }
     }
    
     override var shouldAutorotate: Bool {
@@ -837,7 +847,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     func metalUpdater(){
         
-        isRunning = true
+        self.isRunning = true
         
         metalUpdaterChild()
         
@@ -848,7 +858,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 }
             }
         }
-        isRunning = false
+        self.isRunning = false
     }
     
 }
@@ -857,11 +867,11 @@ extension GameViewController: SCNSceneRendererDelegate {
     
   func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
             
-    if !isRunning{
+    /*if !self.isRunning{
         DispatchQueue.global(qos: .background).sync{
             metalUpdater()
         }
-    }
+    }*/
   }
     
 }

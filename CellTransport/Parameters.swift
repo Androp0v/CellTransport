@@ -20,9 +20,9 @@ struct parameters {
     static let CONTAIN_INSIDE: Int32 = 2 //Contain organelles inside the cell
     
     /* FIXED PARAMETERS */
-    static let nCells: Int = 80 //Number of biological cells to simulate simultaneously
+    static let nCells: Int = 20 //Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 //Cells are divided in cubic cells: cellsPerDimension for each side
-    static let nbodies: Int = 160000 //524288 //4194304 // 16777216
+    static let nbodies: Int = 40000 //524288 //4194304 // 16777216
     static let nMicrotubules: Int = 200 //400
     static let cellRadius: Float = 12000 //nm
     static let centrosomeRadius: Float = 1200 //nm
@@ -32,9 +32,9 @@ struct parameters {
     static let microtubuleSpeed: Float = 800 //nm/s
     static let microtubuleSegmentLength: Float = 50 //nm
     static let localAngle: Float = 0.05 //0.015 //Radians
-    static let maxLocalAngle: Float = 2*localAngle //Radians
+    static let maxLocalAngle: Float = 1*localAngle //Radians
     static let maxNSegments = 800 //200
-    static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
+    static let nucleusEnabled: Bool = true //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
     static let nonFreeMTdistance: Float = 1000 //nm
     
     /* VARIABLE PARAMETERS */
@@ -43,7 +43,7 @@ struct parameters {
     static var collisionsFlag: Bool = false //Enables or disables collisions
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed
     static var stepsPerMTPoint: Int32 = 10 // Subdivisions of each deltat timestep
-    static var wON: Float = 10000000 //3.5 //Probability of attachment, nm^3/s
+    static var wON: Float = 150000000 //3.5 //Probability of attachment, nm^3/s
     static var wOFF: Float = 1.0 //Probability of dettachment
     static var n_w: Float = 10 //Viscosity in water viscosity units
 }

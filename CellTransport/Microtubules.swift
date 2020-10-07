@@ -212,9 +212,10 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             }
             
             // If target length is reached, the MT is finished
-            if (Float(pointsList.count) - 1)*parameters.microtubuleSegmentLength >= targetLength {
+            //TO-DO
+            /*if (Float(pointsList.count) - 1)*parameters.microtubuleSegmentLength >= targetLength {
                 return pointsList
-            }
+            }*/
             
             // Append new MT point to list now that it's been verified to be valid
             pointsList.append(newPoint!)
