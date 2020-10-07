@@ -44,31 +44,33 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     // Main computing loop
     func metalLoop() {
         while !truePause {
-            if slowMode && !scene.isPaused {
-                if !waitingMode {
-                    // Save the start time to compute elapsed time later
-                    let startTime = CACurrentMediaTime()
-                    
-                    // Launch one timestep of the simulation
-                    DispatchQueue.global(qos: .background).sync {
-                        metalUpdater()
-                    }
-                    
-                    // Compute elapsed time (in millionths of a second)
-                    let elapsedTime = (CACurrentMediaTime() - startTime)
-                    
-                    // Wait for the remaining time
-                    if elapsedTime < 1.0/120.0{
-                        let remainingTime = 1.0/120.0 - elapsedTime
-                        DispatchQueue.main.asyncAfter(deadline: .now() + remainingTime) {
-                            self.waitingMode = false
+            autoreleasepool {
+                if slowMode && !scene.isPaused {
+                    if !waitingMode {
+                        // Save the start time to compute elapsed time later
+                        let startTime = CACurrentMediaTime()
+                        
+                        // Launch one timestep of the simulation
+                        DispatchQueue.global(qos: .background).sync {
+                            metalUpdater()
                         }
-                        self.waitingMode = true
+                        
+                        // Compute elapsed time (in millionths of a second)
+                        let elapsedTime = (CACurrentMediaTime() - startTime)
+                        
+                        // Wait for the remaining time
+                        if elapsedTime < 1.0/120.0{
+                            let remainingTime = 1.0/120.0 - elapsedTime
+                            DispatchQueue.main.asyncAfter(deadline: .now() + remainingTime) {
+                                self.waitingMode = false
+                            }
+                            self.waitingMode = true
+                        }
                     }
-                }
-            } else{
-                DispatchQueue.global(qos: .background).sync {
-                    metalUpdater()
+                } else{
+                    DispatchQueue.global(qos: .background).sync {
+                            metalUpdater()
+                    }
                 }
             }
         }
