@@ -328,7 +328,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float diffusivity = 1.59349*pow(float(10), float(6))/parameters.n_w;
         float deltatMT = parameters.deltat/parameters.stepsPerMTPoint; //REDUCED DELTA T
         float msqdistance = sqrt(6*diffusivity*deltatMT);
-        float factor = msqdistance/0.866;
+        float factor = msqdistance/0.8660254038;
         
         positionsOut[i] = positionsIn[i] + factor*float3(randNumberX,randNumberY,randNumberZ);
         

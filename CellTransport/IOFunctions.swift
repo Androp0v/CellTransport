@@ -8,18 +8,33 @@
 
 import Foundation
 
-func exportHistogramToFile(histogram: [Float], folderURL: URL, filename: String) {
-        
+func exportHistogramToFile(histogram: [[Float]], folderURL: URL, filename: String) {
+    
+    // Retrieve export path
     var exportURL = folderURL
     exportURL.appendPathComponent(filename + String(".txt"))
     
-    // Convert array of floats to array of Strings
-    let numberFormat = NumberFormatter()
-    numberFormat.numberStyle = .scientific
-    let histogramStringArray = histogram.map{numberFormat.string(from: NSNumber(value: $0))!}
+    // Configure number formatting
+    let numberFormat = NumberFormatter() // Create a NumberFormatter to style output numbers
+    numberFormat.numberStyle = .scientific // Scientific formatting (i.e. 1.8121E3)
+    numberFormat.usesSignificantDigits = true // Use significant digits
+    numberFormat.minimumSignificantDigits = 7 // Similar to significant digists of a Float32 type
     
-    // Merge into a single string, separated by \n
-    let histogramString = histogramStringArray.joined(separator: "\n")
+    // Create a string to print to file
+    var histogramString = String()
+    
+    // Loop over all positions and digits
+    for i in 0..<histogram[0].count {
+        for (column, columnData) in histogram.enumerated() {
+            histogramString.append(numberFormat.string(from: NSNumber(value: columnData[i])) ?? "NaN")
+            if column < histogram.count {
+                histogramString.append("\t")
+            }
+        }
+        if i < (histogram[0].count - 1) {
+            histogramString.append("\n")
+        }
+    }
     
     // Write to file (atomically!)
     do{

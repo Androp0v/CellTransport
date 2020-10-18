@@ -26,8 +26,8 @@ class LineChart2: UIView{
     var histogramArray = [Float](repeating: 0.0, count: 1000)
     public var returnableArray: [Float] = []
     
-    func getHistogramData() -> [Float]{
-        return returnableArray
+    func getHistogramData() -> [[Float]]{
+        return [returnableArray]
     }
         
     func clearHistogram(){

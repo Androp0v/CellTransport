@@ -27,9 +27,10 @@ class LineChart1: UIView{
     var histogramArrayMTAttached = [Float](repeating: 0.0, count: 1000)
     
     public var returnableArray: [Float] = []
+    public var returnableArrayMTAttached: [Float] = []
     
-    func getHistogramData() -> [Float]{
-        return returnableArray
+    func getHistogramData() -> [[Float]]{
+        return [returnableArray, returnableArrayMTAttached]
     }
         
     func clearHistogram(){
@@ -68,6 +69,7 @@ class LineChart1: UIView{
             self.layer.addSublayer(lineLayerMTAttached)
             
             self.returnableArray = self.histogramArray
+            self.returnableArrayMTAttached = self.histogramArrayMTAttached
         }
     }
     

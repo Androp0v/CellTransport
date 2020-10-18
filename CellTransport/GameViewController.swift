@@ -44,6 +44,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     // Main computing loop
     func metalLoop() {
         while !truePause {
+            // Since we are running an infinite loop, we need to manually release the autoreleasepool after each iteration
             autoreleasepool {
                 if slowMode && !scene.isPaused {
                     if !waitingMode {
