@@ -92,7 +92,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Nucleus enabled: " + String(parameters.nucleusEnabled) + "\n"
     
     // Append variable parameters
-    parametersString += "\n VARIABLE PARAMETERS\n"
+    parametersString += "\nVARIABLE PARAMETERS\n"
     parametersString += "Molecular motors: " + getMolecularMotorName(molecularMotors: parameters.molecularMotors) + "\n"
     parametersString += "Boundary conditions: " + getBoundaryName(boundaryConditions: parameters.boundaryConditions) + "\n"
     parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
