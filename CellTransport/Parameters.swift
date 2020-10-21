@@ -44,7 +44,7 @@ struct parameters {
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed
     static var stepsPerMTPoint: Int32 = 10 // Subdivisions of each deltat timestep
     static var wON: Float = 33000000 //3.5 //Probability of attachment, nm^3/s
-    static var wOFF: Float = 1.0 //Probability of dettachment
+    static var wOFF: Float = 1.0 //Probability of dettachment, s^-1
     static var n_w: Float = 10 //Viscosity in water viscosity units
 }
 
