@@ -418,57 +418,86 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return boundingBoxNode
     }
     
-    func spawnMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
+    func spawnCellMicrotubules(cellNumber: Int) -> Void{
         
+    }
+    
+    func spawnAllMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
+        
+        // Track progress of cells with completed MTs
+        var completedCellsCount: Int = 0
+        func updateProgress(){
+            DispatchQueue.main.async {
+                self.alertLabel.text = "Generating microtubule structure: " + String(completedCellsCount) + "/" + String(parameters.nCells)
+            }
+        }
+        
+        // Create all-cells arrays
         var nodelist : [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
         var microtubuleNSegments: [Int] = []
         
         var cellsPointsNumber: [Int] = []
         
-        // Introduce initial separator
+        // Add initial separator
         microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
         
-        // Generate MTs for each cell
-        for i in 0..<(parameters.nCells){
-            
-            DispatchQueue.main.async {
-                self.alertLabel.text = "Generating microtubule structure: " + String(i) + "/" + String(parameters.nCells)
-            }
+        // Create a thread safe queue to write to all-cells arrays
+        let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays", attributes: .concurrent)
+        
+        // Generate MTs for each cell concurrently (will use max available cores)
+        DispatchQueue.concurrentPerform(iterations: parameters.nCells, execute: { index in
             
             var cellPoints: Int = 0
             
+            var localMicrotubulePoints: [SCNVector3] = []
+            var localMicrotubuleNSegments: [Int] = []
+            var localMicrotubulePointsArray: [simd_float3] = []
+            
             for _ in 0..<parameters.nMicrotubules{
                 let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation)
-                microtubuleNSegments.append(points.count)
+                
+                localMicrotubuleNSegments.append(points.count)
                 
                 for point in points{
-                    microtubulePoints.append(point)
-                    microtubulePointsArray.append(simd_float3(point))
+                    localMicrotubulePoints.append(point)
+                    localMicrotubulePointsArray.append(simd_float3(point))
                 }
                 
                 // Introduce separators after each MT (situated at an impossible point)
-                microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+                localMicrotubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
                 
                 //Update the number of MT points in the cell (including separator, +1)
                 cellPoints += points.count + 1
                 
                 //UI configuration for the first cell (the only cell displayed on screen)
-        
-                if i == 0{
+                if index == 0{
                     let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
                     let geometry = SCNGeometry.lineThrough(points: points,
                                                            width: 2,
                                                            closed: false,
                                                            color: microtubuleColor)
                     let node = SCNNode(geometry: geometry)
-                    scene.rootNode.addChildNode(node)
+                    self.scene.rootNode.addChildNode(node)
                     nodelist.append(node)
                 }
             }
-            //Update the length of each cell's MT points
-            cellsPointsNumber.append(cellPoints)
-        }
+            
+            // Update all-cells array with local ones safely
+            threadSafeQueueForArrays.async(flags: .barrier) {
+                
+                microtubulePoints.append(contentsOf: localMicrotubulePoints)
+                microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
+                self.microtubulePointsArray.append(contentsOf: localMicrotubulePointsArray)
+                
+                // Update the length of each cell's MT points
+                cellsPointsNumber.append(cellPoints)
+                
+                // Mark the cell as completed and show progress
+                completedCellsCount += 1
+                updateProgress()
+            }
+        })
         
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
@@ -478,7 +507,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellRadius: parameters.cellRadius, cellsPerDimension: parameters.cellsPerDimension)
         
-        //Convert MY dictionary to arrays
+        //Convert MT dictionary to arrays
         
         cellIDDictToArrays(cellIDDict: cellIDDict, cellIDtoIndex: &cellIDtoIndex, cellIDtoNMTs: &cellIDtoNMTs, MTIndexArray: &indexToPoint, nCells: parameters.nCells, cellsPerDimension: parameters.cellsPerDimension)
                 
@@ -659,7 +688,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.alertLabel.text = "Generating microtubule structure"
         }
         let (microtubules, microtubulePointsReturned,
-                microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnMicrotubules()
+                microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnAllMicrotubules()
         microtubulePoints = microtubulePointsReturned
         microtubuleNSegments = microtubuleNSegmentsReturned
         microtubulePointsArray = microtubulePointsArrayReturned
