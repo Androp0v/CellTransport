@@ -9,10 +9,11 @@
 import Foundation
 import SceneKit
 import simd
+import GameKit // Gaussian distribution is here
 
 let maxStartPointTries = 1000
 let maxNextPointTries = 10
-let biasMTBending = 0.15
+let biasMTBending = 0.0375 //0.15
 
 // Distances from a MT point to the cell wall or cell nucleus surface
 private func distanceCellWall(MTPoint: SCNVector3) -> Float {
@@ -109,21 +110,29 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
     
     // Modify direction vector if inside nonFreeMTdistance and current direction is set to collide with the nucleus
     var directionVectorMod = directionVector
-    if distanceNucleus(MTPoint: lastPoint) < parameters.nonFreeMTdistance {
+    if distanceNucleus(MTPoint: lastPoint) < parameters.nonFreeMTdistance || distanceCellWall(MTPoint: lastPoint) < parameters.nonFreeMTdistance {
         
         // Raytracing
-        var willCollide = false
-        for i in 1...30 {
+        var willCollideNucleus = false
+        var willCollideCellWall = false
+        for i in (1...2*Int(parameters.nonFreeMTdistance/parameters.microtubuleSegmentLength)).reversed() {
             if checkIfInsideNucleus(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
-                willCollide = true
+                willCollideNucleus = true
+                break
+            }
+            if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
+                willCollideCellWall = true
                 break
             }
         }
         
         // Bias the direction using the normal
-        if willCollide {
+        if willCollideNucleus {
             let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(parameters.nucleusLocation))
             directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
+        } else if willCollideCellWall {
+            let cellWallNormal = -normalize(simd_float3(lastPoint))
+            directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*cellWallNormal + simd_float3(directionVector)))
         }
     }
     
@@ -163,13 +172,15 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]{
     
     // Set a target length for the MT to reach
-    let targetLength: Float = 1.1*parameters.cellRadius
+    let randomSource = GKRandomSource()
+    let gaussianDistribution = GKGaussianDistribution(randomSource: randomSource, mean: 1500, deviation: 500)
+    let randomGaussian = Float(gaussianDistribution.nextInt())/1000
+    let targetLength: Float = randomGaussian*parameters.cellRadius
     
     // Compute the angle slope for MT points near the nucleus or cell wall
     let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(parameters.nonFreeMTdistance)
     
     var pointsList:[SCNVector3] = []
-    let randomCutoff: Float = 0.0 //Float.random(in: 0.0..<0.0) //TODO
     
     // Loop over the maximum number of segments
     for i in 0..<(parameters.maxNSegments-1){
@@ -205,10 +216,10 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             // Check wether next MT point has exceeded cell walls or couldn't be created (null)
             if newPoint == nil {
                 return pointsList
-            } else {
-                if distance(simd_float3(newPoint!), simd_float3(0,0,0)) > cellRadius*(1.0-randomCutoff) {
-                    return pointsList
-                }
+            } else if distance(simd_float3(newPoint!), simd_float3(0,0,0)) > cellRadius {
+                return pointsList
+            } else if Float(pointsList.count)*parameters.microtubuleSegmentLength > targetLength {
+                return pointsList
             }
             
             // If target length is reached, the MT is finished

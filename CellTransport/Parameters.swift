@@ -20,7 +20,7 @@ struct parameters {
     static let CONTAIN_INSIDE: Int32 = 2 //Contain organelles inside the cell
     
     /* FIXED PARAMETERS */
-    static let nCells: Int = 10 //Number of biological cells to simulate simultaneously
+    static let nCells: Int = 2 //Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 //Cells are divided in cubic cells: cellsPerDimension for each side
     static let nbodies: Int = 20000 //524288 //4194304 // 16777216
     static let nMicrotubules: Int = 100 //400
@@ -35,7 +35,7 @@ struct parameters {
     static let maxLocalAngle: Float = 1*localAngle //Radians
     static let maxNSegments = 800 //200
     static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
-    static let nonFreeMTdistance: Float = 1000 //nm
+    static let nonFreeMTdistance: Float = 2000 //nm
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = REINJECT_INSIDE //Molecular motor choice and boundary conditions
@@ -43,7 +43,7 @@ struct parameters {
     static var collisionsFlag: Bool = false //Enables or disables collisions
     static var deltat: Float = 0.0 //Timestep. Fixed by microtubule speed
     static var stepsPerMTPoint: Int32 = 10 // Subdivisions of each deltat timestep
-    static var wON: Float = 33000000 //3.5 //Probability of attachment, nm^3/s
+    static var wON: Float = 33000000 //Probability of attachment, nm^3/s
     static var wOFF: Float = 1.0 //Probability of dettachment, s^-1
     static var n_w: Float = 10 //Viscosity in water viscosity units
 }
