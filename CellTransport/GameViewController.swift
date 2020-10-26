@@ -425,10 +425,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func spawnAllMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
         
         // Track progress of cells with completed MTs
-        var completedCellsCount: Int = 0
+        var completedMTsCount: Int = 0
         func updateProgress(){
+            let percentageCompleted = 100*completedMTsCount/(parameters.nMicrotubules*parameters.nCells)
             DispatchQueue.main.async {
-                self.alertLabel.text = "Generating microtubule structure: " + String(completedCellsCount) + "/" + String(parameters.nCells)
+                self.alertLabel.text = "Generating microtubule structure: "
+                                        + String(percentageCompleted)
+                                        + "%"
             }
         }
         
@@ -481,6 +484,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                     self.scene.rootNode.addChildNode(node)
                     nodelist.append(node)
                 }
+                
+                // Mark the microtubule as completed and show progress
+                threadSafeQueueForArrays.async(flags: .barrier) {
+                    completedMTsCount += 1
+                    updateProgress()
+                }
             }
             
             // Update all-cells array with local ones safely
@@ -492,10 +501,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 
                 // Update the length of each cell's MT points
                 cellsPointsNumber.append(cellPoints)
-                
-                // Mark the cell as completed and show progress
-                completedCellsCount += 1
-                updateProgress()
+
             }
         })
         
