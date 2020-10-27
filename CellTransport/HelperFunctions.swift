@@ -10,6 +10,16 @@ import Foundation
 import simd
 import SceneKit
 
+func formatRemainingTime(startTime: Date, progress: Float) -> String {
+    let remainingTime = -Double(startTime.timeIntervalSinceNow) / Double(progress)
+    let formatter = DateComponentsFormatter()
+    formatter.allowedUnits = [.day, .hour, .minute]
+    formatter.unitsStyle = .abbreviated
+    formatter.maximumUnitCount = 2
+
+    return formatter.string(from: remainingTime)!
+}
+
 func getCellID(x: Float, y: Float, z: Float, cellRadius: Float, cellsPerDimension: Int) -> Int{
     
     var cellID: Int = 0

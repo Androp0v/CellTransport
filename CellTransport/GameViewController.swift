@@ -427,12 +427,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Track progress of cells with completed MTs
         var completedMTsCount: Int = 0
         var progressFinishedUpdating = true
+        let startTime = NSDate.now
+        
         func updateProgress(){
-            let percentageCompleted = Float(100*completedMTsCount)/Float(parameters.nMicrotubules*parameters.nCells)
+            let fractionCompleted = Float(completedMTsCount)/Float(parameters.nMicrotubules*parameters.nCells)
             DispatchQueue.main.async {
                 self.alertLabel.text = "Generating microtubule structure: "
-                                        + String(format: "%.2f", percentageCompleted)
-                                        + "%"
+                                        + String(format: "%.2f", 100*fractionCompleted)
+                                        + "% ("
+                                        + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
+                                        + ")"
                 progressFinishedUpdating = true
             }
         }
