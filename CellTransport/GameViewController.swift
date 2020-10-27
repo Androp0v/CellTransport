@@ -428,10 +428,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var completedMTsCount: Int = 0
         var progressFinishedUpdating = true
         func updateProgress(){
-            let percentageCompleted = 100*completedMTsCount/(parameters.nMicrotubules*parameters.nCells)
+            let percentageCompleted = Float(100*completedMTsCount)/Float(parameters.nMicrotubules*parameters.nCells)
             DispatchQueue.main.async {
                 self.alertLabel.text = "Generating microtubule structure: "
-                                        + String(percentageCompleted)
+                                        + String(format: "%.2f", percentageCompleted)
                                         + "%"
                 progressFinishedUpdating = true
             }
