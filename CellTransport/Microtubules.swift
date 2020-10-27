@@ -13,7 +13,7 @@ import GameKit // Gaussian distribution is here
 
 let maxStartPointTries = 1000
 let maxNextPointTries = 10
-let biasMTBending = 0.0375 //0.15
+let bendingStrength = 0.2
 
 // Distances from a MT point to the cell wall or cell nucleus surface
 private func distanceCellWall(MTPoint: SCNVector3) -> Float {
@@ -115,12 +115,11 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
         // Raytracing
         var willCollideNucleus = false
         var willCollideCellWall = false
-        for i in (1...2*Int(parameters.nonFreeMTdistance/parameters.microtubuleSegmentLength)).reversed() {
+        for i in (1...Int(parameters.nonFreeMTdistance/parameters.microtubuleSegmentLength)).reversed() {
             if checkIfInsideNucleus(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
                 willCollideNucleus = true
                 break
-            }
-            if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
+            } else if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
                 willCollideCellWall = true
                 break
             }
@@ -129,9 +128,11 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
         // Bias the direction using the normal
         if willCollideNucleus {
             let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(parameters.nucleusLocation))
+            let biasMTBending = Float(bendingStrength) * (1 - distanceNucleus(MTPoint: lastPoint)/parameters.nonFreeMTdistance)
             directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
         } else if willCollideCellWall {
             let cellWallNormal = -normalize(simd_float3(lastPoint))
+            let biasMTBending = Float(bendingStrength) * (1 - distanceCellWall(MTPoint: lastPoint)/parameters.nonFreeMTdistance)
             directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*cellWallNormal + simd_float3(directionVector)))
         }
     }

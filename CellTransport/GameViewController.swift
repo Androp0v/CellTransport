@@ -426,12 +426,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Track progress of cells with completed MTs
         var completedMTsCount: Int = 0
+        var progressFinishedUpdating = true
         func updateProgress(){
             let percentageCompleted = 100*completedMTsCount/(parameters.nMicrotubules*parameters.nCells)
             DispatchQueue.main.async {
                 self.alertLabel.text = "Generating microtubule structure: "
                                         + String(percentageCompleted)
                                         + "%"
+                progressFinishedUpdating = true
             }
         }
         
@@ -447,6 +449,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Create a thread safe queue to write to all-cells arrays
         let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays", attributes: .concurrent)
+        let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
         
         // Generate MTs for each cell concurrently (will use max available cores)
         DispatchQueue.concurrentPerform(iterations: parameters.nCells, execute: { index in
@@ -486,9 +489,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 }
                 
                 // Mark the microtubule as completed and show progress
-                threadSafeQueueForArrays.async(flags: .barrier) {
+                progressUpdateQueue.async() {
                     completedMTsCount += 1
-                    updateProgress()
+                    if progressFinishedUpdating {
+                        updateProgress()
+                    }
                 }
             }
             

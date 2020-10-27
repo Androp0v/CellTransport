@@ -21,7 +21,7 @@ class LineChart4: UIView{
     private var graphHeight: CGFloat = 0
     private var graphOrigin: CGPoint = CGPoint(x: 0.0, y: 0.0)
         
-    let bins: Int = 1000
+    let bins: Int = 200
     
     var histogramArray = [Float](repeating: 0.0, count: 1000)
     public var returnableArray: [Float] = []
