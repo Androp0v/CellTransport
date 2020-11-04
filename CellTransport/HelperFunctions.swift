@@ -11,6 +11,14 @@ import simd
 import SceneKit
 
 func formatRemainingTime(startTime: Date, progress: Float) -> String {
+    /**
+     Obtain a formatted String with the remaining time from a computationally expensive operation.
+     - Parameters:
+       - startTime: The time the operation started.
+       - progress: The progress achieved so far (ranges 0 to 1).
+     - Returns: Formatted String showing remaining days, hours and minutes (up to two of them).
+     */
+    
     let remainingTime = -Double(startTime.timeIntervalSinceNow) / Double(progress)
     let formatter = DateComponentsFormatter()
     formatter.allowedUnits = [.day, .hour, .minute]

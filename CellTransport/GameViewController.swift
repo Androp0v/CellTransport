@@ -61,7 +61,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                         
                         // Wait for the remaining time
                         if elapsedTime < 1.0/120.0{
-                            let remainingTime = 1.0/120.0 - elapsedTime
+                            let remainingTime = abs(1.0/120.0 - elapsedTime)
                             DispatchQueue.main.asyncAfter(deadline: .now() + remainingTime) {
                                 self.waitingMode = false
                             }

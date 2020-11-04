@@ -110,30 +110,33 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
     
     // Modify direction vector if inside nonFreeMTdistance and current direction is set to collide with the nucleus
     var directionVectorMod = directionVector
-    if distanceNucleus(MTPoint: lastPoint) < parameters.nonFreeMTdistance || distanceCellWall(MTPoint: lastPoint) < parameters.nonFreeMTdistance {
-        
-        // Raytracing
-        var willCollideNucleus = false
-        var willCollideCellWall = false
-        for i in (1...Int(parameters.nonFreeMTdistance/parameters.microtubuleSegmentLength)).reversed() {
-            if checkIfInsideNucleus(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
-                willCollideNucleus = true
-                break
-            } else if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
-                willCollideCellWall = true
-                break
+    
+    if parameters.bendMTs {
+        if distanceNucleus(MTPoint: lastPoint) < parameters.nonFreeMTdistance || distanceCellWall(MTPoint: lastPoint) < parameters.nonFreeMTdistance {
+            
+            // Raytracing
+            var willCollideNucleus = false
+            var willCollideCellWall = false
+            for i in (1...Int(parameters.nonFreeMTdistance/parameters.microtubuleSegmentLength)).reversed() {
+                if checkIfInsideNucleus(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
+                    willCollideNucleus = true
+                    break
+                } else if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector) * parameters.microtubuleSegmentLength * Float(i))) {
+                    willCollideCellWall = true
+                    break
+                }
             }
-        }
-        
-        // Bias the direction using the normal
-        if willCollideNucleus {
-            let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(parameters.nucleusLocation))
-            let biasMTBending = Float(bendingStrength) * (1 - distanceNucleus(MTPoint: lastPoint)/parameters.nonFreeMTdistance)
-            directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
-        } else if willCollideCellWall {
-            let cellWallNormal = -normalize(simd_float3(lastPoint))
-            let biasMTBending = Float(bendingStrength) * (1 - distanceCellWall(MTPoint: lastPoint)/parameters.nonFreeMTdistance)
-            directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*cellWallNormal + simd_float3(directionVector)))
+            
+            // Bias the direction using the normal
+            if willCollideNucleus {
+                let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(parameters.nucleusLocation))
+                let biasMTBending = Float(bendingStrength) * (1 - distanceNucleus(MTPoint: lastPoint)/parameters.nonFreeMTdistance)
+                directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
+            } else if willCollideCellWall {
+                let cellWallNormal = -normalize(simd_float3(lastPoint))
+                let biasMTBending = Float(bendingStrength) * (1 - distanceCellWall(MTPoint: lastPoint)/parameters.nonFreeMTdistance)
+                directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*cellWallNormal + simd_float3(directionVector)))
+            }
         }
     }
     
@@ -173,10 +176,14 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
 func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]{
     
     // Set a target length for the MT to reach
-    let randomSource = GKRandomSource()
-    let gaussianDistribution = GKGaussianDistribution(randomSource: randomSource, mean: 1500, deviation: 500)
-    let randomGaussian = Float(gaussianDistribution.nextInt())/1000
-    let targetLength: Float = randomGaussian*parameters.cellRadius
+    var targetLength: Float = MAXFLOAT
+    if parameters.bendMTs{
+        let randomSource = GKRandomSource()
+        let gaussianDistribution = GKGaussianDistribution(randomSource: randomSource, mean: 1500, deviation: 500)
+        let randomGaussian = Float(gaussianDistribution.nextInt())/1000
+        targetLength = randomGaussian*parameters.cellRadius
+    }
+    
     
     // Compute the angle slope for MT points near the nucleus or cell wall
     let angleSlope: Float = (parameters.maxLocalAngle - parameters.localAngle)/(parameters.nonFreeMTdistance)
@@ -212,7 +219,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             repeat {
                 newPoint = generateNextMTPoint(directionVector: directionVector, lastPoint: pointsList[i], localAngle: localAngleMod)
                 nextPointTries += 1
-            } while newPoint == nil && nextPointTries < maxNextPointTries
+            } while newPoint == nil && nextPointTries < maxNextPointTries && parameters.bendMTs
             
             // Check wether next MT point has exceeded cell walls or couldn't be created (null)
             if newPoint == nil {
@@ -222,12 +229,6 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             } else if Float(pointsList.count)*parameters.microtubuleSegmentLength > targetLength {
                 return pointsList
             }
-            
-            // If target length is reached, the MT is finished
-            //TO-DO
-            /*if (Float(pointsList.count) - 1)*parameters.microtubuleSegmentLength >= targetLength {
-                return pointsList
-            }*/
             
             // Append new MT point to list now that it's been verified to be valid
             pointsList.append(newPoint!)
