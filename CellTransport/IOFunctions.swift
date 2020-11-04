@@ -23,16 +23,19 @@ func exportHistogramToFile(histogram: [[Float]], folderURL: URL, filename: Strin
     // Create a string to print to file
     var histogramString = String()
     
-    // Loop over all positions and digits
-    for i in 0..<histogram[0].count {
-        for (column, columnData) in histogram.enumerated() {
-            histogramString.append(numberFormat.string(from: NSNumber(value: columnData[i])) ?? "NaN")
-            if column < histogram.count {
-                histogramString.append("\t")
+    // Check that the histogram array is not empty
+    if histogram.count > 0 {
+        // Loop over all positions and digits
+        for i in 0..<histogram[0].count {
+            for (column, columnData) in histogram.enumerated() {
+                histogramString.append(numberFormat.string(from: NSNumber(value: columnData[i])) ?? "NaN")
+                if column < histogram.count {
+                    histogramString.append("\t")
+                }
             }
-        }
-        if i < (histogram[0].count - 1) {
-            histogramString.append("\n")
+            if i < (histogram[0].count - 1) {
+                histogramString.append("\n")
+            }
         }
     }
     
