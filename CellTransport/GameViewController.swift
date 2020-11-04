@@ -514,7 +514,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             }
         })
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.sync {
             self.alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
         }
         
