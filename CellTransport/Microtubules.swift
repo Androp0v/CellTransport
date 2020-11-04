@@ -52,10 +52,19 @@ private func checkIfOutsideCell(MTPoint: SCNVector3) -> Bool {
 
 // Compute the local angle based on proximity to cell wall or nucleus
 private func computeLocalAngle(MTPoint: SCNVector3, angleSlope: Float) -> Float {
+    
+    // Check that the local angle is not a constant
+    if parameters.maxLocalAngle == parameters.localAngle {
+        return parameters.localAngle
+    }
         
-    // Compute distance to cell wall and nucleus
+    // Compute distance to cell wall and nucleus (if present)
     let distanceCellWallValue = distanceCellWall(MTPoint: MTPoint)
-    let distanceNucleusValue = distanceNucleus(MTPoint: MTPoint)
+    
+    var distanceNucleusValue: Float = 0
+    if parameters.nucleusEnabled {
+        distanceNucleusValue = distanceNucleus(MTPoint: MTPoint)
+    }
     
     // Retrieve base localAngle from parameters
     var localAngle = parameters.localAngle
@@ -224,7 +233,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             // Check wether next MT point has exceeded cell walls or couldn't be created (null)
             if newPoint == nil {
                 return pointsList
-            } else if distance(simd_float3(newPoint!), simd_float3(0,0,0)) > cellRadius {
+            } else if length(simd_float3(newPoint!)) > cellRadius {
                 return pointsList
             } else if Float(pointsList.count)*parameters.microtubuleSegmentLength > targetLength {
                 return pointsList
