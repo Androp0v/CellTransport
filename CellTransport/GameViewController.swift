@@ -524,7 +524,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         //Convert MT dictionary to arrays
         
-        cellIDDictToArrays(cellIDDict: cellIDDict, cellIDtoIndex: &cellIDtoIndex, cellIDtoNMTs: &cellIDtoNMTs, MTIndexArray: &indexToPoint, nCells: parameters.nCells, cellsPerDimension: parameters.cellsPerDimension)
+        cellIDDictToArrays(cellIDDict: cellIDDict, cellIDtoIndex: &cellIDtoIndex, cellIDtoNMTs: &cellIDtoNMTs, MTIndexArray: &indexToPoint, nCells: parameters.nCells, cellsPerDimension: parameters.cellsPerDimension, alertLabel: self.alertLabel)
                 
         //Create MTLBuffers that require MT data
         initializeMetalMTs()

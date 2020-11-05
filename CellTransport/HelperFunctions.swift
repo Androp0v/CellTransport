@@ -9,6 +9,7 @@
 import Foundation
 import simd
 import SceneKit
+import UIKit
 
 func formatRemainingTime(startTime: Date, progress: Float) -> String {
     /**
@@ -24,8 +25,11 @@ func formatRemainingTime(startTime: Date, progress: Float) -> String {
     formatter.allowedUnits = [.day, .hour, .minute]
     formatter.unitsStyle = .abbreviated
     formatter.maximumUnitCount = 2
-
-    return formatter.string(from: remainingTime)!
+    if remainingTime.isFinite{
+        return formatter.string(from: remainingTime)!
+    } else {
+        return "Unknown"
+    }
 }
 
 func getCellID(x: Float, y: Float, z: Float, cellRadius: Float, cellsPerDimension: Int) -> Int{
@@ -76,7 +80,23 @@ func addMTToCellIDDict(cellIDDict: inout Dictionary<Int, [Int]>, points: [simd_f
     }
 }
 
-func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout [Int32], cellIDtoNMTs: inout [Int16], MTIndexArray: inout [Int32], nCells: Int, cellsPerDimension: Int){
+func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout [Int32], cellIDtoNMTs: inout [Int16], MTIndexArray: inout [Int32], nCells: Int, cellsPerDimension: Int, alertLabel: UILabel){
+    
+    let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
+    var progressFinishedUpdating = true
+    let startTime = NSDate.now
+    
+    func updateProgress(cellNumber: Int){
+        let fractionCompleted = Float(cellNumber)/Float(parameters.nCells)
+        DispatchQueue.main.async {
+            alertLabel.text = "Converting arrays for metal: "
+                                    + String(format: "%.2f", 100*fractionCompleted)
+                                    + "% ("
+                                    + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
+                                    + ")"
+            progressFinishedUpdating = true
+        }
+    }
     
     let maxNumberOfCells = cellsPerDimension*cellsPerDimension*cellsPerDimension
     var currentMTindex: Int = 0
@@ -105,5 +125,13 @@ func cellIDDictToArrays(cellIDDict: Dictionary<Int, [Int]>, cellIDtoIndex: inout
             }
             
         }
+        
+        // Update progress converting dictionaries to metal
+        progressUpdateQueue.async() {
+            if progressFinishedUpdating {
+                updateProgress(cellNumber: i)
+            }
+        }
+        
     }
 }
