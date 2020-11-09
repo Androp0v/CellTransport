@@ -52,7 +52,7 @@ func histogramMT(cellRadius: Float, points: [SCNVector3], bins: Int, histogramAr
     
     let binWidth: Float = 1.0/Float(bins)
     
-    for i in 0..<points.count{
+    for i in 0..<max(0,points.count-1){
         
         // Check if next point is from the same microtubule (it should then be at a distance equal to the segmentLenght, within a small tolerance)
         
