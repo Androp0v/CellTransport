@@ -365,7 +365,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         indextoPointsBuffer.append(device.makeBuffer(
             bytes: indexToPoint,
-            length: indexToPoint.count * MemoryLayout<Int32>.stride
+            length: max(1,indexToPoint.count) * MemoryLayout<Int32>.stride
         ))
         
         let isAttachedIn: [Int32] = [Int32](repeatElement(-1, count: parameters.nbodies))
@@ -895,7 +895,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.isBusy1 = true
             queue1.async(){
                 self.secondChildTabVC?.setHistogramData1(cellRadius: parameters.cellRadius, distances: distances, nBodies: parameters.nbodies, attachState: attachState)
-                DispatchQueue.main.async {
+                DispatchQueue.main.sync {
                     self.isBusy1 = false
                 }
             }
@@ -905,7 +905,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.isBusy2 = true
             queue2.async(){
                 self.secondChildTabVC?.setHistogramData2(cellRadius: parameters.cellRadius, distances: timeJumps, nBodies: parameters.nbodies)
-                DispatchQueue.main.async {
+                DispatchQueue.main.sync {
                     self.isBusy2 = false
                 }
             }
@@ -915,7 +915,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.isBusy3 = true
             queue3.async(){
                 self.secondChildTabVC?.setHistogramData3(cellRadius: parameters.cellRadius, points: self.microtubulePoints)
-                DispatchQueue.main.async {
+                DispatchQueue.main.sync {
                     self.isBusy3 = false
                 }
             }
@@ -925,7 +925,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.isBusy4 = true
             queue4.async(){
                 self.secondChildTabVC?.setHistogramData4(cellRadius: parameters.cellRadius, counts: self.microtubuleNSegments)
-                DispatchQueue.main.async {
+                DispatchQueue.main.sync {
                     self.isBusy4 = false
                 }
             }
