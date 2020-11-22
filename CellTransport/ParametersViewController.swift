@@ -20,6 +20,7 @@ class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPop
     @IBOutlet weak var motorPickerButton: UIButton!
     @IBOutlet weak var boundaryPickerButton: UIButton!
     
+    var mainGameViewController: GameViewController?
     
     var selectedMotorFromPicker: Int32 = parameters.molecularMotors
     var selectedBoundaryFromPicker: Int32 = parameters.boundaryConditions
@@ -99,6 +100,7 @@ class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPop
             // Default the textfield text to the previous valid value
             wON.text = String(parameters.wON)
         }
+        mainGameViewController?.resetArrivalTimesRequired = true
     }
     @IBAction func wOFFChanged(_ sender: Any) {
         // Check that the input value is a number

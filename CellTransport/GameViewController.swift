@@ -18,6 +18,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var stepCounter: Int = 0
     var slowMode: Bool = true
     var waitingMode: Bool = false
+    var resetArrivalTimesRequired = false
     
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
@@ -184,9 +185,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var positionsIn: [MTLBuffer?] = []
     fileprivate var positionsOut: [MTLBuffer?] = []
     fileprivate var distancesBuffer: [MTLBuffer?] = []
-    fileprivate var timeLastJumpBuffer: [MTLBuffer?] = []
-    fileprivate var updatedTimeLastJumpBuffer: [MTLBuffer?] = []
-    fileprivate var timeBetweenJumpsBuffer: [MTLBuffer?] = []
+    fileprivate var timeLastJumpBuffer: MTLBuffer?
+    fileprivate var updatedTimeLastJumpBuffer: MTLBuffer?
+    fileprivate var timeBetweenJumpsBuffer: MTLBuffer?
     
     fileprivate var oldTimeBuffer: [MTLBuffer?] = []
     fileprivate var newTimeBuffer: [MTLBuffer?] = []
@@ -213,8 +214,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     var currentViewController: UIViewController?
     lazy var firstChildTabVC: ParametersViewController? = {
-        let firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController")
-        return (firstChildTabVC as! ParametersViewController)
+        let firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as! ParametersViewController
+        firstChildTabVC.mainGameViewController = self
+        return firstChildTabVC
     }()
     lazy var secondChildTabVC : GraphsViewController? = {
         let secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController")
@@ -304,20 +306,20 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             length: parameters.nbodies * MemoryLayout<Float>.stride
         ))
         
-        timeLastJumpBuffer.append(device.makeBuffer(
+        timeLastJumpBuffer = device.makeBuffer(
             bytes: initializedTimeJump,
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
-        updatedTimeLastJumpBuffer.append(device.makeBuffer(
+        updatedTimeLastJumpBuffer = device.makeBuffer(
             bytes: initializedUpdatedTimeJump,
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
-        timeBetweenJumpsBuffer.append(device.makeBuffer(
+        timeBetweenJumpsBuffer = device.makeBuffer(
             bytes: initializedTimeBetweenJumps,
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
         let oldTime = [Float](repeating: 0.0, count: parameters.nbodies)
         
@@ -805,6 +807,31 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         var simulationParametersObject = simulationParameters(deltat_to_metal: parameters.deltat, cellRadius_to_metal: parameters.cellRadius, cellsPerDimension_to_metal: Int32(parameters.cellsPerDimension), nBodies_to_Metal: Int32(parameters.nbodies), nCells_to_Metal: Int32(parameters.nCells), wON: parameters.wON, wOFF: parameters.wOFF, n_w: parameters.n_w, boundaryConditions: parameters.boundaryConditions, molecularMotors: parameters.molecularMotors, stepsPerMTPoint: parameters.stepsPerMTPoint, nucleusEnabled: parameters.nucleusEnabled, nucleusRadius: parameters.nucleusRadius, nucleusLocation: simd_float3(parameters.nucleusLocation))
         
+        // Reset the buffers if required, wait until the buffer is not being read by the plotting functions
+        if resetArrivalTimesRequired && !isBusy2 {
+            
+            let initializedTimeJump = [Float](repeating: 0.0, count: parameters.nbodies)
+            let initializedUpdatedTimeJump = [Float](repeating: 0.0, count: parameters.nbodies)
+            let initializedTimeBetweenJumps = [Float](repeating: -1.0, count: parameters.nbodies)
+            
+            timeLastJumpBuffer = device.makeBuffer(
+                bytes: initializedTimeJump,
+                length: parameters.nbodies * MemoryLayout<Float>.stride
+            )
+            
+            updatedTimeLastJumpBuffer = device.makeBuffer(
+                bytes: initializedUpdatedTimeJump,
+                length: parameters.nbodies * MemoryLayout<Float>.stride
+            )
+            
+            timeBetweenJumpsBuffer = device.makeBuffer(
+                bytes: initializedTimeBetweenJumps,
+                length: parameters.nbodies * MemoryLayout<Float>.stride
+            )
+            
+            resetArrivalTimesRequired = false
+        }
+        
         // Update MTLBuffers thorugh compute pipeline
             
         buffer = queue?.makeCommandBuffer()
@@ -821,9 +848,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             computeEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
             computeEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
             computeEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 2)
-            computeEncoder?.setBuffer(timeLastJumpBuffer[i], offset: 0, index: 3)
-            computeEncoder?.setBuffer(updatedTimeLastJumpBuffer[i], offset: 0, index: 4)
-            computeEncoder?.setBuffer(timeBetweenJumpsBuffer[i], offset: 0, index: 5)
+            computeEncoder?.setBuffer(timeLastJumpBuffer, offset: 0, index: 3)
+            computeEncoder?.setBuffer(updatedTimeLastJumpBuffer, offset: 0, index: 4)
+            computeEncoder?.setBuffer(timeBetweenJumpsBuffer, offset: 0, index: 5)
             computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
             computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
             
@@ -888,7 +915,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Asynchronously launch histogram computations if not already running
         
         let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
-        let timeJumps = timeBetweenJumpsBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+        let timeJumps = timeBetweenJumpsBuffer!.contents().assumingMemoryBound(to: Float.self)
         let attachState = isAttachedInBuffer[0]!.contents().assumingMemoryBound(to: Int32.self)
         
         if !(self.isBusy1){
@@ -901,7 +928,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         
-        if !(self.isBusy2){
+        if !self.isBusy2 && !self.resetArrivalTimesRequired {
             self.isBusy2 = true
             queue2.async(){
                 self.secondChildTabVC?.setHistogramData2(cellRadius: parameters.cellRadius, distances: timeJumps, nBodies: parameters.nbodies)
