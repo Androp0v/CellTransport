@@ -20,7 +20,7 @@ func formatRemainingTime(startTime: Date, progress: Float) -> String {
      - Returns: Formatted String showing remaining days, hours and minutes (up to two of them).
      */
     
-    let remainingTime = -Double(startTime.timeIntervalSinceNow) / Double(progress)
+    let remainingTime = (-Double(startTime.timeIntervalSinceNow) / Double(progress)) * (1 - Double(progress))
     let formatter = DateComponentsFormatter()
     formatter.allowedUnits = [.day, .hour, .minute]
     formatter.unitsStyle = .abbreviated

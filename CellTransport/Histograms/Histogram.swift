@@ -29,7 +29,7 @@ func histogramWithAttachState(cellRadius: Float, distances: UnsafeMutablePointer
 func histogramTimes(times: UnsafeMutablePointer<Float>, nDistances: Int, bins: Int, histogramArray: inout [Float]){
     
     let binWidth: Float = 1.0/Float(bins)
-    let maxTime: Float = 120 // s
+    let maxTime: Float = 240 // s
     
     for i in 0..<nDistances{
         if times[i] >= 0 && times[i]/maxTime < 1{

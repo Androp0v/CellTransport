@@ -20,10 +20,10 @@ struct parameters {
     static let CONTAIN_INSIDE: Int32 = 2 //Contain organelles inside the cell
     
     /* FIXED PARAMETERS */
-    static let nCells: Int = 10 //Number of biological cells to simulate simultaneously
+    static let nCells: Int = 200 //Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 //Cells are divided in cubic cells: cellsPerDimension for each side
-    static let nbodies: Int = 20000 //524288 //4194304 // 16777216
-    static let nMicrotubules: Int = 150 //400
+    static let nbodies: Int = 400000 //524288 //4194304 // 16777216
+    static let nMicrotubules: Int = 200 //400
     static let cellRadius: Float = 12000 //nm
     static let centrosomeRadius: Float = 1200 //nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0,0.0,0.0) //nm
@@ -31,7 +31,7 @@ struct parameters {
     static let nucleusLocation: SCNVector3 = SCNVector3(6500,0.0,0.0) //nm
     static let microtubuleSpeed: Float = 800 //nm/s
     static let microtubuleSegmentLength: Float = 50 //nm
-    static let localAngle: Float = 0.15 //0.05 //0.015 //Radians
+    static let localAngle: Float = 0.05 //0.05 //0.015 //Radians
     static let maxLocalAngle: Float = 1*localAngle //Radians
     static let maxNSegments = 3200 //200
     static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
