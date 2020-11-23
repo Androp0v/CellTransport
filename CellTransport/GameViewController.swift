@@ -32,11 +32,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var indexToPoint: [Int32] = [] //Array to translate MT index to MT point position (x,y,z)
     
     // GDC Queues and control variables
+    let queueRandomSeed = DispatchQueue(label: "Random seeding", qos: .default, attributes: .concurrent)
     let queue1 = DispatchQueue(label: "TS-Histogram1", qos: .utility, attributes: .concurrent)
     let queue2 = DispatchQueue(label: "TS-Histogram2", qos: .utility, attributes: .concurrent)
     let queue3 = DispatchQueue(label: "TS-Histogram3", qos: .utility, attributes: .concurrent)
     let queue4 = DispatchQueue(label: "TS-Histogram4", qos: .utility, attributes: .concurrent)
     
+    var isBusyRandomSeed = false
     var isBusy1 = false
     var isBusy2 = false
     var isBusy3 = false
@@ -506,12 +508,21 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             // Update all-cells array with local ones safely
             threadSafeQueueForArrays.async(flags: .barrier) {
                 
-                microtubulePoints.append(contentsOf: localMicrotubulePoints)
-                microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
-                self.microtubulePointsArray.append(contentsOf: localMicrotubulePointsArray)
-                
-                // Update the length of each cell's MT points
-                cellsPointsNumber.append(cellPoints)
+                if index == 1 {
+                    microtubulePoints.insert(contentsOf: localMicrotubulePoints, at: 0)
+                    microtubuleNSegments.insert(contentsOf: localMicrotubuleNSegments, at: 0)
+                    self.microtubulePointsArray.insert(contentsOf: localMicrotubulePointsArray, at: 0)
+                    
+                    // Update the length of each cell's MT points
+                    cellsPointsNumber.append(cellPoints)
+                } else {
+                    microtubulePoints.append(contentsOf: localMicrotubulePoints)
+                    microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
+                    self.microtubulePointsArray.append(contentsOf: localMicrotubulePointsArray)
+                    
+                    // Update the length of each cell's MT points
+                    cellsPointsNumber.append(cellPoints)
+                }
 
             }
         })
@@ -959,13 +970,25 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
         
         // Every 1000 steps, clean the random numbers re-seeding them from Swift
-        if stepCounter % 1000 == 0{
-            let randomBufferToSwift = randomSeedsInBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+        if !self.isBusyRandomSeed && (stepCounter % 1000 == 0) {
+            self.isBusyRandomSeed = true
+            queueRandomSeed.async(){
+                let randomBufferToSwift = self.randomSeedsInBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+                for i in 0..<parameters.nbodies{
+                    randomBufferToSwift[i] = Float.random(in: 0..<1)
+                }
+                DispatchQueue.main.sync {
+                    self.isBusyRandomSeed = false
+                }
+            }
+        }
+        /*if stepCounter % 1000 == 0 {
+            let randomBufferToSwift = self.randomSeedsInBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
             for i in 0..<parameters.nbodies{
                 randomBufferToSwift[i] = Float.random(in: 0..<1)
             }
-        }
-                        
+        }*/
+    
         stepCounter += 1
         
         // Set the global variable truePause to inform that the loop has finished if a pause was scheduled
