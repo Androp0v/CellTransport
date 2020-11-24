@@ -508,7 +508,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             // Update all-cells array with local ones safely
             threadSafeQueueForArrays.async(flags: .barrier) {
                 
-                if index == 1 {
+                if index == 0 {
                     microtubulePoints.insert(contentsOf: localMicrotubulePoints, at: 0)
                     microtubuleNSegments.insert(contentsOf: localMicrotubuleNSegments, at: 0)
                     self.microtubulePointsArray.insert(contentsOf: localMicrotubulePointsArray, at: 0)
