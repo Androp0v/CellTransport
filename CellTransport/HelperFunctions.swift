@@ -32,6 +32,39 @@ func formatRemainingTime(startTime: Date, progress: Float) -> String {
     }
 }
 
+
+func average(_ input: [Double]) -> Double {
+    return input.reduce(0, +) / Double(input.count)
+}
+func multiply(_ a: [Double], _ b: [Double]) -> [Double] {
+    return zip(a,b).map(*)
+}
+
+func linearRegression(_ xs: [Double], _ ys: [Double]) -> (Double) {
+    let sum1 = average(multiply(ys, xs)) - average(xs) * average(ys)
+    let sum2 = average(multiply(xs, xs)) - pow(average(xs), 2)
+    let slope = sum1 / sum2
+    let intercept = average(ys) - slope * average(xs)
+    return slope
+}
+
+func expectedValueCosine(points: [simd_float3], bins: Int) -> ([Float],[Int]) {
+    
+    let maxDistance: Float = Float(parameters.maxNSegments) * parameters.microtubuleSegmentLength
+    var expectedValueCosineArray = [Float](repeating: 0, count: bins)
+    var expectedValueCount = [Int](repeating: 0, count: bins)
+    
+    for i in 0..<points.count {
+        let pointDistance = parameters.microtubuleSegmentLength*Float(i)
+        let cosine = dot( normalize(points[0]), normalize(points[i]) )
+        let index: Int = Int(floor( Float(bins) * (pointDistance/maxDistance) ))
+        expectedValueCosineArray[index] += cosine
+        expectedValueCount[index] += 1
+    }
+    
+    return (expectedValueCosineArray, expectedValueCount)
+}
+
 func getCellID(x: Float, y: Float, z: Float, cellRadius: Float, cellsPerDimension: Int) -> Int{
     
     var cellID: Int = 0

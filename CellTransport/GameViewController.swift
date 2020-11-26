@@ -225,14 +225,21 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         return (secondChildTabVC as! GraphsViewController)
     }()
+    lazy var thirdChildTabVC : ComputeViewController? = {
+        let thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController")
+        
+        return (thirdChildTabVC as! ComputeViewController)
+    }()
     
     func viewControllerForSelectedSegmentIndex(_ index: Int) -> UIViewController? {
         var vc: UIViewController?
         switch index {
-        case 0 :
+        case 0:
             vc = firstChildTabVC
-        case 1 :
+        case 1:
             vc = secondChildTabVC
+        case 2:
+            vc = thirdChildTabVC
         default:
         return nil
         }
@@ -422,10 +429,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return boundingBoxNode
     }
     
-    func spawnCellMicrotubules(cellNumber: Int) -> Void{
-        
-    }
-    
     func spawnAllMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
         
         // Track progress of cells with completed MTs
@@ -449,6 +452,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var nodelist : [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
         var microtubuleNSegments: [Int] = []
+        var separateMicrotubulePoints: [[simd_float3]] = []
         
         var cellsPointsNumber: [Int] = []
         
@@ -467,13 +471,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             var localMicrotubulePoints: [SCNVector3] = []
             var localMicrotubuleNSegments: [Int] = []
             var localMicrotubulePointsArray: [simd_float3] = []
+            var localSeparateMicrotubulePointsArray: [[simd_float3]] = []
             
             for _ in 0..<parameters.nMicrotubules{
+                var localMicrotubule: [simd_float3] = []
                 let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation)
                 
                 localMicrotubuleNSegments.append(points.count)
                 
                 for point in points{
+                    localMicrotubule.append(simd_float3(point))
                     localMicrotubulePoints.append(point)
                     localMicrotubulePointsArray.append(simd_float3(point))
                 }
@@ -503,6 +510,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                         updateProgress()
                     }
                 }
+                // Append microtubule
+                localSeparateMicrotubulePointsArray.append(localMicrotubule)
             }
             
             // Update all-cells array with local ones safely
@@ -523,9 +532,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                     // Update the length of each cell's MT points
                     cellsPointsNumber.append(cellPoints)
                 }
-
+                separateMicrotubulePoints.append(contentsOf: localSeparateMicrotubulePointsArray)
             }
         })
+        
+        thirdChildTabVC?.MTcollection = separateMicrotubulePoints
         
         DispatchQueue.main.sync {
             self.alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
