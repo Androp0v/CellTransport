@@ -999,7 +999,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 randomBufferToSwift[i] = Float.random(in: 0..<1)
             }
         }*/
-    
+        
         stepCounter += 1
         
         // Set the global variable truePause to inform that the loop has finished if a pause was scheduled
