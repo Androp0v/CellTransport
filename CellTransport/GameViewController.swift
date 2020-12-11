@@ -432,14 +432,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func spawnAllMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
         
         // Track progress of cells with completed MTs
-        var completedMTsCount: Int = 0
+        var completedMTsCount: Int = parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
         var progressFinishedUpdating = true
         let startTime = NSDate.now
         
         func updateProgress(){
             let fractionCompleted = Float(completedMTsCount)/Float(parameters.nMicrotubules*parameters.nCells)
             DispatchQueue.main.async {
-                self.alertLabel.text = "Generating microtubule structure: "
+                self.alertLabel.text = "Generating microtubule structure of remaining cells: "
                                         + String(format: "%.2f", 100*fractionCompleted)
                                         + "% ("
                                         + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
@@ -458,13 +458,51 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Add initial separator
         microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+                
+        // Generate MTs for the first cell
+                    
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Generating microtubule structure of the first cell"
+        }
+        
+        var cellPoints: Int = 0
+        
+        for _ in 0..<parameters.nMicrotubules{
+            let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation)
+            microtubuleNSegments.append(points.count)
+            
+            for point in points{
+                microtubulePoints.append(point)
+                microtubulePointsArray.append(simd_float3(point))
+            }
+            
+            // Introduce separators after each MT (situated at an impossible point)
+            microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+            
+            //Update the number of MT points in the cell (including separator, +1)
+            cellPoints += points.count + 1
+            
+            //UI configuration for the first cell (the only cell displayed on screen)
+    
+            let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
+            let geometry = SCNGeometry.lineThrough(points: points,
+                                                   width: 2,
+                                                   closed: false,
+                                                   color: microtubuleColor)
+            let node = SCNNode(geometry: geometry)
+            scene.rootNode.addChildNode(node)
+            nodelist.append(node)
+        }
+        //Update the length of each cell's MT points
+        cellsPointsNumber.append(cellPoints)
+        
         
         // Create a thread safe queue to write to all-cells arrays
-        let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays", attributes: .concurrent)
+        let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays")
         let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
         
         // Generate MTs for each cell concurrently (will use max available cores)
-        DispatchQueue.concurrentPerform(iterations: parameters.nCells, execute: { index in
+        DispatchQueue.concurrentPerform(iterations: parameters.nCells - 1, execute: { index in
             
             var cellPoints: Int = 0
             
@@ -491,18 +529,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 //Update the number of MT points in the cell (including separator, +1)
                 cellPoints += points.count + 1
                 
-                //UI configuration for the first cell (the only cell displayed on screen)
-                if index == 0{
-                    let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
-                    let geometry = SCNGeometry.lineThrough(points: points,
-                                                           width: 2,
-                                                           closed: false,
-                                                           color: microtubuleColor)
-                    let node = SCNNode(geometry: geometry)
-                    self.scene.rootNode.addChildNode(node)
-                    nodelist.append(node)
-                }
-                
                 // Mark the microtubule as completed and show progress
                 progressUpdateQueue.async() {
                     completedMTsCount += 1
@@ -515,24 +541,16 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             }
             
             // Update all-cells array with local ones safely
-            threadSafeQueueForArrays.async(flags: .barrier) {
+            threadSafeQueueForArrays.sync() {
                 
-                if index == 0 {
-                    microtubulePoints.insert(contentsOf: localMicrotubulePoints, at: 0)
-                    microtubuleNSegments.insert(contentsOf: localMicrotubuleNSegments, at: 0)
-                    self.microtubulePointsArray.insert(contentsOf: localMicrotubulePointsArray, at: 0)
-                    
-                    // Update the length of each cell's MT points
-                    cellsPointsNumber.append(cellPoints)
-                } else {
-                    microtubulePoints.append(contentsOf: localMicrotubulePoints)
-                    microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
-                    self.microtubulePointsArray.append(contentsOf: localMicrotubulePointsArray)
-                    
-                    // Update the length of each cell's MT points
-                    cellsPointsNumber.append(cellPoints)
-                }
+                microtubulePoints.append(contentsOf: localMicrotubulePoints)
+                microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
+                self.microtubulePointsArray.append(contentsOf: localMicrotubulePointsArray)
+                
+                // Update the length of each cell's MT points
+                cellsPointsNumber.append(cellPoints)
                 separateMicrotubulePoints.append(contentsOf: localSeparateMicrotubulePointsArray)
+                
             }
         })
         
