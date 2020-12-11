@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
     <device id="ipad12_9rounded" orientation="landscape" layout="fullscreen" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -170,7 +170,7 @@
                                         <segments>
                                             <segment title="Parameters"/>
                                             <segment title="Graphs"/>
-                                            <segment title="Appearance"/>
+                                            <segment title="Compute"/>
                                         </segments>
                                         <connections>
                                             <action selector="changeSegment:" destination="BV1-FR-VrT" eventType="valueChanged" id="oUF-11-3ca"/>
@@ -809,17 +809,43 @@
             </objects>
             <point key="canvasLocation" x="862" y="469"/>
         </scene>
-        <!--View Controller-->
+        <!--Compute View Controller-->
         <scene sceneID="Now-ot-5yY">
             <objects>
-                <viewController storyboardIdentifier="AppearanceViewController" id="oTg-Ln-JtE" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ComputeViewController" id="oTg-Ln-JtE" customClass="ComputeViewController" customModule="CellTransport" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8fk-RS-cPD">
                         <rect key="frame" x="0.0" y="0.0" width="300" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uR8-4h-Lx5">
+                                <rect key="frame" x="24" y="97.5" width="252" height="30"/>
+                                <state key="normal" title="Compute gyration radius"/>
+                                <connections>
+                                    <action selector="computePersistenceLenght:" destination="oTg-Ln-JtE" eventType="touchUpInside" id="qlk-Ow-ke6"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Not computed" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fkN-QI-DSa">
+                                <rect key="frame" x="24" y="139.5" width="252" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Ko-cl-5mV"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="fkN-QI-DSa" firstAttribute="top" secondItem="uR8-4h-Lx5" secondAttribute="bottom" constant="12" id="9WD-78-9w9"/>
+                            <constraint firstItem="fkN-QI-DSa" firstAttribute="leading" secondItem="6Ko-cl-5mV" secondAttribute="leading" constant="24" id="O0T-dJ-T8Y"/>
+                            <constraint firstItem="6Ko-cl-5mV" firstAttribute="trailing" secondItem="fkN-QI-DSa" secondAttribute="trailing" constant="24" id="ThL-o6-0Pg"/>
+                            <constraint firstItem="6Ko-cl-5mV" firstAttribute="trailing" secondItem="uR8-4h-Lx5" secondAttribute="trailing" constant="24" id="Zp1-9n-AYQ"/>
+                            <constraint firstItem="uR8-4h-Lx5" firstAttribute="leading" secondItem="6Ko-cl-5mV" secondAttribute="leading" constant="24" id="aGJ-jn-2Ut"/>
+                            <constraint firstItem="uR8-4h-Lx5" firstAttribute="top" secondItem="6Ko-cl-5mV" secondAttribute="top" constant="97.5" id="kn5-99-LIh"/>
+                        </constraints>
                     </view>
                     <size key="freeformSize" width="300" height="1024"/>
+                    <connections>
+                        <outlet property="computedPersistenceLenght" destination="fkN-QI-DSa" id="vyv-OG-psx"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Xm-tT-6Mu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -836,6 +862,9 @@
         <image name="snow" catalog="system" width="121" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
