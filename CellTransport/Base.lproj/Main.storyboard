@@ -214,6 +214,7 @@
                         <outlet property="containerView" destination="Fbd-xZ-qai" id="p0A-hK-Uje"/>
                         <outlet property="freezeButton" destination="L8T-dy-2ou" id="uCJ-5B-8rb"/>
                         <outlet property="pauseButton" destination="OIj-Cf-SeM" id="h1b-i0-jty"/>
+                        <outlet property="scnContainer" destination="y2h-Zf-dmp" id="LSt-3n-r8e"/>
                         <outlet property="scnView" destination="XiD-5r-A3n" id="S2J-eK-ZOM"/>
                         <outlet property="segmentedControl" destination="A0q-Od-ymt" id="NTq-5n-iRc"/>
                         <outlet property="slowModeButton" destination="0Hy-uh-Gk0" id="8Y3-5P-fOk"/>

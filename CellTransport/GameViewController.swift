@@ -84,6 +84,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // UI outlets and variables
     
+    @IBOutlet weak var scnContainer: UIView!
     @IBOutlet var scnView: SCNView!
     let scene = SCNScene(named: "art.scnassets/ship.scn")!
     @IBOutlet var segmentedControl: UISegmentedControl!
@@ -740,6 +741,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // configure the view
         scnView.backgroundColor = UIColor.black
+        scnContainer.backgroundColor = UIColor.black
                 
         // finish UI configuration
         
