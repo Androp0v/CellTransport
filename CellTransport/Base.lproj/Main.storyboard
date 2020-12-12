@@ -24,7 +24,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="1066" height="1024"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </sceneKitView>
-                                    <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pmh-kp-WYn">
+                                    <view multipleTouchEnabled="YES" alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pmh-kp-WYn">
                                         <rect key="frame" x="0.0" y="0.0" width="1066" height="1024"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="GrandCentralDispatch" translatesAutoresizingMaskIntoConstraints="NO" id="T4c-FO-IRs">

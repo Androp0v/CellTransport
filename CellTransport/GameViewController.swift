@@ -15,6 +15,8 @@ import MobileCoreServices
 
 class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
+    //MARK: - Class Properties
+    
     var stepCounter: Int = 0
     var slowMode: Bool = true
     var waitingMode: Bool = false
@@ -297,6 +299,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
     }
     
+    //MARK: - Initialization
+    
     func initializeMetal(){
         device = MTLCreateSystemDefaultDevice()
         queue = device.makeCommandQueue()
@@ -412,6 +416,100 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         ))
         
     }
+    
+    func initializeSimulation(){
+        // Spawn the bounding box
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Drawing bounding box"
+            self.alertView.backgroundColor = UIColor.init(cgColor: CGColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.5))
+        }
+        let boundingBox = spawnBoundingBox()
+        
+        // Spawn the cell membrane
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Generating cellular membrane"
+        }
+        let membranes = spawnCellMembrane(scene: scene)
+        
+        // Spawn the cell nucleus
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Generating cellular nucleus"
+        }
+        var nucleus: SCNNode = SCNNode()
+        if parameters.nucleusEnabled {
+            nucleus = spawnCellNucleus()
+        }
+        
+        // Spawn the microtubules
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Generating microtubule structure"
+        }
+        let (microtubules, microtubulePointsReturned,
+                microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnAllMicrotubules()
+        microtubulePoints = microtubulePointsReturned
+        microtubuleNSegments = microtubuleNSegmentsReturned
+        microtubulePointsArray = microtubulePointsArrayReturned
+                
+        for microtubulePoint in microtubulePoints{
+            microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
+        }
+        
+        self.secondChildTabVC?.setHistogramData3(cellRadius: parameters.cellRadius, points: microtubulePoints)
+        
+        // Spawn points
+        DispatchQueue.main.async {
+            self.alertLabel.text = "Initializing all particle positions"
+        }
+        var pointsNodeList: [SCNNode] = []
+        
+        for _ in 0..<nBuffers{
+            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: parameters.nbodies/nBuffers, nBodiesPerCell: parameters.nbodies/parameters.nCells, cellRadius: parameters.cellRadius)
+            positionsIn.append(meshData.vertexBuffer1)
+            positionsOut.append(meshData.vertexBuffer2)
+            
+            let pointsNode = SCNNode(geometry: meshData.geometry)
+            pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
+            pointsNode.geometry?.firstMaterial?.transparency = 1.0 //0.7
+            pointsNode.geometry?.firstMaterial?.lightingModel = .constant
+            pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
+            pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true
+            //pointsNode.geometry?.firstMaterial?.blendMode = SCNBlendMode.add
+                        
+            pointsNodeList.append(pointsNode)
+            
+            scene.rootNode.addChildNode(pointsNode)
+        }
+        
+        // animate the 3d object
+        boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        for membrane in membranes{
+            membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        }
+        for pointsNode in pointsNodeList{
+            pointsNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        }
+        for microtubule in microtubules{
+            microtubule.geometry?.firstMaterial?.lightingModel = .constant
+            microtubule.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        }
+        if parameters.nucleusEnabled{
+            nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        }
+        
+        //Set renderer delegate to start animation loop
+        DispatchQueue.main.async {
+            self.alertLabel.text = ""
+            self.alertView.backgroundColor = UIColor.clear
+        }
+        scnView.delegate = self
+        
+        // Start simulation loop
+        DispatchQueue.global(qos: .background).async {
+            self.metalLoop()
+        }
+    }
+    
+    //MARK: - Spawners
     
     func spawnBoundingBox() -> SCNNode{
         
@@ -596,6 +694,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return nucleusAxis
     }
     
+    //MARK: - View lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -631,7 +731,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // set the scene to the view
         scnView.scene = scene
-        //scnView.delegate = self
         
         // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
@@ -674,98 +773,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
     }
     
-    func initializeSimulation(){
-        // Spawn the bounding box
-        DispatchQueue.main.async {
-            self.alertLabel.text = "Drawing bounding box"
-            self.alertView.backgroundColor = UIColor.init(cgColor: CGColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.5))
-        }
-        let boundingBox = spawnBoundingBox()
-        
-        // Spawn the cell membrane
-        DispatchQueue.main.async {
-            self.alertLabel.text = "Generating cellular membrane"
-        }
-        let membranes = spawnCellMembrane(scene: scene)
-        
-        // Spawn the cell nucleus
-        DispatchQueue.main.async {
-            self.alertLabel.text = "Generating cellular nucleus"
-        }
-        var nucleus: SCNNode = SCNNode()
-        if parameters.nucleusEnabled {
-            nucleus = spawnCellNucleus()
-        }
-        
-        // Spawn the microtubules
-        DispatchQueue.main.async {
-            self.alertLabel.text = "Generating microtubule structure"
-        }
-        let (microtubules, microtubulePointsReturned,
-                microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnAllMicrotubules()
-        microtubulePoints = microtubulePointsReturned
-        microtubuleNSegments = microtubuleNSegmentsReturned
-        microtubulePointsArray = microtubulePointsArrayReturned
-                
-        for microtubulePoint in microtubulePoints{
-            microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
-        }
-        
-        self.secondChildTabVC?.setHistogramData3(cellRadius: parameters.cellRadius, points: microtubulePoints)
-        
-        // Spawn points
-        DispatchQueue.main.async {
-            self.alertLabel.text = "Initializing all particle positions"
-        }
-        var pointsNodeList: [SCNNode] = []
-        
-        for _ in 0..<nBuffers{
-            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: parameters.nbodies/nBuffers, nBodiesPerCell: parameters.nbodies/parameters.nCells, cellRadius: parameters.cellRadius)
-            positionsIn.append(meshData.vertexBuffer1)
-            positionsOut.append(meshData.vertexBuffer2)
-            
-            let pointsNode = SCNNode(geometry: meshData.geometry)
-            pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-            pointsNode.geometry?.firstMaterial?.transparency = 1.0 //0.7
-            pointsNode.geometry?.firstMaterial?.lightingModel = .constant
-            pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
-            pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true
-            //pointsNode.geometry?.firstMaterial?.blendMode = SCNBlendMode.add
-                        
-            pointsNodeList.append(pointsNode)
-            
-            scene.rootNode.addChildNode(pointsNode)
-        }
-        
-        // animate the 3d object
-        boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        for membrane in membranes{
-            membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        }
-        for pointsNode in pointsNodeList{
-            pointsNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        }
-        for microtubule in microtubules{
-            microtubule.geometry?.firstMaterial?.lightingModel = .constant
-            microtubule.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        }
-        if parameters.nucleusEnabled{
-            nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        }
-        
-        //Set renderer delegate to start animation loop
-        DispatchQueue.main.async {
-            self.alertLabel.text = ""
-            self.alertView.backgroundColor = UIColor.clear
-        }
-        scnView.delegate = self
-        
-        // Start simulation loop
-        DispatchQueue.global(qos: .background).async {
-            self.metalLoop()
-        }
-    }
-   
     override var shouldAutorotate: Bool {
         return true
     }
@@ -781,6 +788,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             return .all
         }
     }
+    
+    //MARK: - Metal loop
     
     //Define a struct of parameters to be passed to the kernel function in Metal
     struct simulationParameters{
