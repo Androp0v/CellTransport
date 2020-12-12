@@ -574,49 +574,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return (nodelist,microtubulePoints,microtubuleNSegments,microtubulePointsArray)
     }
     
-    func spawnCellMembrane() -> SCNNode{
-        
-        //var membrane:SCNSphere
-        
-        //membrane = SCNSphere(radius: CGFloat(cellRadius))
-        //membrane.segmentCount = 96
-        
-        var membrane: SCNGeometry
-        membrane = SCNIcosphere(radius: parameters.cellRadius)
-        
-        let material = SCNMaterial()
-        material.diffuse.contents = UIColor.black
-        material.reflective.contents = UIColor(red: 0.2, green: 0.764, blue: 1, alpha: 1)
-        material.reflective.intensity = 1
-        material.transparent.contents = UIColor.black.withAlphaComponent(0.15)
-        material.transparencyMode = .default
-        material.fresnelExponent = 4
-        
-        material.lightingModel = .constant
-        material.blendMode = .screen
-        material.writesToDepthBuffer = false
-        
-        membrane.materials = [material]
-        
-        let membraneNode = SCNNode(geometry: membrane)
-
-        scene.rootNode.addChildNode(membraneNode)
-        
-        membraneNode.position = SCNVector3(x: 0, y: 0, z: 0)
-        
-        //Added second sphere membrane for faint base color
-        let membrane2 = SCNSphere(radius: CGFloat(parameters.cellRadius*0.99))
-        membrane2.segmentCount = 96
-        membrane2.firstMaterial?.transparency = 0.05
-        membrane2.firstMaterial?.diffuse.contents = UIColor(red: 0.2, green: 0.764, blue: 1, alpha: 1)
-        membrane2.firstMaterial?.lightingModel = .constant
-        let membraneNode2 = SCNNode(geometry: membrane2)
-        scene.rootNode.addChildNode(membraneNode2)
-        membraneNode2.position = SCNVector3(x: 0, y: 0, z: 0)
-        
-        return membraneNode
-    }
-    
     func spawnCellNucleus() -> SCNNode{
         var nucleus:SCNGeometry
         // Generate nucleus as a perlin-noise biased icosphere. Low recursion level (vertex nuber) since texture will make it look good anyway
@@ -729,7 +686,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating cellular membrane"
         }
-        let membrane = spawnCellMembrane()
+        let membranes = spawnCellMembrane(scene: scene)
         
         // Spawn the cell nucleus
         DispatchQueue.main.async {
@@ -782,7 +739,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // animate the 3d object
         boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        for membrane in membranes{
+            membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        }
         for pointsNode in pointsNodeList{
             pointsNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }

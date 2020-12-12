@@ -41,13 +41,36 @@ private func checkIfInsideNucleus(MTPoint: SCNVector3) -> Bool {
 
 // Check if a MT point is inside the nucleus
 private func checkIfOutsideCell(MTPoint: SCNVector3) -> Bool {
-
-    // Check if it's inside the (spherical) cell
-    if distance(simd_float3(MTPoint), simd_float3(repeating: 0)) > parameters.cellRadius {
-        return true
-    } else {
-        return false
+    
+    switch parameters.cellShape {
+    case parameters.SPHERICAL_CELL:
+        // Check if it's inside the (spherical) cell
+        if distance(simd_float3(MTPoint), simd_float3(repeating: 0)) > parameters.cellRadius {
+            return true
+        } else {
+            return false
+        }
+    case parameters.CUBIC_CELL:
+        // Check if it's inside the (cubic) cell
+        if MTPoint.x > parameters.cellRadius ||
+            MTPoint.x < -parameters.cellRadius ||
+            MTPoint.y > parameters.cellRadius ||
+            MTPoint.y < -parameters.cellRadius ||
+            MTPoint.z > parameters.cellRadius ||
+            MTPoint.z < -parameters.cellRadius {
+            return true
+        } else {
+            return false
+        }
+    default:
+        // Check if it's inside the (spherical) cell
+        if distance(simd_float3(MTPoint), simd_float3(repeating: 0)) > parameters.cellRadius {
+            return true
+        } else {
+            return false
+        }
     }
+    
 }
 
 // Compute the local angle based on proximity to cell wall or nucleus
@@ -233,7 +256,7 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             // Check wether next MT point has exceeded cell walls or couldn't be created (null)
             if newPoint == nil {
                 return pointsList
-            } else if length(simd_float3(newPoint!)) > cellRadius {
+            } else if checkIfOutsideCell(MTPoint: newPoint!) {
                 return pointsList
             } else if Float(pointsList.count)*parameters.microtubuleSegmentLength > targetLength {
                 return pointsList

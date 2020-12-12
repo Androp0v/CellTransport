@@ -19,6 +19,9 @@ struct parameters {
     static let REINJECT_OUTSIDE: Int32 = 1 //Reinject in the cell membrane
     static let CONTAIN_INSIDE: Int32 = 2 //Contain organelles inside the cell
     
+    static let SPHERICAL_CELL: Int32 = 0 //Spherical cell
+    static let CUBIC_CELL: Int32 = 1 //Cubic cell
+    
     /* FIXED PARAMETERS */
     static let nCells: Int = 2 //Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 //Cells are divided in cubic cells: cellsPerDimension for each side
@@ -37,6 +40,7 @@ struct parameters {
     static let nucleusEnabled: Bool = false //Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
     static let nonFreeMTdistance: Float = 2000 //nm
     static let bendMTs: Bool = false //Wether to bend MTs near the cell wall or nucleus
+    static let cellShape: Int32 = SPHERICAL_CELL //Cell shape
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = REINJECT_INSIDE //Molecular motor choice and boundary conditions
