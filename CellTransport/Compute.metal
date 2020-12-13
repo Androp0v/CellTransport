@@ -21,7 +21,7 @@ constant int OUTSIDE_AND_COUNT_TIME = 0;
 constant int INSIDE = 1;
 constant int OUTSIDE_AND_NOT_COUNT_TIME = 2;
 
-/*- PARAMETERS STRUCT -*/
+// MARK: - Input parameters struct
 
 struct simulation_parameters {
     float deltat;
@@ -40,7 +40,7 @@ struct simulation_parameters {
     simd_float3 nucleusLocation;
 };
 
-/*- HELPER FUNCTIONS -*/
+// MARK: - Helper functions
 
 // Get CellID of a position in x,y,z coordinates
 int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension, int currentCellNumber){
@@ -196,7 +196,7 @@ bool shouldResetTime(int32_t boundaryConditions, float cellRadius, float distanc
     }
 }
 
-/*- MAIN KERNEL FUNCTIONS -*/
+// MARK: - Main compute kernel
 
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float3 *positionsOut [[buffer(1)]],
@@ -226,21 +226,24 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
                 
-    //Flag wether or not the particle should diffuse
+    // Flag wether or not the particle should diffuse. Default to true
     
     bool diffuseFlag = true;
     
-    //Microtubule attachment/dettachment
+    // Precompute the random number used in MT dynamics
+    float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
+    randomSeedsOut[i] = randNumber;
+    
+    // Microtubule attachment/dettachment
     
     if (isAttachedIn[i] != -1){
         
-        float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
-        randomSeedsOut[i] = randNumber;
-        
         // Probability that the particle detaches
         if (randNumber < parameters.wOFF*parameters.deltat/parameters.stepsPerMTPoint){
+            
             isAttachedOut[i] = -1;
             MTstepNumberOut[i] = 1;
+            
         }else{
             // Check that the particle hasn't reached the end of the MT
             if (abs(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius) &&
@@ -285,8 +288,6 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         }
     }else{
         
-        float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
-        randomSeedsOut[i] = randNumber;
         float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
         
         //Probability that the particle attaches
@@ -392,6 +393,8 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     distances[i] = distance;
     
 }
+
+// MARK: - Verify collisions kernel
 
 kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                              device float3 *positionsOut [[buffer(1)]],
