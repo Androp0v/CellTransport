@@ -185,36 +185,35 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var device: MTLDevice!
     fileprivate var queue: MTLCommandQueue?
     fileprivate var library: MTLLibrary!
-    fileprivate var computePipelineState: [MTLComputePipelineState?] = []
-    fileprivate var verifyCollisionsPipelineState: [MTLComputePipelineState?] = []
-    fileprivate var positionsIn: [MTLBuffer?] = []
-    fileprivate var positionsOut: [MTLBuffer?] = []
-    fileprivate var distancesBuffer: [MTLBuffer?] = []
+    fileprivate var computePipelineState: MTLComputePipelineState?
+    fileprivate var verifyCollisionsPipelineState: MTLComputePipelineState?
+    fileprivate var positionsIn: MTLBuffer?
+    fileprivate var positionsOut: MTLBuffer?
+    fileprivate var distancesBuffer: MTLBuffer?
     fileprivate var timeLastJumpBuffer: MTLBuffer?
     fileprivate var updatedTimeLastJumpBuffer: MTLBuffer?
     fileprivate var timeBetweenJumpsBuffer: MTLBuffer?
     
-    fileprivate var oldTimeBuffer: [MTLBuffer?] = []
-    fileprivate var newTimeBuffer: [MTLBuffer?] = []
+    fileprivate var oldTimeBuffer: MTLBuffer?
+    fileprivate var newTimeBuffer: MTLBuffer?
     
-    fileprivate var microtubulePointsBuffer: [MTLBuffer?] = []
-    fileprivate var cellIDtoIndexBuffer: [MTLBuffer?] = []
-    fileprivate var cellIDtoNMTsBuffer: [MTLBuffer?] = []
-    fileprivate var indextoPointsBuffer: [MTLBuffer?] = []
-    fileprivate var isAttachedInBuffer: [MTLBuffer?] = []
-    fileprivate var isAttachedOutBuffer: [MTLBuffer?] = []
+    fileprivate var microtubulePointsBuffer: MTLBuffer?
+    fileprivate var cellIDtoIndexBuffer: MTLBuffer?
+    fileprivate var cellIDtoNMTsBuffer: MTLBuffer?
+    fileprivate var indextoPointsBuffer: MTLBuffer?
+    fileprivate var isAttachedInBuffer: MTLBuffer?
+    fileprivate var isAttachedOutBuffer: MTLBuffer?
     
-    fileprivate var randomSeedsInBuffer: [MTLBuffer?] = []
-    fileprivate var randomSeedsOutBuffer: [MTLBuffer?] = []
+    fileprivate var randomSeedsInBuffer: MTLBuffer?
+    fileprivate var randomSeedsOutBuffer: MTLBuffer?
     
-    fileprivate var MTstepNumberInBuffer: [MTLBuffer?] = []
-    fileprivate var MTstepNumberOutBuffer: [MTLBuffer?] = []
+    fileprivate var MTstepNumberInBuffer: MTLBuffer?
+    fileprivate var MTstepNumberOutBuffer: MTLBuffer?
     
-    fileprivate var cellIDtoOccupiedBuffer: [MTLBuffer?] = []
+    fileprivate var cellIDtoOccupiedBuffer: MTLBuffer?
     
     fileprivate var buffer: MTLCommandBuffer?
     
-    let nBuffers = 1
     var isRunning = false
     
     var currentViewController: UIViewController?
@@ -268,35 +267,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         let verifyCollisions = (library.makeFunction(name: "verifyCollisions"))!
         
         
-        for _ in 0..<nBuffers{
             
-            do {
-                let computePipelineStatelocal = try device.makeComputePipelineState(function: compute)
-                computePipelineState.append(computePipelineStatelocal)
-            } catch {
-                print("Failed to create compute pipeline state")
-            }
-        }
-        
-        for _ in 0..<nBuffers{
-            
-            do {
-                let verifyCollisionsPipelineStatelocal = try device.makeComputePipelineState(function: verifyCollisions)
-                verifyCollisionsPipelineState.append(verifyCollisionsPipelineStatelocal)
-            } catch {
-                print("Failed to create compute pipeline state")
-            }
-        }
-        
-        /*
-        do {
-            if let compute = library.makeFunction(name: "compute") {
-                computePipelineState = try device.makeComputePipelineState(function: compute)
-            }
-        } catch {
-            print("Failed to create compute pipeline state")
-        }
-        */
+        computePipelineState = try! device.makeComputePipelineState(function: compute)
+        verifyCollisionsPipelineState = try! device.makeComputePipelineState(function: verifyCollisions)
         
     }
     
@@ -316,9 +289,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         //Initialize buffers and populate those of them that need it
         
-        distancesBuffer.append(device.makeBuffer(
+        distancesBuffer = device.makeBuffer(
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
         timeLastJumpBuffer = device.makeBuffer(
             bytes: initializedTimeJump,
@@ -337,84 +310,84 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         let oldTime = [Float](repeating: 0.0, count: parameters.nbodies)
         
-        oldTimeBuffer.append(device.makeBuffer(
+        oldTimeBuffer = device.makeBuffer(
             bytes: oldTime,
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
-        newTimeBuffer.append(device.makeBuffer(
+        newTimeBuffer = device.makeBuffer(
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
         var randomSeeds: [Float] = []
         while randomSeeds.count != parameters.nbodies{
             let number = Float.random(in: 0 ..< 1)
             randomSeeds.append(number)
         }
-        randomSeedsInBuffer.append(device.makeBuffer(
+        randomSeedsInBuffer = device.makeBuffer(
             bytes: randomSeeds,
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
-        randomSeedsOutBuffer.append(device.makeBuffer(
+        )
+        randomSeedsOutBuffer = device.makeBuffer(
             bytes: randomSeeds,
             length: parameters.nbodies * MemoryLayout<Float>.stride
-        ))
+        )
         
     }
     
     func initializeMetalMTs(){
 
-        microtubulePointsBuffer.append(device.makeBuffer(
+        microtubulePointsBuffer = device.makeBuffer(
             bytes: microtubulePointsArray,
             length: microtubulePointsArray.count * MemoryLayout<simd_float3>.stride
-        ))
+        )
         
-        cellIDtoIndexBuffer.append(device.makeBuffer(
+        cellIDtoIndexBuffer = device.makeBuffer(
             bytes: cellIDtoIndex,
             length: cellIDtoIndex.count * MemoryLayout<Int32>.stride
-        ))
+        )
         
-        cellIDtoNMTsBuffer.append(device.makeBuffer(
+        cellIDtoNMTsBuffer = device.makeBuffer(
             bytes: cellIDtoNMTs,
             length: cellIDtoNMTs.count * MemoryLayout<Int16>.stride
-        ))
+        )
         
-        indextoPointsBuffer.append(device.makeBuffer(
+        indextoPointsBuffer = device.makeBuffer(
             bytes: indexToPoint,
             length: max(1,indexToPoint.count) * MemoryLayout<Int32>.stride
-        ))
+        )
         
         let isAttachedIn: [Int32] = [Int32](repeatElement(-1, count: parameters.nbodies))
         
-        isAttachedInBuffer.append(device.makeBuffer(
+        isAttachedInBuffer = device.makeBuffer(
             bytes: isAttachedIn,
             length: isAttachedIn.count * MemoryLayout<Int32>.stride
-        ))
+        )
         
-        isAttachedOutBuffer.append(device.makeBuffer(
+        isAttachedOutBuffer = device.makeBuffer(
             bytes: isAttachedIn,
             length: isAttachedIn.count * MemoryLayout<Int32>.stride
-        ))
+        )
         
         let stepNumbers = [Int32](repeatElement(0, count: parameters.nbodies))
         
-        MTstepNumberInBuffer.append(device.makeBuffer(
+        MTstepNumberInBuffer = device.makeBuffer(
             bytes: stepNumbers,
             length: parameters.nbodies * MemoryLayout<Int32>.stride
-        ))
-        MTstepNumberOutBuffer.append(device.makeBuffer(
+        )
+        MTstepNumberOutBuffer = device.makeBuffer(
             bytes: stepNumbers,
             length: parameters.nbodies * MemoryLayout<Int32>.stride
-        ))
+        )
         
         // Not strictly MT related, but useful to have  cellIDtoIndex.count available
         
         let cellIDtoOccupied = [Int32](repeating: 0, count: cellIDtoNMTs.count)
                 
-        cellIDtoOccupiedBuffer.append(device.makeBuffer(
+        cellIDtoOccupiedBuffer = device.makeBuffer(
             bytes: cellIDtoOccupied,
             length: cellIDtoOccupied.count * MemoryLayout<Int32>.stride
-        ))
+        )
         
     }
     
@@ -463,23 +436,21 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
         var pointsNodeList: [SCNNode] = []
         
-        for _ in 0..<nBuffers{
-            let meshData = MetalMeshDeformable.initializePoints(device, nbodies: parameters.nbodies/nBuffers, nBodiesPerCell: parameters.nbodies/parameters.nCells, cellRadius: parameters.cellRadius)
-            positionsIn.append(meshData.vertexBuffer1)
-            positionsOut.append(meshData.vertexBuffer2)
-            
-            let pointsNode = SCNNode(geometry: meshData.geometry)
-            pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-            pointsNode.geometry?.firstMaterial?.transparency = 1.0 //0.7
-            pointsNode.geometry?.firstMaterial?.lightingModel = .constant
-            pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
-            pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true
-            //pointsNode.geometry?.firstMaterial?.blendMode = SCNBlendMode.add
-                        
-            pointsNodeList.append(pointsNode)
-            
-            scene.rootNode.addChildNode(pointsNode)
-        }
+        let meshData = MetalMeshDeformable.initializePoints(device, nbodies: parameters.nbodies, nBodiesPerCell: parameters.nbodies/parameters.nCells, cellRadius: parameters.cellRadius)
+        positionsIn = meshData.vertexBuffer1
+        positionsOut = meshData.vertexBuffer2
+        
+        let pointsNode = SCNNode(geometry: meshData.geometry)
+        pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
+        pointsNode.geometry?.firstMaterial?.transparency = 1.0 //0.7
+        pointsNode.geometry?.firstMaterial?.lightingModel = .constant
+        pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
+        pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true
+        //pointsNode.geometry?.firstMaterial?.blendMode = SCNBlendMode.add
+                    
+        pointsNodeList.append(pointsNode)
+        
+        scene.rootNode.addChildNode(pointsNode)
         
         // animate the 3d object
         boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
@@ -847,39 +818,37 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         buffer = queue?.makeCommandBuffer()
             
         // Compute kernel
-        let threadsPerArray = MTLSizeMake(parameters.nbodies/nBuffers, 1, 1)
+        let threadsPerArray = MTLSizeMake(parameters.nbodies, 1, 1)
         //let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
         let groupsize = MTLSizeMake(64,1,1)
         
         let computeEncoder = buffer!.makeComputeCommandEncoder()
           
-        for i in 0..<nBuffers{
-            computeEncoder?.setComputePipelineState(computePipelineState[i]!)
-            computeEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
-            computeEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
-            computeEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 2)
-            computeEncoder?.setBuffer(timeLastJumpBuffer, offset: 0, index: 3)
-            computeEncoder?.setBuffer(updatedTimeLastJumpBuffer, offset: 0, index: 4)
-            computeEncoder?.setBuffer(timeBetweenJumpsBuffer, offset: 0, index: 5)
-            computeEncoder?.setBuffer(oldTimeBuffer[i], offset: 0, index: 6)
-            computeEncoder?.setBuffer(newTimeBuffer[i], offset: 0, index: 7)
-            
-            computeEncoder?.setBuffer(microtubulePointsBuffer[i], offset: 0, index: 8)
-            computeEncoder?.setBuffer(cellIDtoIndexBuffer[i], offset: 0, index: 9)
-            computeEncoder?.setBuffer(cellIDtoNMTsBuffer[i], offset: 0, index: 10)
-            computeEncoder?.setBuffer(indextoPointsBuffer[i], offset: 0, index: 11)
-            computeEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 12)
-            computeEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 13)
-            
-            computeEncoder?.setBuffer(randomSeedsInBuffer[i], offset: 0, index: 14)
-            computeEncoder?.setBuffer(randomSeedsOutBuffer[i], offset: 0, index: 15)
-            
-            computeEncoder?.setBuffer(MTstepNumberInBuffer[i], offset: 0, index: 16)
-            computeEncoder?.setBuffer(MTstepNumberOutBuffer[i], offset: 0, index: 17)
-            
-            computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 18)
-            computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
-        }
+        computeEncoder?.setComputePipelineState(computePipelineState!)
+        computeEncoder?.setBuffer(positionsIn, offset: 0, index: 0)
+        computeEncoder?.setBuffer(positionsOut, offset: 0, index: 1)
+        computeEncoder?.setBuffer(distancesBuffer, offset: 0, index: 2)
+        computeEncoder?.setBuffer(timeLastJumpBuffer, offset: 0, index: 3)
+        computeEncoder?.setBuffer(updatedTimeLastJumpBuffer, offset: 0, index: 4)
+        computeEncoder?.setBuffer(timeBetweenJumpsBuffer, offset: 0, index: 5)
+        computeEncoder?.setBuffer(oldTimeBuffer, offset: 0, index: 6)
+        computeEncoder?.setBuffer(newTimeBuffer, offset: 0, index: 7)
+        
+        computeEncoder?.setBuffer(microtubulePointsBuffer, offset: 0, index: 8)
+        computeEncoder?.setBuffer(cellIDtoIndexBuffer, offset: 0, index: 9)
+        computeEncoder?.setBuffer(cellIDtoNMTsBuffer, offset: 0, index: 10)
+        computeEncoder?.setBuffer(indextoPointsBuffer, offset: 0, index: 11)
+        computeEncoder?.setBuffer(isAttachedInBuffer, offset: 0, index: 12)
+        computeEncoder?.setBuffer(isAttachedOutBuffer, offset: 0, index: 13)
+        
+        computeEncoder?.setBuffer(randomSeedsInBuffer, offset: 0, index: 14)
+        computeEncoder?.setBuffer(randomSeedsOutBuffer, offset: 0, index: 15)
+        
+        computeEncoder?.setBuffer(MTstepNumberInBuffer, offset: 0, index: 16)
+        computeEncoder?.setBuffer(MTstepNumberOutBuffer, offset: 0, index: 17)
+        
+        computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 18)
+        computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
           
         computeEncoder?.endEncoding()
         buffer!.commit()
@@ -891,19 +860,17 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             let threadsPerArrayCollisions = MTLSizeMake(parameters.nCells, 1, 1)
             let verifyCollisionsEncoder = buffer!.makeComputeCommandEncoder()
             
-            for i in 0..<nBuffers{
-                verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState[i]!)
-                verifyCollisionsEncoder?.setBuffer(positionsIn[i], offset: 0, index: 0)
-                verifyCollisionsEncoder?.setBuffer(positionsOut[i], offset: 0, index: 1)
-                verifyCollisionsEncoder?.setBuffer(isAttachedInBuffer[i], offset: 0, index: 2)
-                verifyCollisionsEncoder?.setBuffer(isAttachedOutBuffer[i], offset: 0, index: 3)
-                verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedBuffer[i], offset: 0, index: 4)
-                verifyCollisionsEncoder?.setBuffer(distancesBuffer[i], offset: 0, index: 5)
-                
-                verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 6)
-                
-                verifyCollisionsEncoder?.dispatchThreads(threadsPerArrayCollisions, threadsPerThreadgroup: groupsize)
-            }
+            verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState!)
+            verifyCollisionsEncoder?.setBuffer(positionsIn, offset: 0, index: 0)
+            verifyCollisionsEncoder?.setBuffer(positionsOut, offset: 0, index: 1)
+            verifyCollisionsEncoder?.setBuffer(isAttachedInBuffer, offset: 0, index: 2)
+            verifyCollisionsEncoder?.setBuffer(isAttachedOutBuffer, offset: 0, index: 3)
+            verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedBuffer, offset: 0, index: 4)
+            verifyCollisionsEncoder?.setBuffer(distancesBuffer, offset: 0, index: 5)
+            
+            verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 6)
+            
+            verifyCollisionsEncoder?.dispatchThreads(threadsPerArrayCollisions, threadsPerThreadgroup: groupsize)
             
             verifyCollisionsEncoder?.endEncoding()
             buffer!.commit()
@@ -924,9 +891,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Asynchronously launch histogram computations if not already running
         
-        let distances = distancesBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+        let distances = distancesBuffer!.contents().assumingMemoryBound(to: Float.self)
         let timeJumps = timeBetweenJumpsBuffer!.contents().assumingMemoryBound(to: Float.self)
-        let attachState = isAttachedInBuffer[0]!.contents().assumingMemoryBound(to: Int32.self)
+        let attachState = isAttachedInBuffer!.contents().assumingMemoryBound(to: Int32.self)
         
         if !(self.isBusy1){
             self.isBusy1 = true
@@ -972,7 +939,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         if !self.isBusyRandomSeed && (stepCounter % 1000 == 0) {
             self.isBusyRandomSeed = true
             queueRandomSeed.async(){
-                let randomBufferToSwift = self.randomSeedsInBuffer[0]!.contents().assumingMemoryBound(to: Float.self)
+                let randomBufferToSwift = self.randomSeedsInBuffer!.contents().assumingMemoryBound(to: Float.self)
                 for i in 0..<parameters.nbodies{
                     randomBufferToSwift[i] = Float.random(in: 0..<1)
                 }

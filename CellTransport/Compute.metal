@@ -290,7 +290,6 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
         
         //Probability that the particle attaches
-        //if (randNumber < parameters.wON*parameters.deltat/parameters.stepsPerMTPoint*cellIDtoNMTs[currentCellID]){
         if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat/parameters.stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
             
             //Check if it can attach to anything
