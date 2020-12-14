@@ -227,65 +227,70 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
                 
     // Flag wether or not the particle should diffuse. Default to true
-    
     bool diffuseFlag = true;
     
     // Precompute the random number used in MT dynamics
     float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
     randomSeedsOut[i] = randNumber;
     
-    // Microtubule attachment/dettachment
-    
+    // MARK: - Microtubule attach/detach
+        
+    // Check if the particle is currently attached to something (so isAttachedIn != -1)
     if (isAttachedIn[i] != -1){
         
         // Probability that the particle detaches
-        if (randNumber < parameters.wOFF*parameters.deltat/parameters.stepsPerMTPoint){
+        bool willDetach = (randNumber < parameters.wOFF*parameters.deltat/parameters.stepsPerMTPoint);
+        
+        // Check that the particle hasn't reached the end of the MT
+        bool isAtMTLastPoint = abs(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius) &&
+                                abs(MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius) &&
+                                abs(MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius);
+        
+        // If the particle will naturally detach or is ar the end of a MT, detach
+        if (willDetach || isAtMTLastPoint) {
             
             isAttachedOut[i] = -1;
             MTstepNumberOut[i] = 1;
             
-        }else{
-            // Check that the particle hasn't reached the end of the MT
-            if (abs(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius) &&
-                abs(MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius) &&
-                abs(MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius) ){
+        } else {
+            
+            // Since we know the particle is currently at a MT, it shouldn't diffuse
+            diffuseFlag = false;
+
+            // Check if the particle should advance to the next MTPoint
+            if (MTstepNumberIn[i] >= parameters.stepsPerMTPoint){
                 
-                // Since the particle has reached the end of the MT, detach immediately
-                isAttachedOut[i] = -1;
+                int MTdirection;
+                
+                switch (parameters.molecularMotors) {
+                    case KINESIN_ONLY:
+                        // Move outward
+                        MTdirection = 1;
+                        break;
+                    case DYNEIN_ONLY:
+                        // Move inward
+                        MTdirection = -1;
+                        break;
+                    default:
+                        // Default to KINESIN_ONLY
+                        MTdirection = 1;
+                }
+                
+                // Move in MTdirection
+                positionsOut[i] = MTpoints[isAttachedIn[i] + MTdirection];
+                isAttachedOut[i] = isAttachedIn[i] + MTdirection;
                 MTstepNumberOut[i] = 1;
                 
             }else{
-                if (MTstepNumberIn[i] >= parameters.stepsPerMTPoint){
-                    
-                    int MTdirection;
-                    
-                    switch (parameters.molecularMotors) {
-                        case KINESIN_ONLY:
-                            // Move outward
-                            MTdirection = 1;
-                            break;
-                        case DYNEIN_ONLY:
-                            // Move inward
-                            MTdirection = -1;
-                            break;
-                        default:
-                            // Default to KINESIN_ONLY
-                            MTdirection = 1;
-                    }
-                    
-                    // Move in MTdirection
-                    positionsOut[i] = MTpoints[isAttachedIn[i] + MTdirection];
-                    isAttachedOut[i] = isAttachedIn[i] + MTdirection;
-                    MTstepNumberOut[i] = 1;
-                }else{
-                    isAttachedOut[i] = isAttachedIn[i];
-                    positionsOut[i] = positionsIn[i];
-                    MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
-                }
                 
-                diffuseFlag = false;
+                isAttachedOut[i] = isAttachedIn[i];
+                positionsOut[i] = positionsIn[i];
+                MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
+                
             }
+            
         }
+        
     }else{
         
         float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
@@ -306,12 +311,13 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 isAttachedOut[i] = indexToPoints[MTindex + chosenMT];
                 diffuseFlag = false;
             }
+            
         }else{
             isAttachedOut[i] = isAttachedIn[i];
         }
     }
     
-    // If the particle should diffuse (is not attached to a MT), diffuse
+    // Mark: - Diffusion
     
     if (diffuseFlag){
         
@@ -324,7 +330,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(randNumber2*10000), int(positionsIn[i].z*10000)) - 1;
         float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].x*10000), int(randNumber3*10000)) - 1;
         
-        //Compute the diffusion movement factor
+        //Compute the diffusion movement factor (compiler should optimize this)
         float diffusivity = 1.59349*pow(float(10), float(6))/parameters.n_w;
         float deltatMT = parameters.deltat/parameters.stepsPerMTPoint; //REDUCED DELTA T
         float msqdistance = sqrt(6*diffusivity*deltatMT);
@@ -348,6 +354,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         updatedTimeLastJump[i] = newTime[i];
     }
     
+    // MARK: - Reinjection
     //Check if new point is outside specified boundary conditions
     
     int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius);
@@ -419,10 +426,7 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                                  
     //Move each particle in the cell sequentially
     for (int j=0; j < particlesPerCell; j++){
-        
-        //positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i]; //DELETE
-        //isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i]; //DELETE
-        
+                
         int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
                                  positionsIn[j + particlesPerCell*i].y,
                                  positionsIn[j + particlesPerCell*i].z,
