@@ -11,6 +11,15 @@ import simd
 import SceneKit
 import UIKit
 
+func setBenchmarkLabel(benchmarkLabel: UILabel, startTime: Date, steps: Int) {
+    
+    let elapsedTime = -Double(startTime.timeIntervalSinceNow)
+    
+    DispatchQueue.main.async {
+        benchmarkLabel.text = String(round(Double(steps)/elapsedTime)) + " steps/second"
+    }
+}
+
 func formatRemainingTime(startTime: Date, progress: Float) -> String {
     /**
      Obtain a formatted String with the remaining time from a computationally expensive operation.

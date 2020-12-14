@@ -18,6 +18,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     //MARK: - Class Properties
     
     var stepCounter: Int = 0
+    var startTime: Date = Date()
     var slowMode: Bool = true
     var waitingMode: Bool = false
     var resetArrivalTimesRequired = false
@@ -78,11 +79,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                             metalUpdater()
                     }
                 }
+                setBenchmarkLabel(benchmarkLabel: benchmarkLabel, startTime: startTime, steps: stepCounter)
             }
         }
     }
     
-    // UI outlets and variables
+    // MARK: - UI elements
     
     @IBOutlet weak var scnContainer: UIView!
     @IBOutlet var scnView: SCNView!
@@ -97,9 +99,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     @IBOutlet var alertView: UIView!
     @IBOutlet var alertLabel: UILabel!
+    @IBOutlet weak var benchmarkLabel: UILabel!
     @IBOutlet var freezeButton: UIButton!
     @IBOutlet var FrozenView: UIView!
     @IBAction func freeze(_ sender: Any) {
+        // Reset benchmarking
+        stepCounter = 0
+        startTime = NSDate.now
+        // Play or pause
         if scene.isPaused == true{
             scene.isPaused = false
             freezeButton.setImage(UIImage(systemName: "snow"), for: .normal)
@@ -123,6 +130,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var pauseOnNextLoop = false
     @IBOutlet var pauseButton: UIButton!
     @IBAction func playPause(_ sender: Any) {
+        // Reset benchmarking
+        stepCounter = 0
+        startTime = NSDate.now
+        // Play or pause
         if pauseButton.currentImage == UIImage.init(systemName: "pause.fill"){
             pauseOnNextLoop = true
             pauseButton.setImage(UIImage.init(systemName: "play.fill"), for: .normal)
@@ -180,7 +191,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         case secondChildTab = 1
     }
     
-    // Metal variables
+    // MARK: - Metal variables
     
     var device: MTLDevice!
     fileprivate var queue: MTLCommandQueue?
@@ -474,6 +485,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.alertView.backgroundColor = UIColor.clear
         }
         scnView.delegate = self
+        
+        // Set simulation start time
+        startTime = NSDate.now
         
         // Start simulation loop
         DispatchQueue.global(qos: .background).async {

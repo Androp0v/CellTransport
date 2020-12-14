@@ -134,13 +134,21 @@
                                             <constraint firstItem="kr2-8L-gKo" firstAttribute="top" secondItem="j0w-cZ-pgg" secondAttribute="top" constant="13" id="zrn-fb-cxM"/>
                                         </constraints>
                                     </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0 steps/second" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wCo-Tf-fj6">
+                                        <rect key="frame" x="24" y="986" width="101.5" height="14"/>
+                                        <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="12"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="XiD-5r-A3n" secondAttribute="trailing" id="1Xh-6P-AFv"/>
+                                    <constraint firstAttribute="bottom" secondItem="wCo-Tf-fj6" secondAttribute="bottom" constant="24" id="2nF-7O-irT"/>
                                     <constraint firstItem="pdv-XQ-5NM" firstAttribute="centerX" secondItem="y2h-Zf-dmp" secondAttribute="centerX" id="EFD-S7-xxk"/>
                                     <constraint firstItem="j0w-cZ-pgg" firstAttribute="centerX" secondItem="XiD-5r-A3n" secondAttribute="centerX" id="JQy-sy-FTa"/>
                                     <constraint firstItem="XiD-5r-A3n" firstAttribute="leading" secondItem="y2h-Zf-dmp" secondAttribute="leading" id="LDz-v8-hPy"/>
+                                    <constraint firstItem="wCo-Tf-fj6" firstAttribute="leading" secondItem="y2h-Zf-dmp" secondAttribute="leading" constant="24" id="TcM-Zq-tKc"/>
                                     <constraint firstItem="Pmh-kp-WYn" firstAttribute="width" secondItem="XiD-5r-A3n" secondAttribute="width" id="Tl2-9W-Y8z"/>
                                     <constraint firstItem="XiD-5r-A3n" firstAttribute="top" secondItem="y2h-Zf-dmp" secondAttribute="top" id="dAt-EI-TbH"/>
                                     <constraint firstItem="Pmh-kp-WYn" firstAttribute="centerX" secondItem="XiD-5r-A3n" secondAttribute="centerX" id="fXP-HK-51z"/>
@@ -210,6 +218,7 @@
                         <outlet property="FrozenView" destination="Pmh-kp-WYn" id="MkH-q1-JPS"/>
                         <outlet property="alertLabel" destination="kr2-8L-gKo" id="KiV-UF-Njs"/>
                         <outlet property="alertView" destination="j0w-cZ-pgg" id="4zw-RO-flc"/>
+                        <outlet property="benchmarkLabel" destination="wCo-Tf-fj6" id="vsG-R9-zL7"/>
                         <outlet property="buttonContainerView" destination="pdv-XQ-5NM" id="VBX-5M-hgW"/>
                         <outlet property="containerView" destination="Fbd-xZ-qai" id="p0A-hK-Uje"/>
                         <outlet property="freezeButton" destination="L8T-dy-2ou" id="uCJ-5B-8rb"/>
