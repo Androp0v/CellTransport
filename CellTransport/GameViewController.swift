@@ -274,11 +274,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     func initComputePipelineState(_ device: MTLDevice) {
         
-        let compute = (library.makeFunction(name: "compute"))!
-        let verifyCollisions = (library.makeFunction(name: "verifyCollisions"))!
+        // Create compute compiler constants
+        let computeFunctionCompileConstants = MTLFunctionConstantValues()
+        computeFunctionCompileConstants.setConstantValue(&parameters.stepsPerMTPoint, type: .int, index: 0)
         
+        // Compile functions using current constants
+        let compute = try! library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants)
+        let verifyCollisions = try! library.makeFunction(name: "verifyCollisions", constantValues: computeFunctionCompileConstants)
         
-            
+        // Set the pipeline states for both functions
         computePipelineState = try! device.makeComputePipelineState(function: compute)
         verifyCollisionsPipelineState = try! device.makeComputePipelineState(function: verifyCollisions)
         

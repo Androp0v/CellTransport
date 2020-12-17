@@ -21,23 +21,25 @@ constant int OUTSIDE_AND_COUNT_TIME = 0;
 constant int INSIDE = 1;
 constant int OUTSIDE_AND_NOT_COUNT_TIME = 2;
 
+constant int32_t stepsPerMTPoint [[ function_constant(0) ]];
+
 // MARK: - Input parameters struct
 
 struct simulation_parameters {
-    float deltat;
-    float cellRadius;
-    int32_t cellsPerDimension;
-    int32_t nBodies;
-    int32_t nCells;
+    float deltat; //TODO: Declare as constant
+    float cellRadius; //TODO: Declare as constant
+    int32_t cellsPerDimension; //TODO: Declare as constant
+    int32_t nBodies; //TODO: Declare as constant
+    int32_t nCells; //TODO: Declare as constant
     float wON;
     float wOFF;
     float n_w;
     int32_t boundaryConditions;
-    int32_t molecularMotors;
-    int32_t stepsPerMTPoint;
-    bool nucleusEnabled;
-    float nucleusRadius;
-    simd_float3 nucleusLocation;
+    int32_t molecularMotors; //TODO: Declare as constant
+    int32_t stepsPerMTPoint; //DELETE: now declared constant
+    bool nucleusEnabled; //TODO: Declare as constant
+    float nucleusRadius; //TODO: Declare as constant
+    simd_float3 nucleusLocation; //TODO: Declare as constant
 };
 
 // MARK: - Helper functions
@@ -220,7 +222,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + parameters.deltat/parameters.stepsPerMTPoint;
+    newTime[i] = oldTime[i] + parameters.deltat / stepsPerMTPoint;
     
     int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
     
@@ -239,7 +241,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     if (isAttachedIn[i] != -1){
         
         // Probability that the particle detaches
-        bool willDetach = (randNumber < parameters.wOFF*parameters.deltat/parameters.stepsPerMTPoint);
+        bool willDetach = (randNumber < parameters.wOFF*parameters.deltat / stepsPerMTPoint);
         
         // Check that the particle hasn't reached the end of the MT
         bool isAtMTLastPoint = abs(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius) &&
@@ -258,7 +260,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
             diffuseFlag = false;
 
             // Check if the particle should advance to the next MTPoint
-            if (MTstepNumberIn[i] >= parameters.stepsPerMTPoint){
+            if (MTstepNumberIn[i] >= stepsPerMTPoint){
                 
                 int MTdirection;
                 
@@ -296,7 +298,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
         
         //Probability that the particle attaches
-        if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat/parameters.stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
+        if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat / stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
             
             //Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){
@@ -332,7 +334,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         
         //Compute the diffusion movement factor (compiler should optimize this)
         float diffusivity = 1.59349*pow(float(10), float(6))/parameters.n_w;
-        float deltatMT = parameters.deltat/parameters.stepsPerMTPoint; //REDUCED DELTA T
+        float deltatMT = parameters.deltat / stepsPerMTPoint; //REDUCED DELTA T
         float msqdistance = sqrt(6*diffusivity*deltatMT);
         float factor = msqdistance/0.8660254038;
         
