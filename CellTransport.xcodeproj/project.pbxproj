@@ -88,10 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				C406BBB723F6F57F0013A79B /* Histogram.swift */,
-				C403DB4223F6B394008368CB /* LineChart1View.swift */,
-				C404E1AF24EAF6AE00FD5489 /* LineChart2View.swift */,
-				C404E1B124EAF73C00FD5489 /* LineChart3View.swift */,
-				C40F01C924EB045500C9360B /* LineChart4View.swift */,
+				C475A4F725E0796800FAD923 /* LineCharts */,
 			);
 			path = Histograms;
 			sourceTree = "<group>";
@@ -114,6 +111,17 @@
 				C42A043F256D95A200329664 /* ComputeViewController.swift */,
 			);
 			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		C475A4F725E0796800FAD923 /* LineCharts */ = {
+			isa = PBXGroup;
+			children = (
+				C403DB4223F6B394008368CB /* LineChart1View.swift */,
+				C404E1AF24EAF6AE00FD5489 /* LineChart2View.swift */,
+				C404E1B124EAF73C00FD5489 /* LineChart3View.swift */,
+				C40F01C924EB045500C9360B /* LineChart4View.swift */,
+			);
+			path = LineCharts;
 			sourceTree = "<group>";
 		};
 		C4BD593823EA22E1000B871B = {

@@ -780,7 +780,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         segmentedControl.selectedSegmentIndex = TabIndex.firstChildTab.rawValue
         displayCurrentTab(TabIndex.firstChildTab.rawValue)
         
-        // finish VC UIs
+        // Finish VC UIs
         
         self.firstChildTabVC?.changenCellsText(text: String(Parameters.nCells))
         self.firstChildTabVC?.changeParticlesPerCellText(text: String(Parameters.nbodies/Parameters.nCells))
