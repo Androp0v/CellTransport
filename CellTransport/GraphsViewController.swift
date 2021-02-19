@@ -25,9 +25,9 @@ class GraphsViewController: UIViewController {
     
     @IBOutlet var switchAutoMerge: UISwitch!
     @IBAction func switchAutoMergeChanged(_ sender: Any) {
-        if switchAutoMerge.isOn{
+        if switchAutoMerge.isOn {
             autoMerge = true
-        }else{
+        } else {
             autoMerge = false
         }
     }
@@ -38,33 +38,33 @@ class GraphsViewController: UIViewController {
         histogramChart3?.clearHistogram()
     }
     
-    func getHistogramData(number: Float) -> [[Float]]?{
-        if number == 1{
+    func getHistogramData(number: Float) -> [[Float]]? {
+        if number == 1 {
             return histogramChart1?.getHistogramData()
-        }else if number == 2{
+        } else if number == 2 {
             return histogramChart2?.getHistogramData()
-        }else if number == 3{
+        } else if number == 3 {
             return histogramChart3?.getHistogramData()
-        }else if number == 4{
+        } else if number == 4 {
             return histogramChart4?.getHistogramData()
-        }else{
+        } else {
             return nil
         }
     }
     
-    func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, attachState: UnsafeMutablePointer<Int32>){
+    func setHistogramData1(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, attachState: UnsafeMutablePointer<Int32>) {
         histogramChart1?.drawChart(cellRadius: cellRadius, distances: distances, nBodies: nBodies, attachState: attachState, autoMerge: autoMerge)
     }
     
-    func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int){
+    func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int) {
         histogramChart2?.drawChart(times: distances, nBodies: nBodies, autoMerge: false)
     }
     
-    func setHistogramData3(cellRadius: Float, points: [SCNVector3]){
+    func setHistogramData3(cellRadius: Float, points: [SCNVector3]) {
         histogramChart3?.drawChart(cellRadius: cellRadius, points: points, autoMerge: false)
     }
     
-    func setHistogramData4(cellRadius: Float, counts: [Int]){
+    func setHistogramData4(cellRadius: Float, counts: [Int]) {
         histogramChart4?.drawChart(cellRadius: cellRadius, counts: counts, autoMerge: false)
     }
     

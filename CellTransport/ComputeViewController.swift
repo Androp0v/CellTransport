@@ -57,7 +57,7 @@ class ComputeViewController: UIViewController {
                 }
                 var usableDistances: [Double] = []
                 for i in 0..<usablePoints.count {
-                    usableDistances.append(Double(i) * Double(Float(parameters.maxNSegments) * parameters.microtubuleSegmentLength) / Double(bins))
+                    usableDistances.append(Double(i) * Double(Float(Parameters.maxNSegments) * Parameters.microtubuleSegmentLength) / Double(bins))
                 }
                 
                 DispatchQueue.main.async {
@@ -75,7 +75,6 @@ class ComputeViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-
     /*
     // MARK: - Navigation
 

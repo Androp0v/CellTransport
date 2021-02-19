@@ -10,44 +10,45 @@ import Foundation
 import SceneKit
 import GameplayKit
 
-func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = true, modulator: Float = 0.000001, allowTexture: Bool = false) -> SCNGeometry{
-    
+// swiftlint:disable cyclomatic_complexity
+func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = true, modulator: Float = 0.000001, allowTexture: Bool = false) -> SCNGeometry {
+
     let t: Float = (1.0 + sqrt(5.0)) / 2.0
     
-    var vertices: [simd_float3:  UInt32] = [
-        simd_float3(-1,  t,  0): 0,
-        simd_float3( 1,  t,  0): 1,
-        simd_float3(-1, -t,  0): 2,
-        simd_float3( 1, -t,  0): 3,
+    var vertices: [simd_float3: UInt32] = [
+        simd_float3(-1, t, 0): 0,
+        simd_float3( 1, t, 0): 1,
+        simd_float3(-1, -t, 0): 2,
+        simd_float3( 1, -t, 0): 3,
 
-        simd_float3( 0, -1,  t): 4,
-        simd_float3( 0,  1,  t): 5,
+        simd_float3( 0, -1, t): 4,
+        simd_float3( 0, 1, t): 5,
         simd_float3( 0, -1, -t): 6,
-        simd_float3( 0,  1, -t): 7,
+        simd_float3( 0, 1, -t): 7,
 
-        simd_float3( t,  0, -1): 8,
-        simd_float3( t,  0,  1): 9,
-        simd_float3(-t,  0, -1): 10,
-        simd_float3(-t,  0,  1): 11
+        simd_float3( t, 0, -1): 8,
+        simd_float3( t, 0, 1): 9,
+        simd_float3(-t, 0, -1): 10,
+        simd_float3(-t, 0, 1): 11
     ]
     var verticesList: [simd_float3] = [
-        simd_float3(-1,  t,  0),
-        simd_float3( 1,  t,  0),
-        simd_float3(-1, -t,  0),
-        simd_float3( 1, -t,  0),
+        simd_float3(-1, t, 0),
+        simd_float3( 1, t, 0),
+        simd_float3(-1, -t, 0),
+        simd_float3( 1, -t, 0),
 
-        simd_float3( 0, -1,  t),
-        simd_float3( 0,  1,  t),
+        simd_float3( 0, -1, t),
+        simd_float3( 0, 1, t),
         simd_float3( 0, -1, -t),
-        simd_float3( 0,  1, -t),
+        simd_float3( 0, 1, -t),
 
-        simd_float3( t,  0, -1),
-        simd_float3( t,  0,  1),
-        simd_float3(-t,  0, -1),
-        simd_float3(-t,  0,  1)
+        simd_float3( t, 0, -1),
+        simd_float3( t, 0, 1),
+        simd_float3(-t, 0, -1),
+        simd_float3(-t, 0, 1)
     ]
     
-    var tempVertices: [simd_float3:  UInt32] = [simd_float3: UInt32]()
+    var tempVertices: [simd_float3: UInt32] = [simd_float3: UInt32]()
     for (vertex, index) in vertices {
         let newVertex = normalize(simd_float3(vertex))
         tempVertices[newVertex] = index
@@ -84,23 +85,23 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
         9, 8, 1
     ]
     
-    //Initialize noise
+    // Initialize noise
     
     let noise = GKNoise.init(GKPerlinNoiseSource())
-    var vertexNoise: [simd_float3:  Float] = [simd_float3: Float]()
+    var vertexNoise: [simd_float3: Float] = [simd_float3: Float]()
     
-    //Temp arrays and dictionaries
-    var newVertices: [simd_float3:  UInt32] = [simd_float3: UInt32]()
+    // Temp arrays and dictionaries
+    var newVertices: [simd_float3: UInt32] = [simd_float3: UInt32]()
     var newVerticesList: [simd_float3] = [simd_float3]()
     var newIndices: [UInt32] = [UInt32]()
             
-    //Recursive loop
-    for currentRecursionLevel in 0..<recursionLevel{
+    // Recursive loop
+    for currentRecursionLevel in 0..<recursionLevel {
         newVertices = [simd_float3: UInt32]()
         newVerticesList = [simd_float3]()
         newIndices = [UInt32]()
                     
-        for j in stride(from: 0, to: indices.count, by: 3){
+        for j in stride(from: 0, to: indices.count, by: 3) {
             let v0 = verticesList[Int(indices[j])]
             let v1 = verticesList[Int(indices[j+1])]
             let v2 = verticesList[Int(indices[j+2])]
@@ -116,51 +117,51 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
             var v4index: UInt32
             var v5index: UInt32
             
-            //Add vertices to list and cache (dictionary)
+            // Add vertices to list and cache (dictionary)
             
-            if newVertices[v0] != nil{
+            if newVertices[v0] != nil {
                 v0index = newVertices[v0]!
-            }else{
+            } else {
                 newVerticesList.append(v0)
                 v0index = UInt32(newVerticesList.count - 1)
                 newVertices[v0] = v0index
             }
             
-            if newVertices[v1] != nil{
+            if newVertices[v1] != nil {
                 v1index = newVertices[v1]!
-            }else{
+            } else {
                 newVerticesList.append(v1)
                 v1index = UInt32(newVerticesList.count - 1)
                 newVertices[v1] = v1index
             }
             
-            if newVertices[v2] != nil{
+            if newVertices[v2] != nil {
                 v2index = newVertices[v2]!
-            }else{
+            } else {
                 newVerticesList.append(v2)
                 v2index = UInt32(newVerticesList.count - 1)
                 newVertices[v2] = v2index
             }
             
-            if newVertices[v3] != nil{
+            if newVertices[v3] != nil {
                 v3index = newVertices[v3]!
-            }else{
+            } else {
                 newVerticesList.append(v3)
                 v3index = UInt32(newVerticesList.count - 1)
                 newVertices[v3] = v3index
             }
             
-            if newVertices[v4] != nil{
+            if newVertices[v4] != nil {
                 v4index = newVertices[v4]!
-            }else{
+            } else {
                 newVerticesList.append(v4)
                 v4index = UInt32(newVerticesList.count - 1)
                 newVertices[v4] = v4index
             }
             
-            if newVertices[v5] != nil{
+            if newVertices[v5] != nil {
                 v5index = newVertices[v5]!
-            }else{
+            } else {
                 newVerticesList.append(v5)
                 v5index = UInt32(newVerticesList.count - 1)
                 newVertices[v5] = v5index
@@ -182,38 +183,38 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
             newIndices.append(v4index)
             newIndices.append(v5index)
             
-            if currentRecursionLevel > 2{
-                if newVertices[v3] != nil{
+            if currentRecursionLevel > 2 {
+                if newVertices[v3] != nil {
                     vertexNoise[v3] = (vertexNoise[v0]! + vertexNoise[v1]!)/2
                 }
                 
-                if newVertices[v4] != nil{
+                if newVertices[v4] != nil {
                     vertexNoise[v4] = (vertexNoise[v1]! + vertexNoise[v2]!)/2
                 }
                 
-                if newVertices[v5] != nil{
+                if newVertices[v5] != nil {
                     vertexNoise[v5] = (vertexNoise[v0]! + vertexNoise[v2]!)/2
                 }
             }
             
         }
         
-        if currentRecursionLevel == 2{
+        if currentRecursionLevel == 2 {
             
             var semifinalVertices: [SCNVector3] = [SCNVector3]()
             for i in 0..<newVerticesList.count {
                 semifinalVertices.append(SCNVector3(radius*newVerticesList[i].x, radius*newVerticesList[i].y, radius*newVerticesList[i].z))
             }
             
-            for i in 0..<semifinalVertices.count{
+            for i in 0..<semifinalVertices.count {
                                     
-                noise.move(by: vector_double3(0,0,Double(semifinalVertices[i].z)))
+                noise.move(by: vector_double3(0, 0, Double(semifinalVertices[i].z)))
                 
                 let rDirection = normalize(simd_float3(semifinalVertices[i]))
                 let xPosition = semifinalVertices[i].x
                 let yPosition = semifinalVertices[i].y
                             
-                let noiseValue = noise.value(atPosition: vector_float2(xPosition,yPosition))
+                let noiseValue = noise.value(atPosition: vector_float2(xPosition, yPosition))
                                     
                 vertexNoise[newVerticesList[i]] = noiseValue*modulator
                 
@@ -221,7 +222,7 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
                 semifinalVertices[i].y += rDirection.y * noiseValue * modulator
                 semifinalVertices[i].z += rDirection.z * noiseValue * modulator
                 
-                //noise.move(by: vector_double3(0,0,Double(-semifinalVertices[i].z)))
+                // noise.move(by: vector_double3(0,0,Double(-semifinalVertices[i].z)))
                 
             }
             
@@ -233,7 +234,7 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
         
     }
     
-    //Smoothen noise
+    // Smoothen noise
     /*if smooth {
         for j in stride(from: 0, to: indices.count, by: 3){
             let v0 = verticesList[Int(indices[j])]
@@ -246,8 +247,8 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
         }
     }*/
     
-    //Add noise
-    for i in 0..<newVerticesList.count{
+    // Add noise
+    for i in 0..<newVerticesList.count {
         let noiseValue = vertexNoise[newVerticesList[i]]
         let rDirection = normalize(newVerticesList[i])
                 
@@ -256,7 +257,7 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
         newVerticesList[i].z += rDirection.z * (noiseValue ?? 0.0) * radius
     }
     
-    //Smoothen noise
+    // Smoothen noise
     /*if smooth {
         // Do 3 passes
         for _ in 0...3{
@@ -273,32 +274,32 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
         }
     }*/
     
-    //Convert to SCNVector3
+    // Convert to SCNVector3
     var finalVertices: [SCNVector3] = [SCNVector3]()
     for i in 0..<newVerticesList.count {
         finalVertices.append(SCNVector3(radius*newVerticesList[i].x, radius*newVerticesList[i].y, radius*newVerticesList[i].z))
     }
                     
-    //Uniform noise
+    // Uniform noise
     for i in 0..<finalVertices.count {
         finalVertices[i].x += radius*Float.random(in: -1..<1)*0.0025
         finalVertices[i].y += radius*Float.random(in: -1..<1)*0.0025
         finalVertices[i].z += radius*Float.random(in: -1..<1)*0.0025
     }
     
-    //Make SceneKit things
+    // Make SceneKit things
     let source = SCNGeometrySource(vertices: finalVertices)
     let element = SCNGeometryElement(indices: newIndices, primitiveType: .triangles)
     var geometry = SCNGeometry()
     
     // Create UV mapping to allow textures
     if allowTexture {
-        var uvList:[vector_float2] = []
+        var uvList: [vector_float2] = []
         for i in 0..<finalVertices.count {
             let radialVector = normalize(simd_float3(finalVertices[i]))
             let u = 0.5 + atan2(radialVector.x, radialVector.z)/(2*Float.pi)
             let v = 0.5 + asin(radialVector.y)/Float.pi
-            uvList.append(vector_float2(u,v))
+            uvList.append(vector_float2(u, v))
         }
         let uvData = NSData(bytes: uvList, length: uvList.count * MemoryLayout<vector_float2>.stride)
         let uvSource = SCNGeometrySource(data: uvData as Data,
@@ -309,7 +310,7 @@ func SCNIcosphere(radius: Float, recursionLevel: Int = 7, translucid: Bool = tru
                                          bytesPerComponent: MemoryLayout<Float>.size,
                                          dataOffset: 0,
                                          dataStride: MemoryLayout<vector_float2>.stride)
-        geometry = SCNGeometry(sources: [source,uvSource], elements: [element])
+        geometry = SCNGeometry(sources: [source, uvSource], elements: [element])
     } else {
         geometry = SCNGeometry(sources: [source], elements: [element])
     }

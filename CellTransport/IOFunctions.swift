@@ -24,7 +24,7 @@ func exportHistogramToFile(histogram: [[Float]], folderURL: URL, filename: Strin
     var histogramString = String()
     
     // Check that the histogram array is not empty
-    if histogram.count > 0 {
+    if histogram.isEmpty {
         // Loop over all positions and digits
         for i in 0..<histogram[0].count {
             for (column, columnData) in histogram.enumerated() {
@@ -40,7 +40,7 @@ func exportHistogramToFile(histogram: [[Float]], folderURL: URL, filename: Strin
     }
     
     // Write to file (atomically!)
-    do{
+    do {
         try histogramString.write(to: exportURL, atomically: true, encoding: .utf8)
     } catch let IOError {
         print(IOError)
@@ -50,9 +50,9 @@ func exportHistogramToFile(histogram: [[Float]], folderURL: URL, filename: Strin
 
 func getMolecularMotorName(molecularMotors: Int32) -> String {
     switch molecularMotors {
-    case parameters.KINESIN_ONLY:
+    case Parameters.KINESIN_ONLY:
         return "KINESIN_ONLY"
-    case parameters.KINESIN_ONLY:
+    case Parameters.KINESIN_ONLY:
         return "DYNEIN_ONLY"
     default:
         return "DEFAULT_TO_KINESIN_ONLY"
@@ -61,11 +61,11 @@ func getMolecularMotorName(molecularMotors: Int32) -> String {
 
 func getBoundaryName(boundaryConditions: Int32) -> String {
     switch boundaryConditions {
-    case parameters.REINJECT_INSIDE:
+    case Parameters.REINJECT_INSIDE:
         return "REINJECT_INSIDE"
-    case parameters.REINJECT_OUTSIDE:
+    case Parameters.REINJECT_OUTSIDE:
         return "REINJECT_OUTSIDE"
-    case parameters.CONTAIN_INSIDE:
+    case Parameters.CONTAIN_INSIDE:
         return "CONTAIN_INSIDE"
     default:
         return "DEFAULT_TO_REINJECT_INSIDE"
@@ -82,31 +82,31 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     
     // Append fixed parameters
     parametersString += "FIXED PARAMETERS\n"
-    parametersString += "Number of biological cells: " + String(parameters.nCells) + "\n"
-    parametersString += "Particles per cell: " + String(parameters.nbodies/parameters.nCells) + "\n"
-    parametersString += "Microtubules per cell: " + String(parameters.nMicrotubules) + "\n"
-    parametersString += "Cell radius: " + String(parameters.cellRadius) + " nm\n"
-    parametersString += "Centrosome radius: " + String(parameters.centrosomeRadius) + " nm\n"
-    parametersString += "Microtubule speed: " + String(parameters.microtubuleSpeed) + " nm/s\n"
-    parametersString += "Microtubule segment length: " + String(parameters.microtubuleSegmentLength) + " nm\n"
-    parametersString += "Microtubule local angle: " + String(parameters.localAngle) + " radians\n"
-    parametersString += "Microtubule max local angle: " + String(parameters.maxLocalAngle) + " radians\n"
-    parametersString += "Microtubule max segments: " + String(parameters.maxNSegments) + "\n"
-    parametersString += "Nucleus enabled: " + String(parameters.nucleusEnabled) + "\n"
+    parametersString += "Number of biological cells: " + String(Parameters.nCells) + "\n"
+    parametersString += "Particles per cell: " + String(Parameters.nbodies/Parameters.nCells) + "\n"
+    parametersString += "Microtubules per cell: " + String(Parameters.nMicrotubules) + "\n"
+    parametersString += "Cell radius: " + String(Parameters.cellRadius) + " nm\n"
+    parametersString += "Centrosome radius: " + String(Parameters.centrosomeRadius) + " nm\n"
+    parametersString += "Microtubule speed: " + String(Parameters.microtubuleSpeed) + " nm/s\n"
+    parametersString += "Microtubule segment length: " + String(Parameters.microtubuleSegmentLength) + " nm\n"
+    parametersString += "Microtubule local angle: " + String(Parameters.localAngle) + " radians\n"
+    parametersString += "Microtubule max local angle: " + String(Parameters.maxLocalAngle) + " radians\n"
+    parametersString += "Microtubule max segments: " + String(Parameters.maxNSegments) + "\n"
+    parametersString += "Nucleus enabled: " + String(Parameters.nucleusEnabled) + "\n"
     
     // Append variable parameters
     parametersString += "\nVARIABLE PARAMETERS\n"
-    parametersString += "Molecular motors: " + getMolecularMotorName(molecularMotors: parameters.molecularMotors) + "\n"
-    parametersString += "Boundary conditions: " + getBoundaryName(boundaryConditions: parameters.boundaryConditions) + "\n"
-    parametersString += "Collisions enabled: " + String(parameters.collisionsFlag) + "\n"
-    parametersString += "Attachment probability: " + String(parameters.wON) + " nm^3*s^-1\n"
-    parametersString += "Detachment probability: " + String(parameters.wOFF) + " s^-1\n"
-    parametersString += "Timestep: " + String(parameters.deltat / Float(parameters.stepsPerMTPoint)) + " s\n"
-    parametersString += "Cells per dimension: " + String(parameters.cellsPerDimension)
-    parametersString += "Cytoplasm viscosity: " + String(parameters.n_w) + " (water viscosity units)"
+    parametersString += "Molecular motors: " + getMolecularMotorName(molecularMotors: Parameters.molecularMotors) + "\n"
+    parametersString += "Boundary conditions: " + getBoundaryName(boundaryConditions: Parameters.boundaryConditions) + "\n"
+    parametersString += "Collisions enabled: " + String(Parameters.collisionsFlag) + "\n"
+    parametersString += "Attachment probability: " + String(Parameters.wON) + " nm^3*s^-1\n"
+    parametersString += "Detachment probability: " + String(Parameters.wOFF) + " s^-1\n"
+    parametersString += "Timestep: " + String(Parameters.deltat / Float(Parameters.stepsPerMTPoint)) + " s\n"
+    parametersString += "Cells per dimension: " + String(Parameters.cellsPerDimension)
+    parametersString += "Cytoplasm viscosity: " + String(Parameters.n_w) + " (water viscosity units)"
     
     // Write to file (atomically!)
-    do{
+    do {
         try parametersString.write(to: exportURL, atomically: true, encoding: .utf8)
     } catch let IOError {
         print(IOError)

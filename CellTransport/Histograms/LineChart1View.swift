@@ -11,7 +11,7 @@ import UIKit
 import simd
 import SceneKit
 
-class LineChart1: UIView{
+class LineChart1: UIView {
        
     private let gradientLayer: CAGradientLayer = CAGradientLayer()
     private let gridLayer: CALayer = CALayer()
@@ -29,18 +29,18 @@ class LineChart1: UIView{
     public var returnableArray: [Float] = []
     public var returnableArrayMTAttached: [Float] = []
     
-    func getHistogramData() -> [[Float]]{
+    func getHistogramData() -> [[Float]] {
         return [returnableArray, returnableArrayMTAttached]
     }
         
-    func clearHistogram(){
+    func clearHistogram() {
         histogramArray = [Float](repeating: 0.0, count: bins)
         histogramArrayMTAttached = [Float](repeating: 0.0, count: bins)
     }
     
     func drawChart(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, attachState: UnsafeMutablePointer<Int32>, autoMerge: Bool) {
                     
-        if !autoMerge{
+        if !autoMerge {
             clearHistogram()
         }
         
@@ -50,9 +50,14 @@ class LineChart1: UIView{
             self.graphOrigin = self.bounds.origin
         }
         
-        let (path,pathMTAttached) = histogramPath(cellRadius: cellRadius, distances: distances, nBodies: nBodies, attachState: attachState, width: self.graphWidth, height: self.graphHeight, coordinateOrigin: self.graphOrigin)
-        
-        
+        let (path, pathMTAttached) = histogramPath(cellRadius: cellRadius, 
+                                                  distances: distances,
+                                                  nBodies: nBodies,
+                                                  attachState: attachState,
+                                                  width: self.graphWidth,
+                                                  height: self.graphHeight,
+                                                  coordinateOrigin: self.graphOrigin)
+
         DispatchQueue.main.sync {
             self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
             
@@ -73,12 +78,18 @@ class LineChart1: UIView{
         }
     }
     
-    func histogramPath(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, attachState: UnsafeMutablePointer<Int32>, width: CGFloat, height: CGFloat, coordinateOrigin: CGPoint) -> (UIBezierPath,UIBezierPath) {
+    func histogramPath(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int, attachState: UnsafeMutablePointer<Int32>, width: CGFloat, height: CGFloat, coordinateOrigin: CGPoint) -> (UIBezierPath, UIBezierPath) {
         
         let path = UIBezierPath()
         let pathMTAttached = UIBezierPath()
  
-        histogramWithAttachState(cellRadius: cellRadius, distances: distances, nDistances: nBodies, attachState: attachState, bins: bins, histogramArray: &histogramArray, histogramArrayMTAttached: &histogramArrayMTAttached)
+        histogramWithAttachState(cellRadius: cellRadius,
+                                 distances: distances,
+                                 nDistances: nBodies,
+                                 attachState: attachState,
+                                 bins: bins,
+                                 histogramArray: &histogramArray,
+                                 histogramArrayMTAttached: &histogramArrayMTAttached)
         
         let baseLineHeight: CGFloat = 8.0
         let topMargin: CGFloat = 8.0
@@ -89,21 +100,23 @@ class LineChart1: UIView{
         let binDrawHeightMTAttached: CGFloat = (height - topMargin - baseLineHeight)/totalHistogramMax
         
         var newPosition = CGPoint(x: coordinateOrigin.x, y: height - baseLineHeight - CGFloat(histogramArray[0])*binDrawHeight)
-        var newPositionMTAttached = CGPoint(x: coordinateOrigin.x, y: height - baseLineHeight - CGFloat(histogramArrayMTAttached[0])*binDrawHeightMTAttached)
+        var newPositionMTAttached = CGPoint(x: coordinateOrigin.x,
+                                            y: height - baseLineHeight - CGFloat(histogramArrayMTAttached[0])*binDrawHeightMTAttached)
         
         path.move(to: newPosition)
         pathMTAttached.move(to: newPositionMTAttached)
         
-        for i in 0..<(bins - 1){
+        for i in 0..<(bins - 1) {
             newPosition = CGPoint(x: newPosition.x + binDrawWidth, y: newPosition.y)
             path.addLine(to: newPosition)
             newPosition = CGPoint(x: newPosition.x, y: height - baseLineHeight - CGFloat(histogramArray[i + 1])*binDrawHeight)
             path.addLine(to: newPosition)
         }
-        for i in 0..<(bins - 1){
+        for i in 0..<(bins - 1) {
             newPositionMTAttached = CGPoint(x: newPositionMTAttached.x + binDrawWidth, y: newPositionMTAttached.y)
             pathMTAttached.addLine(to: newPositionMTAttached)
-            newPositionMTAttached = CGPoint(x: newPositionMTAttached.x, y: height - baseLineHeight - CGFloat(histogramArrayMTAttached[i + 1])*binDrawHeightMTAttached)
+            newPositionMTAttached = CGPoint(x: newPositionMTAttached.x,
+                                            y: height - baseLineHeight - CGFloat(histogramArrayMTAttached[i + 1])*binDrawHeightMTAttached)
             pathMTAttached.addLine(to: newPositionMTAttached)
         }
         
@@ -113,7 +126,7 @@ class LineChart1: UIView{
         newPositionMTAttached = CGPoint(x: newPositionMTAttached.x + binDrawWidth, y: newPositionMTAttached.y)
         pathMTAttached.addLine(to: newPositionMTAttached)
                 
-        return (path,pathMTAttached)
+        return (path, pathMTAttached)
     }
 
 }

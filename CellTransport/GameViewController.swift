@@ -15,7 +15,7 @@ import MobileCoreServices
 
 class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
-    //MARK: - Class Properties
+    // MARK: - Class Properties
     
     var stepCounter: Int = 0
     var startTime: Date = Date()
@@ -29,10 +29,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var microtubulePointsArray: [simd_float3] = []
         
     // CellID to MT dictionaries and arrays
-    var cellIDDict: Dictionary<Int, [Int]> = [:]
-    var cellIDtoIndex: [Int32] = [] //Array to translate cellID to MT index
-    var cellIDtoNMTs: [Int16] = [] //Array to translate cellID to number of MTs in that specific cell
-    var indexToPoint: [Int32] = [] //Array to translate MT index to MT point position (x,y,z)
+    var cellIDDict: [Int: [Int]] = [Int: [Int]]()
+    var cellIDtoIndex: [Int32] = [] // Array to translate cellID to MT index
+    var cellIDtoNMTs: [Int16] = [] // Array to translate cellID to number of MTs in that specific cell
+    var indexToPoint: [Int32] = [] // Array to translate MT index to MT point position (x,y,z)
     
     // GDC Queues and control variables
     let queueRandomSeed = DispatchQueue(label: "Random seeding", qos: .default, attributes: .concurrent)
@@ -66,7 +66,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                         let elapsedTime = (CACurrentMediaTime() - startTime)
                         
                         // Wait for the remaining time
-                        if elapsedTime < 1.0/120.0{
+                        if elapsedTime < 1.0/120.0 {
                             let remainingTime = abs(1.0/120.0 - elapsedTime)
                             DispatchQueue.main.asyncAfter(deadline: .now() + remainingTime) {
                                 self.waitingMode = false
@@ -74,7 +74,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                             self.waitingMode = true
                         }
                     }
-                } else{
+                } else {
                     DispatchQueue.global(qos: .background).sync {
                             metalUpdater()
                     }
@@ -107,7 +107,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         stepCounter = 0
         startTime = NSDate.now
         // Play or pause
-        if scene.isPaused == true{
+        if scene.isPaused == true {
             scene.isPaused = false
             freezeButton.setImage(UIImage(systemName: "snow"), for: .normal)
             FrozenView.alpha = 0.0
@@ -115,7 +115,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 self.alertLabel.text = ""
                 self.alertView.backgroundColor = UIColor.clear
             }
-        }else{
+        } else {
             scene.isPaused = true
             freezeButton.setImage(UIImage(named: "Defrost"), for: .normal)
             FrozenView.alpha = 1.0
@@ -134,10 +134,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         stepCounter = 0
         startTime = NSDate.now
         // Play or pause
-        if pauseButton.currentImage == UIImage.init(systemName: "pause.fill"){
+        if pauseButton.currentImage == UIImage.init(systemName: "pause.fill") {
             pauseOnNextLoop = true
             pauseButton.setImage(UIImage.init(systemName: "play.fill"), for: .normal)
-        }else{
+        } else {
             pauseOnNextLoop = false
             pauseButton.setImage(UIImage.init(systemName: "pause.fill"), for: .normal)
             if truePause {
@@ -152,16 +152,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     // Enable/disable slow mode
     @IBOutlet weak var slowModeButton: UIButton!
     @IBAction func slowModeToggle(_ sender: Any) {
-        if slowModeButton.currentImage == UIImage.init(systemName: "hare.fill"){
+        if slowModeButton.currentImage == UIImage.init(systemName: "hare.fill") {
             slowModeButton.setImage(UIImage.init(systemName: "tortoise.fill"), for: .normal)
             slowMode = false
-        }else{
+        } else {
             slowModeButton.setImage(UIImage.init(systemName: "hare.fill"), for: .normal)
             slowMode = true
         }
     }
-    
-    
+
     // Save to .txt code
     @IBAction func exportToFile(_ sender: Any) {
         // Create a document picker for directories.
@@ -174,7 +173,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        //Execute code after picking an export folder with exportToFile()
+        // Execute code after picking an export folder with exportToFile()
         exportParametersToFile(folderURL: urls[0], filename: "Parameters")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 1)) ?? [], folderURL: urls[0], filename: "Hist1")
         exportHistogramToFile(histogram: (secondChildTabVC?.getHistogramData(number: 2)) ?? [], folderURL: urls[0], filename: "Hist2")
@@ -186,7 +185,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     let rotationTime: TimeInterval = 40
     
-    enum TabIndex : Int {
+    enum TabIndex: Int {
         case firstChildTab = 0
         case secondChildTab = 1
     }
@@ -229,46 +228,46 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     var currentViewController: UIViewController?
     lazy var firstChildTabVC: ParametersViewController? = {
-        let firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as! ParametersViewController
-        firstChildTabVC.mainGameViewController = self
+        let firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
+        firstChildTabVC?.mainGameViewController = self
         return firstChildTabVC
     }()
-    lazy var secondChildTabVC : GraphsViewController? = {
+    lazy var secondChildTabVC: GraphsViewController? = {
         let secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController")
         
-        return (secondChildTabVC as! GraphsViewController)
+        return (secondChildTabVC as? GraphsViewController)
     }()
-    lazy var thirdChildTabVC : ComputeViewController? = {
+    lazy var thirdChildTabVC: ComputeViewController? = {
         let thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController")
         
-        return (thirdChildTabVC as! ComputeViewController)
+        return (thirdChildTabVC as? ComputeViewController)
     }()
     
     func viewControllerForSelectedSegmentIndex(_ index: Int) -> UIViewController? {
-        var vc: UIViewController?
+        var viewController: UIViewController?
         switch index {
         case 0:
-            vc = firstChildTabVC
+            viewController = firstChildTabVC
         case 1:
-            vc = secondChildTabVC
+            viewController = secondChildTabVC
         case 2:
-            vc = thirdChildTabVC
+            viewController = thirdChildTabVC
         default:
         return nil
         }
     
-        return vc
+        return viewController
     }
     
-    func displayCurrentTab(_ tabIndex: Int){
-        if let vc = viewControllerForSelectedSegmentIndex(tabIndex) {
+    func displayCurrentTab(_ tabIndex: Int) {
+        if let viewController = viewControllerForSelectedSegmentIndex(tabIndex) {
             
-            self.addChild(vc)
-            vc.didMove(toParent: self)
+            self.addChild(viewController)
+            viewController.didMove(toParent: self)
             
-            vc.view.frame = self.containerView.bounds
-            self.containerView.addSubview(vc.view)
-            self.currentViewController = vc
+            viewController.view.frame = self.containerView.bounds
+            self.containerView.addSubview(viewController.view)
+            self.currentViewController = viewController
         }
     }
     
@@ -276,81 +275,96 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Create compute compiler constants
         let computeFunctionCompileConstants = MTLFunctionConstantValues()
-        computeFunctionCompileConstants.setConstantValue(&parameters.stepsPerMTPoint, type: .int, index: 0)
+        computeFunctionCompileConstants.setConstantValue(&Parameters.stepsPerMTPoint, type: .int, index: 0)
         
         // Compile functions using current constants
-        let compute = try! library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants)
-        let verifyCollisions = try! library.makeFunction(name: "verifyCollisions", constantValues: computeFunctionCompileConstants)
-        
+        guard let compute = try? library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants) else {
+            NSLog("Failed to compile compute function")
+            let fatalAlert = FatalCrashAlertController(title: "Fatal error",
+                                                       message: "Failed to compile compute GPU function",
+                                                       preferredStyle: .alert)
+            self.present(fatalAlert, animated: true, completion: nil)
+            return
+        }
+        guard let verifyCollisions = try? library.makeFunction(name: "verifyCollisions", constantValues: computeFunctionCompileConstants) else {
+            NSLog("Failed to compile verifyCollisions function")
+            let fatalAlert = FatalCrashAlertController(title: "Fatal error",
+                                                       message: "Failed to compile collisions GPU function",
+                                                       preferredStyle: .alert)
+            self.present(fatalAlert, animated: true, completion: nil)
+
+            return
+        }
+
         // Set the pipeline states for both functions
-        computePipelineState = try! device.makeComputePipelineState(function: compute)
-        verifyCollisionsPipelineState = try! device.makeComputePipelineState(function: verifyCollisions)
+        computePipelineState = try? device.makeComputePipelineState(function: compute)
+        verifyCollisionsPipelineState = try? device.makeComputePipelineState(function: verifyCollisions)
         
     }
     
-    //MARK: - Initialization
+    // MARK: - Initialization
     
-    func initializeMetal(){
+    func initializeMetal() {
         device = MTLCreateSystemDefaultDevice()
         queue = device.makeCommandQueue()
         library = device.makeDefaultLibrary()
         initComputePipelineState(device)
         
-        //Create [Float] lists to populate buffers
+        // Create [Float] lists to populate buffers
         
-        let initializedTimeJump = [Float](repeating: 0.0, count: parameters.nbodies)
-        let initializedUpdatedTimeJump = [Float](repeating: 0.0, count: parameters.nbodies)
-        let initializedTimeBetweenJumps = [Float](repeating: -1.0, count: parameters.nbodies)
+        let initializedTimeJump = [Float](repeating: 0.0, count: Parameters.nbodies)
+        let initializedUpdatedTimeJump = [Float](repeating: 0.0, count: Parameters.nbodies)
+        let initializedTimeBetweenJumps = [Float](repeating: -1.0, count: Parameters.nbodies)
         
-        //Initialize buffers and populate those of them that need it
+        // Initialize buffers and populate those of them that need it
         
         distancesBuffer = device.makeBuffer(
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
         timeLastJumpBuffer = device.makeBuffer(
             bytes: initializedTimeJump,
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
         updatedTimeLastJumpBuffer = device.makeBuffer(
             bytes: initializedUpdatedTimeJump,
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
         timeBetweenJumpsBuffer = device.makeBuffer(
             bytes: initializedTimeBetweenJumps,
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
-        let oldTime = [Float](repeating: 0.0, count: parameters.nbodies)
+        let oldTime = [Float](repeating: 0.0, count: Parameters.nbodies)
         
         oldTimeBuffer = device.makeBuffer(
             bytes: oldTime,
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
         newTimeBuffer = device.makeBuffer(
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
         var randomSeeds: [Float] = []
-        while randomSeeds.count != parameters.nbodies{
+        while randomSeeds.count != Parameters.nbodies {
             let number = Float.random(in: 0 ..< 1)
             randomSeeds.append(number)
         }
         randomSeedsInBuffer = device.makeBuffer(
             bytes: randomSeeds,
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         randomSeedsOutBuffer = device.makeBuffer(
             bytes: randomSeeds,
-            length: parameters.nbodies * MemoryLayout<Float>.stride
+            length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
         
     }
     
-    func initializeMetalMTs(){
+    func initializeMetalMTs() {
 
         microtubulePointsBuffer = device.makeBuffer(
             bytes: microtubulePointsArray,
@@ -369,10 +383,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         indextoPointsBuffer = device.makeBuffer(
             bytes: indexToPoint,
-            length: max(1,indexToPoint.count) * MemoryLayout<Int32>.stride
+            length: max(1, indexToPoint.count) * MemoryLayout<Int32>.stride
         )
         
-        let isAttachedIn: [Int32] = [Int32](repeatElement(-1, count: parameters.nbodies))
+        let isAttachedIn: [Int32] = [Int32](repeatElement(-1, count: Parameters.nbodies))
         
         isAttachedInBuffer = device.makeBuffer(
             bytes: isAttachedIn,
@@ -384,15 +398,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             length: isAttachedIn.count * MemoryLayout<Int32>.stride
         )
         
-        let stepNumbers = [Int32](repeatElement(0, count: parameters.nbodies))
+        let stepNumbers = [Int32](repeatElement(0, count: Parameters.nbodies))
         
         MTstepNumberInBuffer = device.makeBuffer(
             bytes: stepNumbers,
-            length: parameters.nbodies * MemoryLayout<Int32>.stride
+            length: Parameters.nbodies * MemoryLayout<Int32>.stride
         )
         MTstepNumberOutBuffer = device.makeBuffer(
             bytes: stepNumbers,
-            length: parameters.nbodies * MemoryLayout<Int32>.stride
+            length: Parameters.nbodies * MemoryLayout<Int32>.stride
         )
         
         // Not strictly MT related, but useful to have  cellIDtoIndex.count available
@@ -406,7 +420,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
     }
     
-    func initializeSimulation(){
+    func initializeSimulation() {
         // Spawn the bounding box
         DispatchQueue.main.async {
             self.alertLabel.text = "Drawing bounding box"
@@ -425,7 +439,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.alertLabel.text = "Generating cellular nucleus"
         }
         var nucleus: SCNNode = SCNNode()
-        if parameters.nucleusEnabled {
+        if Parameters.nucleusEnabled {
             nucleus = spawnCellNucleus()
         }
         
@@ -439,11 +453,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         microtubuleNSegments = microtubuleNSegmentsReturned
         microtubulePointsArray = microtubulePointsArrayReturned
                 
-        for microtubulePoint in microtubulePoints{
-            microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x + microtubulePoint.y*microtubulePoint.y + microtubulePoint.z*microtubulePoint.z))
+        for microtubulePoint in microtubulePoints {
+            microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x
+                                                + microtubulePoint.y*microtubulePoint.y
+                                                + microtubulePoint.z*microtubulePoint.z))
         }
         
-        self.secondChildTabVC?.setHistogramData3(cellRadius: parameters.cellRadius, points: microtubulePoints)
+        self.secondChildTabVC?.setHistogramData3(cellRadius: Parameters.cellRadius, points: microtubulePoints)
         
         // Spawn points
         DispatchQueue.main.async {
@@ -451,39 +467,42 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
         var pointsNodeList: [SCNNode] = []
         
-        let meshData = MetalMeshDeformable.initializePoints(device, nbodies: parameters.nbodies, nBodiesPerCell: parameters.nbodies/parameters.nCells, cellRadius: parameters.cellRadius)
+        let meshData = MetalMeshDeformable.initializePoints(device,
+                                                            nbodies: Parameters.nbodies,
+                                                            nBodiesPerCell: Parameters.nbodies/Parameters.nCells,
+                                                            cellRadius: Parameters.cellRadius)
         positionsIn = meshData.vertexBuffer1
         positionsOut = meshData.vertexBuffer2
         
         let pointsNode = SCNNode(geometry: meshData.geometry)
         pointsNode.geometry?.firstMaterial?.diffuse.contents = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-        pointsNode.geometry?.firstMaterial?.transparency = 1.0 //0.7
+        pointsNode.geometry?.firstMaterial?.transparency = 1.0 // 0.7
         pointsNode.geometry?.firstMaterial?.lightingModel = .constant
         pointsNode.geometry?.firstMaterial?.writesToDepthBuffer = false
         pointsNode.geometry?.firstMaterial?.readsFromDepthBuffer = true
-        //pointsNode.geometry?.firstMaterial?.blendMode = SCNBlendMode.add
+        // pointsNode.geometry?.firstMaterial?.blendMode = SCNBlendMode.add
                     
         pointsNodeList.append(pointsNode)
         
         scene.rootNode.addChildNode(pointsNode)
         
-        // animate the 3d object
+        // Animate the 3d object
         boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
-        for membrane in membranes{
+        for membrane in membranes {
             membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
-        for pointsNode in pointsNodeList{
+        for pointsNode in pointsNodeList {
             pointsNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
-        for microtubule in microtubules{
+        for microtubule in microtubules {
             microtubule.geometry?.firstMaterial?.lightingModel = .constant
             microtubule.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
-        if parameters.nucleusEnabled{
+        if Parameters.nucleusEnabled {
             nucleus.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
         
-        //Set renderer delegate to start animation loop
+        // Set renderer delegate to start animation loop
         DispatchQueue.main.async {
             self.alertLabel.text = ""
             self.alertView.backgroundColor = UIColor.clear
@@ -499,13 +518,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
     }
     
-    //MARK: - Spawners
+    // MARK: - Spawners
     
-    func spawnBoundingBox() -> SCNNode{
+    func spawnBoundingBox() -> SCNNode {
         
-        var boundingBox:SCNGeometry
+        var boundingBox: SCNGeometry
 
-        boundingBox = SCNBox(width: CGFloat(2.0*parameters.cellRadius), height: CGFloat(2.0*parameters.cellRadius), length: CGFloat(2.0*parameters.cellRadius), chamferRadius: 0.0)
+        boundingBox = SCNBox(width: CGFloat(2.0*Parameters.cellRadius),
+                             height: CGFloat(2.0*Parameters.cellRadius), length: CGFloat(2.0*Parameters.cellRadius),
+                             chamferRadius: 0.0)
         boundingBox.firstMaterial?.fillMode = .lines
         boundingBox.firstMaterial?.isDoubleSided = true
         boundingBox.firstMaterial?.diffuse.contents = UIColor.white
@@ -517,15 +538,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         return boundingBoxNode
     }
     
-    func spawnAllMicrotubules() -> ([SCNNode],[SCNVector3],[Int],[simd_float3]){
+    func spawnAllMicrotubules() -> ([SCNNode], [SCNVector3], [Int], [simd_float3]) {
         
         // Track progress of cells with completed MTs
-        var completedMTsCount: Int = parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
+        var completedMTsCount: Int = Parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
         var progressFinishedUpdating = true
         let startTime = NSDate.now
         
-        func updateProgress(){
-            let fractionCompleted = Float(completedMTsCount)/Float(parameters.nMicrotubules*parameters.nCells)
+        func updateProgress() {
+            let fractionCompleted = Float(completedMTsCount)/Float(Parameters.nMicrotubules*Parameters.nCells)
             DispatchQueue.main.async {
                 self.alertLabel.text = "Generating microtubule structure of remaining cells: "
                                         + String(format: "%.2f", 100*fractionCompleted)
@@ -537,7 +558,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
         
         // Create all-cells arrays
-        var nodelist : [SCNNode] = []
+        var nodelist: [SCNNode] = []
         var microtubulePoints: [SCNVector3] = []
         var microtubuleNSegments: [Int] = []
         var separateMicrotubulePoints: [[simd_float3]] = []
@@ -545,7 +566,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var cellsPointsNumber: [Int] = []
         
         // Add initial separator
-        microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+        microtubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
                 
         // Generate MTs for the first cell
                     
@@ -555,22 +576,26 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         var cellPoints: Int = 0
         
-        for _ in 0..<parameters.nMicrotubules{
-            let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation)
+        for _ in 0..<Parameters.nMicrotubules {
+            let points = generateMicrotubule(cellRadius: Parameters.cellRadius,
+                                             centrosomeRadius: Parameters.centrosomeRadius,
+                                             centrosomeLocation: Parameters.centrosomeLocation,
+                                             nucleusRadius: Parameters.nucleusRadius,
+                                             nucleusLocation: Parameters.nucleusLocation)
             microtubuleNSegments.append(points.count)
             
-            for point in points{
+            for point in points {
                 microtubulePoints.append(point)
                 microtubulePointsArray.append(simd_float3(point))
             }
             
             // Introduce separators after each MT (situated at an impossible point)
-            microtubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+            microtubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
             
-            //Update the number of MT points in the cell (including separator, +1)
+            // Update the number of MT points in the cell (including separator, +1)
             cellPoints += points.count + 1
             
-            //UI configuration for the first cell (the only cell displayed on screen)
+            // UI configuration for the first cell (the only cell displayed on screen)
     
             let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
             let geometry = SCNGeometry.lineThrough(points: points,
@@ -581,16 +606,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             scene.rootNode.addChildNode(node)
             nodelist.append(node)
         }
-        //Update the length of each cell's MT points
+        // Update the length of each cell's MT points
         cellsPointsNumber.append(cellPoints)
-        
-        
+
         // Create a thread safe queue to write to all-cells arrays
         let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays")
         let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
         
         // Generate MTs for each cell concurrently (will use max available cores)
-        DispatchQueue.concurrentPerform(iterations: parameters.nCells - 1, execute: { index in
+        DispatchQueue.concurrentPerform(iterations: Parameters.nCells - 1, execute: { _ in
             
             var cellPoints: Int = 0
             
@@ -599,26 +623,30 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             var localMicrotubulePointsArray: [simd_float3] = []
             var localSeparateMicrotubulePointsArray: [[simd_float3]] = []
             
-            for _ in 0..<parameters.nMicrotubules{
+            for _ in 0..<Parameters.nMicrotubules {
                 var localMicrotubule: [simd_float3] = []
-                let points = generateMicrotubule(cellRadius: parameters.cellRadius, centrosomeRadius: parameters.centrosomeRadius, centrosomeLocation: parameters.centrosomeLocation, nucleusRadius: parameters.nucleusRadius, nucleusLocation: parameters.nucleusLocation)
+                let points = generateMicrotubule(cellRadius: Parameters.cellRadius,
+                                                 centrosomeRadius: Parameters.centrosomeRadius,
+                                                 centrosomeLocation: Parameters.centrosomeLocation,
+                                                 nucleusRadius: Parameters.nucleusRadius,
+                                                 nucleusLocation: Parameters.nucleusLocation)
                 
                 localMicrotubuleNSegments.append(points.count)
                 
-                for point in points{
+                for point in points {
                     localMicrotubule.append(simd_float3(point))
                     localMicrotubulePoints.append(point)
                     localMicrotubulePointsArray.append(simd_float3(point))
                 }
                 
                 // Introduce separators after each MT (situated at an impossible point)
-                localMicrotubulePointsArray.append(simd_float3(parameters.cellRadius,parameters.cellRadius,parameters.cellRadius))
+                localMicrotubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
                 
-                //Update the number of MT points in the cell (including separator, +1)
+                // Update the number of MT points in the cell (including separator, +1)
                 cellPoints += points.count + 1
                 
                 // Mark the microtubule as completed and show progress
-                progressUpdateQueue.async() {
+                progressUpdateQueue.async {
                     completedMTsCount += 1
                     if progressFinishedUpdating {
                         updateProgress()
@@ -629,7 +657,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             }
             
             // Update all-cells array with local ones safely
-            threadSafeQueueForArrays.sync() {
+            threadSafeQueueForArrays.sync {
                 
                 microtubulePoints.append(contentsOf: localMicrotubulePoints)
                 microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
@@ -648,24 +676,34 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
         }
         
-        //Add MTs to the CellID dictionary
+        // Add MTs to the CellID dictionary
         
-        addMTToCellIDDict(cellIDDict: &cellIDDict, points: microtubulePointsArray, cellNMTPoints: cellsPointsNumber, cellRadius: parameters.cellRadius, cellsPerDimension: parameters.cellsPerDimension)
+        addMTToCellIDDict(cellIDDict: &cellIDDict,
+                          points: microtubulePointsArray,
+                          cellNMTPoints: cellsPointsNumber,
+                          cellRadius: Parameters.cellRadius,
+                          cellsPerDimension: Parameters.cellsPerDimension)
         
-        //Convert MT dictionary to arrays
+        // Convert MT dictionary to arrays
         
-        cellIDDictToArrays(cellIDDict: cellIDDict, cellIDtoIndex: &cellIDtoIndex, cellIDtoNMTs: &cellIDtoNMTs, MTIndexArray: &indexToPoint, nCells: parameters.nCells, cellsPerDimension: parameters.cellsPerDimension, alertLabel: self.alertLabel)
+        cellIDDictToArrays(cellIDDict: cellIDDict,
+                           cellIDtoIndex: &cellIDtoIndex,
+                           cellIDtoNMTs: &cellIDtoNMTs,
+                           MTIndexArray: &indexToPoint,
+                           nCells: Parameters.nCells,
+                           cellsPerDimension: Parameters.cellsPerDimension,
+                           alertLabel: self.alertLabel)
                 
-        //Create MTLBuffers that require MT data
+        // Create MTLBuffers that require MT data
         initializeMetalMTs()
                 
-        return (nodelist,microtubulePoints,microtubuleNSegments,microtubulePointsArray)
+        return (nodelist, microtubulePoints, microtubuleNSegments, microtubulePointsArray)
     }
     
-    func spawnCellNucleus() -> SCNNode{
-        var nucleus:SCNGeometry
+    func spawnCellNucleus() -> SCNNode {
+        var nucleus: SCNGeometry
         // Generate nucleus as a perlin-noise biased icosphere. Low recursion level (vertex nuber) since texture will make it look good anyway
-        nucleus = SCNIcosphere(radius: parameters.nucleusRadius, recursionLevel: 4, translucid: false, modulator: 0.00001, allowTexture: true)
+        nucleus = SCNIcosphere(radius: Parameters.nucleusRadius, recursionLevel: 4, translucid: false, modulator: 0.00001, allowTexture: true)
         // Base color purple, not seen unless no image is found
         nucleus.firstMaterial?.diffuse.contents = UIColor.purple
         // Cellular nucleus texture
@@ -679,12 +717,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         scene.rootNode.addChildNode(nucleusAxis)
         
         nucleusAxis.position = SCNVector3(x: 0, y: 0, z: 0)
-        nucleusNode.position = parameters.nucleusLocation
+        nucleusNode.position = Parameters.nucleusLocation
         
         return nucleusAxis
     }
     
-    //MARK: - View lifecycle
+    // MARK: - View lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -692,47 +730,47 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Compute global variables
         computeDeltaT()
         
-        // initialize Metal for GPU calculations
+        // Initialize Metal for GPU calculations
         initializeMetal()
                 
-        // create and add a light to the scene
+        // Create and add a light to the scene
         let lightNode = SCNNode()
         lightNode.light = SCNLight()
         lightNode.light!.type = .omni
-        lightNode.position = SCNVector3(x: 0, y: 5*parameters.cellRadius, z: 5*parameters.cellRadius)
+        lightNode.position = SCNVector3(x: 0, y: 5*Parameters.cellRadius, z: 5*Parameters.cellRadius)
         scene.rootNode.addChildNode(lightNode)
         
-        // create and add a camera to the scene
+        // Create and add a camera to the scene
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         cameraNode.camera?.focalLength = 50.0
         cameraNode.camera?.zFar = 500000
         scene.rootNode.addChildNode(cameraNode)
         
-        // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 7*parameters.cellRadius)
+        // Place the camera
+        cameraNode.position = SCNVector3(x: 0, y: 0, z: 7*Parameters.cellRadius)
         
-        // create and add an ambient light to the scene
+        // Create and add an ambient light to the scene
         let ambientLightNode = SCNNode()
         ambientLightNode.light = SCNLight()
         ambientLightNode.light!.type = .ambient
         ambientLightNode.light!.color = UIColor.darkGray
         scene.rootNode.addChildNode(ambientLightNode)
         
-        // set the scene to the view
+        // Set the scene to the view
         scnView.scene = scene
         
-        // allows the user to manipulate the camera
+        // Allows the user to manipulate the camera
         scnView.allowsCameraControl = true
         
-        // show statistics such as fps and timing information
+        // Show statistics such as fps and timing information
         scnView.showsStatistics = true
         
-        // configure the view
+        // Configure the view
         scnView.backgroundColor = UIColor.black
         scnContainer.backgroundColor = UIColor.black
                 
-        // finish UI configuration
+        // Finish UI configuration
         
         let blurEffect = UIBlurEffect(style: .systemThickMaterial)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
@@ -740,7 +778,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         topBarBackground.addSubview(blurEffectView)
         
-        //nparticlesTextField.text = String(nbodies)
         buttonContainerView.layer.cornerRadius = 7.5
         alertView.layer.cornerRadius = 7.5
         alertView.backgroundColor = UIColor.clear
@@ -753,12 +790,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // finish VC UIs
         
-        self.firstChildTabVC?.changenCellsText(text: String(parameters.nCells))
-        self.firstChildTabVC?.changeParticlesPerCellText(text: String(parameters.nbodies/parameters.nCells))
-        self.firstChildTabVC?.changenBodiesText(text: String(parameters.nbodies))
-        self.firstChildTabVC?.changeMicrotubulesText(text: String(parameters.nMicrotubules))
+        self.firstChildTabVC?.changenCellsText(text: String(Parameters.nCells))
+        self.firstChildTabVC?.changeParticlesPerCellText(text: String(Parameters.nbodies/Parameters.nCells))
+        self.firstChildTabVC?.changenBodiesText(text: String(Parameters.nbodies))
+        self.firstChildTabVC?.changeMicrotubulesText(text: String(Parameters.nMicrotubules))
         
-        //Initialize the simulation
+        // Initialize the simulation
         DispatchQueue.global(qos: .default).async {
             self.initializeSimulation()
         }
@@ -780,52 +817,65 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
     }
     
-    //MARK: - Metal loop
+    // MARK: - Metal loop
     
-    //Define a struct of parameters to be passed to the kernel function in Metal
-    struct simulationParameters{
-        var deltat_to_metal: Float;
-        var cellRadius_to_metal: Float;
-        var cellsPerDimension_to_metal: Int32;
-        var nBodies_to_Metal: Int32;
-        var nCells_to_Metal: Int32;
-        var wON: Float;
-        var wOFF: Float;
-        var n_w: Float;
-        var boundaryConditions: Int32;
-        var molecularMotors: Int32;
-        var stepsPerMTPoint: Int32;
-        var nucleusEnabled: Bool;
-        var nucleusRadius: Float;
-        var nucleusLocation: simd_float3;
+    // Define a struct of parameters to be passed to the kernel function in Metal
+    struct SimulationParameters {
+        var deltat_to_metal: Float
+        var cellRadius_to_metal: Float
+        var cellsPerDimension_to_metal: Int32
+        var nBodies_to_Metal: Int32
+        var nCells_to_Metal: Int32
+        var wON: Float
+        var wOFF: Float
+        var n_w: Float
+        var boundaryConditions: Int32
+        var molecularMotors: Int32
+        var stepsPerMTPoint: Int32
+        var nucleusEnabled: Bool
+        var nucleusRadius: Float
+        var nucleusLocation: simd_float3
     }
     
     func metalUpdater() {
         
         // Create simulationParameters struct
         
-        var simulationParametersObject = simulationParameters(deltat_to_metal: parameters.deltat, cellRadius_to_metal: parameters.cellRadius, cellsPerDimension_to_metal: Int32(parameters.cellsPerDimension), nBodies_to_Metal: Int32(parameters.nbodies), nCells_to_Metal: Int32(parameters.nCells), wON: parameters.wON, wOFF: parameters.wOFF, n_w: parameters.n_w, boundaryConditions: parameters.boundaryConditions, molecularMotors: parameters.molecularMotors, stepsPerMTPoint: parameters.stepsPerMTPoint, nucleusEnabled: parameters.nucleusEnabled, nucleusRadius: parameters.nucleusRadius, nucleusLocation: simd_float3(parameters.nucleusLocation))
+        var simulationParametersObject = SimulationParameters(deltat_to_metal: Parameters.deltat,
+                                                              cellRadius_to_metal: Parameters.cellRadius,
+                                                              cellsPerDimension_to_metal: Int32(Parameters.cellsPerDimension),
+                                                              nBodies_to_Metal: Int32(Parameters.nbodies),
+                                                              nCells_to_Metal: Int32(Parameters.nCells),
+                                                              wON: Parameters.wON,
+                                                              wOFF: Parameters.wOFF,
+                                                              n_w: Parameters.n_w,
+                                                              boundaryConditions: Parameters.boundaryConditions,
+                                                              molecularMotors: Parameters.molecularMotors,
+                                                              stepsPerMTPoint: Parameters.stepsPerMTPoint,
+                                                              nucleusEnabled: Parameters.nucleusEnabled,
+                                                              nucleusRadius: Parameters.nucleusRadius,
+                                                              nucleusLocation: simd_float3(Parameters.nucleusLocation))
         
         // Reset the buffers if required, wait until the buffer is not being read by the plotting functions
         if resetArrivalTimesRequired && !isBusy2 {
             
-            let initializedTimeJump = [Float](repeating: 0.0, count: parameters.nbodies)
-            let initializedUpdatedTimeJump = [Float](repeating: 0.0, count: parameters.nbodies)
-            let initializedTimeBetweenJumps = [Float](repeating: -1.0, count: parameters.nbodies)
+            let initializedTimeJump = [Float](repeating: 0.0, count: Parameters.nbodies)
+            let initializedUpdatedTimeJump = [Float](repeating: 0.0, count: Parameters.nbodies)
+            let initializedTimeBetweenJumps = [Float](repeating: -1.0, count: Parameters.nbodies)
             
             timeLastJumpBuffer = device.makeBuffer(
                 bytes: initializedTimeJump,
-                length: parameters.nbodies * MemoryLayout<Float>.stride
+                length: Parameters.nbodies * MemoryLayout<Float>.stride
             )
             
             updatedTimeLastJumpBuffer = device.makeBuffer(
                 bytes: initializedUpdatedTimeJump,
-                length: parameters.nbodies * MemoryLayout<Float>.stride
+                length: Parameters.nbodies * MemoryLayout<Float>.stride
             )
             
             timeBetweenJumpsBuffer = device.makeBuffer(
                 bytes: initializedTimeBetweenJumps,
-                length: parameters.nbodies * MemoryLayout<Float>.stride
+                length: Parameters.nbodies * MemoryLayout<Float>.stride
             )
             
             resetArrivalTimesRequired = false
@@ -836,9 +886,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         buffer = queue?.makeCommandBuffer()
             
         // Compute kernel
-        let threadsPerArray = MTLSizeMake(parameters.nbodies, 1, 1)
-        //let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
-        let groupsize = MTLSizeMake(64,1,1)
+        let threadsPerArray = MTLSizeMake(Parameters.nbodies, 1, 1)
+        // let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
+        let groupsize = MTLSizeMake(64, 1, 1)
         
         let computeEncoder = buffer!.makeComputeCommandEncoder()
           
@@ -865,17 +915,17 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeEncoder?.setBuffer(MTstepNumberInBuffer, offset: 0, index: 16)
         computeEncoder?.setBuffer(MTstepNumberOutBuffer, offset: 0, index: 17)
         
-        computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 18)
+        computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<SimulationParameters>.stride, index: 18)
         computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
           
         computeEncoder?.endEncoding()
         buffer!.commit()
         
         // Check wether to do collision handling
-        if (parameters.collisionsFlag){
+        if Parameters.collisionsFlag {
                         
             buffer = queue?.makeCommandBuffer()
-            let threadsPerArrayCollisions = MTLSizeMake(parameters.nCells, 1, 1)
+            let threadsPerArrayCollisions = MTLSizeMake(Parameters.nCells, 1, 1)
             let verifyCollisionsEncoder = buffer!.makeComputeCommandEncoder()
             
             verifyCollisionsEncoder?.setComputePipelineState(verifyCollisionsPipelineState!)
@@ -886,24 +936,22 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             verifyCollisionsEncoder?.setBuffer(cellIDtoOccupiedBuffer, offset: 0, index: 4)
             verifyCollisionsEncoder?.setBuffer(distancesBuffer, offset: 0, index: 5)
             
-            verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<simulationParameters>.stride, index: 6)
+            verifyCollisionsEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<SimulationParameters>.stride, index: 6)
             
             verifyCollisionsEncoder?.dispatchThreads(threadsPerArrayCollisions, threadsPerThreadgroup: groupsize)
             
             verifyCollisionsEncoder?.endEncoding()
             buffer!.commit()
             
-        }else{
+        } else {
             swap(&positionsIn, &positionsOut)
             swap(&isAttachedInBuffer, &isAttachedOutBuffer)
         }
         
         // Swap in/out arrays
                 
-        //swap(&positionsIn, &positionsOut)
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
         swap(&oldTimeBuffer, &newTimeBuffer)
-        //swap(&isAttachedInBuffer, &isAttachedOutBuffer)
         swap(&randomSeedsInBuffer, &randomSeedsOutBuffer)
         swap(&MTstepNumberInBuffer, &MTstepNumberOutBuffer)
         
@@ -913,10 +961,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         let timeJumps = timeBetweenJumpsBuffer!.contents().assumingMemoryBound(to: Float.self)
         let attachState = isAttachedInBuffer!.contents().assumingMemoryBound(to: Int32.self)
         
-        if !(self.isBusy1){
+        if !self.isBusy1 {
             self.isBusy1 = true
-            queue1.async(){
-                self.secondChildTabVC?.setHistogramData1(cellRadius: parameters.cellRadius, distances: distances, nBodies: parameters.nbodies, attachState: attachState)
+            queue1.async {
+                self.secondChildTabVC?.setHistogramData1(cellRadius: Parameters.cellRadius,
+                                                         distances: distances,
+                                                         nBodies: Parameters.nbodies,
+                                                         attachState: attachState)
                 DispatchQueue.main.sync {
                     self.isBusy1 = false
                 }
@@ -925,28 +976,28 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         if !self.isBusy2 && !self.resetArrivalTimesRequired {
             self.isBusy2 = true
-            queue2.async(){
-                self.secondChildTabVC?.setHistogramData2(cellRadius: parameters.cellRadius, distances: timeJumps, nBodies: parameters.nbodies)
+            queue2.async {
+                self.secondChildTabVC?.setHistogramData2(cellRadius: Parameters.cellRadius, distances: timeJumps, nBodies: Parameters.nbodies)
                 DispatchQueue.main.sync {
                     self.isBusy2 = false
                 }
             }
         }
         
-        if !(self.isBusy3){
+        if !self.isBusy3 {
             self.isBusy3 = true
-            queue3.async(){
-                self.secondChildTabVC?.setHistogramData3(cellRadius: parameters.cellRadius, points: self.microtubulePoints)
+            queue3.async {
+                self.secondChildTabVC?.setHistogramData3(cellRadius: Parameters.cellRadius, points: self.microtubulePoints)
                 DispatchQueue.main.sync {
                     self.isBusy3 = false
                 }
             }
         }
         
-        if !(self.isBusy4){
+        if !self.isBusy4 {
             self.isBusy4 = true
-            queue4.async(){
-                self.secondChildTabVC?.setHistogramData4(cellRadius: parameters.cellRadius, counts: self.microtubuleNSegments)
+            queue4.async {
+                self.secondChildTabVC?.setHistogramData4(cellRadius: Parameters.cellRadius, counts: self.microtubuleNSegments)
                 DispatchQueue.main.sync {
                     self.isBusy4 = false
                 }
@@ -956,9 +1007,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Every 1000 steps, clean the random numbers re-seeding them from Swift
         if !self.isBusyRandomSeed && (stepCounter % 1000 == 0) {
             self.isBusyRandomSeed = true
-            queueRandomSeed.async(){
+            queueRandomSeed.async {
                 let randomBufferToSwift = self.randomSeedsInBuffer!.contents().assumingMemoryBound(to: Float.self)
-                for i in 0..<parameters.nbodies{
+                for i in 0..<Parameters.nbodies {
                     randomBufferToSwift[i] = Float.random(in: 0..<1)
                 }
                 DispatchQueue.main.sync {

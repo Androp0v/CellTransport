@@ -11,7 +11,7 @@ import UIKit
 import simd
 import SceneKit
 
-class LineChart2: UIView{
+class LineChart2: UIView {
        
     private let gradientLayer: CAGradientLayer = CAGradientLayer()
     private let gridLayer: CALayer = CALayer()
@@ -26,17 +26,17 @@ class LineChart2: UIView{
     var histogramArray = [Float](repeating: 0.0, count: 2000)
     public var returnableArray: [Float] = []
     
-    func getHistogramData() -> [[Float]]{
+    func getHistogramData() -> [[Float]] {
         return [returnableArray]
     }
         
-    func clearHistogram(){
+    func clearHistogram() {
         histogramArray = [Float](repeating: 0.0, count: bins)
     }
         
     func drawChart(times: UnsafeMutablePointer<Float>, nBodies: Int, autoMerge: Bool) {
                     
-        if !autoMerge{
+        if !autoMerge {
             clearHistogram()
         }
         
@@ -46,7 +46,11 @@ class LineChart2: UIView{
             self.graphOrigin = self.bounds.origin
         }
         
-        let path = histogramPathTimes(times: times, nBodies: nBodies, width: self.graphWidth, height: self.graphHeight, coordinateOrigin: self.graphOrigin)
+        let path = histogramPathTimes(times: times,
+                                      nBodies: nBodies,
+                                      width: self.graphWidth,
+                                      height: self.graphHeight,
+                                      coordinateOrigin: self.graphOrigin)
         
         DispatchQueue.main.sync {
             self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
@@ -75,7 +79,7 @@ class LineChart2: UIView{
         
         path.move(to: newPosition)
         
-        for i in 0..<(bins - 1){
+        for i in 0..<(bins - 1) {
             newPosition = CGPoint(x: newPosition.x + binDrawWidth, y: newPosition.y)
             path.addLine(to: newPosition)
             newPosition = CGPoint(x: newPosition.x, y: height - baseLineHeight - CGFloat(histogramArray[i + 1])*binDrawHeight)

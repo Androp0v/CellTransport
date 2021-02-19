@@ -2,17 +2,17 @@ import Foundation
 import SceneKit
 
 extension SCNGeometry {
-    class func lineThrough(points: [SCNVector3], width:Int = 20, closed: Bool = false,  color: CGColor = UIColor.black.cgColor, mitter: Bool = false) -> SCNGeometry {
+    class func lineThrough(points: [SCNVector3], width: Int = 20, closed: Bool = false, color: CGColor = UIColor.black.cgColor, mitter: Bool = false) -> SCNGeometry {
         
         // Becouse we cannot use geometry shaders in metal, every point on the line has to be changed into 4 verticles
-        let vertices: [SCNVector3] = points.flatMap { p in [p, p, p, p] }
+        let vertices: [SCNVector3] = points.flatMap { pnt in [pnt, pnt, pnt, pnt] }
         
         // Create Geometry Source object
         let source = SCNGeometrySource(vertices: vertices)
         
         // Create Geometry Element object
         var indices = Array((0..<Int32(vertices.count)))
-        if (closed) {
+        if closed {
             indices += [0, 1]
         }
         let element = SCNGeometryElement(indices: indices, primitiveType: .triangleStrip)

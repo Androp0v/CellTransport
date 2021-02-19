@@ -18,6 +18,7 @@
 		C42A0440256D95A200329664 /* ComputeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A043F256D95A200329664 /* ComputeViewController.swift */; };
 		C4497938252333BF0097F06C /* MainScreenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = C4497937252333BF0097F06C /* MainScreenshot.png */; };
 		C4544D4D2402D86000EDB29A /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = C4544D4C2402D86000EDB29A /* Readme.md */; };
+		C475A4F125E06B1D00FAD923 /* FatalCrashAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C475A4F025E06B1D00FAD923 /* FatalCrashAlertController.swift */; };
 		C49029172522521100532ED5 /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49029162522521100532ED5 /* Parameters.swift */; };
 		C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
 		C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594423EA22E1000B871B /* AppDelegate.swift */; };
@@ -49,6 +50,7 @@
 		C42A043F256D95A200329664 /* ComputeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeViewController.swift; sourceTree = "<group>"; };
 		C4497937252333BF0097F06C /* MainScreenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MainScreenshot.png; sourceTree = "<group>"; };
 		C4544D4C2402D86000EDB29A /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
+		C475A4F025E06B1D00FAD923 /* FatalCrashAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatalCrashAlertController.swift; sourceTree = "<group>"; };
 		C49029162522521100532ED5 /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		C4BD594123EA22E1000B871B /* CellTransport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellTransport.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,6 +96,14 @@
 			path = Histograms;
 			sourceTree = "<group>";
 		};
+		C475A4EF25E06AE300FAD923 /* Alerts */ = {
+			isa = PBXGroup;
+			children = (
+				C475A4F025E06B1D00FAD923 /* FatalCrashAlertController.swift */,
+			);
+			path = Alerts;
+			sourceTree = "<group>";
+		};
 		C4BD593823EA22E1000B871B = {
 			isa = PBXGroup;
 			children = (
@@ -125,10 +135,11 @@
 				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
 				C42A043F256D95A200329664 /* ComputeViewController.swift */,
 				C4BD594A23EA22E1000B871B /* Main.storyboard */,
-				C4F35DB02527A54B001D8F3A /* Popovers */,
 				C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */,
 				C4BD596523EB15AA000B871B /* Microtubules.swift */,
+				C4F35DB02527A54B001D8F3A /* Popovers */,
 				C404E1AE24EAF68600FD5489 /* Histograms */,
+				C475A4EF25E06AE300FAD923 /* Alerts */,
 				C411F95F241F0C88006BDEF3 /* CellMembrane.swift */,
 				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
 				C4BD596123EB139C000B871B /* LineDrawing.swift */,
@@ -166,6 +177,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C4BD595523EA22E3000B871B /* Build configuration list for PBXNativeTarget "CellTransport" */;
 			buildPhases = (
+				C475A4ED25E062B900FAD923 /* swiftlint */,
 				C4BD593D23EA22E1000B871B /* Sources */,
 				C4BD593E23EA22E1000B871B /* Frameworks */,
 				C4BD593F23EA22E1000B871B /* Resources */,
@@ -228,6 +240,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		C475A4ED25E062B900FAD923 /* swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C4BD593D23EA22E1000B871B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -248,6 +281,7 @@
 				C4C603A72584530B000A09EF /* SpawnMembrane.swift in Sources */,
 				C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */,
 				C42A0440256D95A200329664 /* ComputeViewController.swift in Sources */,
+				C475A4F125E06B1D00FAD923 /* FatalCrashAlertController.swift in Sources */,
 				C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */,
 				C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */,
 				C4BD596A23EB477F000B871B /* GraphsViewController.swift in Sources */,

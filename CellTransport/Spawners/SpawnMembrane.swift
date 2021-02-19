@@ -9,22 +9,22 @@
 import Foundation
 import SceneKit
 
-func spawnCellMembrane(scene: SCNScene) -> [SCNNode]{
+func spawnCellMembrane(scene: SCNScene) -> [SCNNode] {
     
     var membrane: SCNGeometry
     let membraneMaterial = SCNMaterial()
     
-    switch parameters.cellShape {
-    case parameters.SPHERICAL_CELL:
-        membrane = SCNIcosphere(radius: parameters.cellRadius)
-    case parameters.CUBIC_CELL:
-        membrane = SCNBox(width: CGFloat(2*parameters.cellRadius),
-                          height: CGFloat(2*parameters.cellRadius),
-                          length: CGFloat(2*parameters.cellRadius),
-                          chamferRadius: CGFloat(0.1*parameters.cellRadius))
+    switch Parameters.cellShape {
+    case Parameters.SPHERICAL_CELL:
+        membrane = SCNIcosphere(radius: Parameters.cellRadius)
+    case Parameters.CUBIC_CELL:
+        membrane = SCNBox(width: CGFloat(2*Parameters.cellRadius),
+                          height: CGFloat(2*Parameters.cellRadius),
+                          length: CGFloat(2*Parameters.cellRadius),
+                          chamferRadius: CGFloat(0.1*Parameters.cellRadius))
         membraneMaterial.isDoubleSided = true
     default:
-        membrane = SCNIcosphere(radius: parameters.cellRadius)
+        membrane = SCNIcosphere(radius: Parameters.cellRadius)
     }
     
     membraneMaterial.diffuse.contents = UIColor.black
@@ -46,23 +46,25 @@ func spawnCellMembrane(scene: SCNScene) -> [SCNNode]{
     
     membraneNode.position = SCNVector3(x: 0, y: 0, z: 0)
     
-    //Added second sphere membrane for faint base color
+    // Added second sphere membrane for faint base color
     var membrane2: SCNGeometry
     
-    switch parameters.cellShape {
-    case parameters.SPHERICAL_CELL:
-        membrane2 = SCNSphere(radius: CGFloat(parameters.cellRadius*0.99))
-        (membrane2 as! SCNSphere).segmentCount = 96
-    case parameters.CUBIC_CELL:
-        membrane2 = SCNBox(width: CGFloat(2*parameters.cellRadius*0.99),
-                           height: CGFloat(2*parameters.cellRadius*0.99),
-                           length: CGFloat(2*parameters.cellRadius*0.99),
-                           chamferRadius: CGFloat(0.1*parameters.cellRadius)
+    switch Parameters.cellShape {
+    case Parameters.SPHERICAL_CELL:
+        let sphereMembrane = SCNSphere(radius: CGFloat(Parameters.cellRadius*0.99))
+        sphereMembrane.segmentCount = 96
+        membrane2 = sphereMembrane
+    case Parameters.CUBIC_CELL:
+        membrane2 = SCNBox(width: CGFloat(2*Parameters.cellRadius*0.99),
+                           height: CGFloat(2*Parameters.cellRadius*0.99),
+                           length: CGFloat(2*Parameters.cellRadius*0.99),
+                           chamferRadius: CGFloat(0.1*Parameters.cellRadius)
         )
         membrane2.firstMaterial?.isDoubleSided = true
     default:
-        membrane2 = SCNSphere(radius: CGFloat(parameters.cellRadius*0.99))
-        (membrane2 as! SCNSphere).segmentCount = 96
+        let sphereMembrane = SCNSphere(radius: CGFloat(Parameters.cellRadius*0.99))
+        sphereMembrane.segmentCount = 96
+        membrane2 = sphereMembrane
     }
     
     membrane2.firstMaterial?.transparency = 0.05

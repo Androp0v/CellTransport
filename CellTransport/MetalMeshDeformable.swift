@@ -29,27 +29,26 @@ import UIKit
 import MetalKit
 
 struct DeformData {
-    var location:vector_float3
-    var direction:vector_float3
-    var radiusSquared:Float32
-    var deformationAmplitude:Float32
-    var pad1:Float32
-    var pad2:Float32
+    var location: vector_float3
+    var direction: vector_float3
+    var radiusSquared: Float32
+    var deformationAmplitude: Float32
+    var pad1: Float32
+    var pad2: Float32
 }
-
 
 class MetalMeshData {
     
-    var geometry:SCNGeometry
-    var vertexBuffer1:MTLBuffer
-    var vertexBuffer2:MTLBuffer
-    var vertexCount:Int
+    var geometry: SCNGeometry
+    var vertexBuffer1: MTLBuffer
+    var vertexBuffer2: MTLBuffer
+    var vertexCount: Int
     
     init(
-        geometry:SCNGeometry,
-        vertexCount:Int,
-        vertexBuffer1:MTLBuffer,
-        vertexBuffer2:MTLBuffer) {
+        geometry: SCNGeometry,
+        vertexCount: Int,
+        vertexBuffer1: MTLBuffer,
+        vertexBuffer2: MTLBuffer) {
         self.geometry = geometry
         self.vertexCount = vertexCount
         self.vertexBuffer1 = vertexBuffer1
@@ -68,17 +67,18 @@ class MetalMeshDeformable {
         var pointsList: [vector_float3] = []
         var indexList: [CInt] = []
         let innerSphere = 0.1*cellRadius
-                
-        
+
         for _ in 0...(nbodies-1) {
             
-            var p0 = vector_float3(10,10,10)
+            var pointPosition = vector_float3(10, 10, 10)
             
-            repeat{
-                p0 = vector_float3(Float.random(in: -innerSphere...innerSphere),Float.random(in: -innerSphere...innerSphere),Float.random(in: -innerSphere...innerSphere))
-            } while sqrt(pow(p0[0],2) + pow(p0[1],2) + pow(p0[2],2)) > innerSphere
+            repeat {
+                pointPosition = vector_float3(Float.random(in: -innerSphere...innerSphere),
+                                   Float.random(in: -innerSphere...innerSphere),
+                                   Float.random(in: -innerSphere...innerSphere))
+            } while sqrt(pow(pointPosition[0], 2) + pow(pointPosition[1], 2) + pow(pointPosition[2], 2)) > innerSphere
                         
-            pointsList.append(p0)
+            pointsList.append(pointPosition)
             indexList.append(CInt(indexList.count))
             
         }
@@ -110,8 +110,8 @@ class MetalMeshDeformable {
             bytesPerIndex: MemoryLayout<CInt>.size
         )
                 
-        indexElement.pointSize = 150 //0.0005
-        indexElement.minimumPointScreenSpaceRadius = 0.1 //0.1
+        indexElement.pointSize = 150 // 0.0005
+        indexElement.minimumPointScreenSpaceRadius = 0.1 // 0.1
         indexElement.maximumPointScreenSpaceRadius = 3000
         
 		let geo = SCNGeometry(sources: [vertexSource], elements: [indexElement])
