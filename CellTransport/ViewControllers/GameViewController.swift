@@ -227,21 +227,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var isRunning = false
     
     var currentViewController: UIViewController?
-    lazy var firstChildTabVC: ParametersViewController? = {
-        let firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
-        firstChildTabVC?.mainGameViewController = self
-        return firstChildTabVC
-    }()
-    lazy var secondChildTabVC: GraphsViewController? = {
-        let secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController")
-        
-        return (secondChildTabVC as? GraphsViewController)
-    }()
-    lazy var thirdChildTabVC: ComputeViewController? = {
-        let thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController")
-        
-        return (thirdChildTabVC as? ComputeViewController)
-    }()
+    var firstChildTabVC: ParametersViewController?
+    var secondChildTabVC: GraphsViewController?
+    var thirdChildTabVC: ComputeViewController?
     
     func viewControllerForSelectedSegmentIndex(_ index: Int) -> UIViewController? {
         var viewController: UIViewController?
@@ -729,7 +717,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Compute global variables
         computeDeltaT()
-        
+
+        // Initialize tabs viewcontrollers
+        self.firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
+        self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
+        self.thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController") as? ComputeViewController
+
+        firstChildTabVC?.mainGameViewController = self
+
         // Initialize Metal for GPU calculations
         initializeMetal()
                 
@@ -784,9 +779,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         segmentedControl.selectedSegmentIndex = TabIndex.firstChildTab.rawValue
         displayCurrentTab(TabIndex.firstChildTab.rawValue)
-        
-        // hacky hack to initialize lazy var safely on a main thread
-        self.secondChildTabVC?.clearAllGraphs(Any.self)
         
         // finish VC UIs
         
