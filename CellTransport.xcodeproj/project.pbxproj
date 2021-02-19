@@ -104,6 +104,18 @@
 			path = Alerts;
 			sourceTree = "<group>";
 		};
+		C475A4F525E0770200FAD923 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				C4BD594A23EA22E1000B871B /* Main.storyboard */,
+				C4BD594823EA22E1000B871B /* GameViewController.swift */,
+				C4BD596723EB4769000B871B /* ParametersViewController.swift */,
+				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
+				C42A043F256D95A200329664 /* ComputeViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		C4BD593823EA22E1000B871B = {
 			isa = PBXGroup;
 			children = (
@@ -129,12 +141,9 @@
 				C4BD594423EA22E1000B871B /* AppDelegate.swift */,
 				C4BD594623EA22E1000B871B /* art.scnassets */,
 				C49029162522521100532ED5 /* Parameters.swift */,
+				C40F0BCB241155E3008A5619 /* IOFunctions.swift */,
 				C4C603A5258452EA000A09EF /* Spawners */,
-				C4BD594823EA22E1000B871B /* GameViewController.swift */,
-				C4BD596723EB4769000B871B /* ParametersViewController.swift */,
-				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
-				C42A043F256D95A200329664 /* ComputeViewController.swift */,
-				C4BD594A23EA22E1000B871B /* Main.storyboard */,
+				C475A4F525E0770200FAD923 /* ViewControllers */,
 				C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */,
 				C4BD596523EB15AA000B871B /* Microtubules.swift */,
 				C4F35DB02527A54B001D8F3A /* Popovers */,
@@ -143,7 +152,6 @@
 				C411F95F241F0C88006BDEF3 /* CellMembrane.swift */,
 				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
 				C4BD596123EB139C000B871B /* LineDrawing.swift */,
-				C40F0BCB241155E3008A5619 /* IOFunctions.swift */,
 				C4BD596323EB14DD000B871B /* shaders.metal */,
 				C406BBB923F743F60013A79B /* Histogram.metal */,
 				C4BD595D23EA3954000B871B /* Compute.metal */,
