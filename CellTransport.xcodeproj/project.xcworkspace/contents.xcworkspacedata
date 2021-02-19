@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:CellTransport.xcodeproj">
+      location = "group:../Releases">
+   </FileRef>
+   <FileRef
+      location = "self:">
    </FileRef>
 </Workspace>
