@@ -26,6 +26,7 @@ Parameter | Explanation
 **Detachment probability** | Factor of the probability of transported particles to detach from microtubules, in *s<sup>-1</sup>*).
 **Timestep** | Timestep used for the simulation.
 **Cells per dimension** | Number of spatial cells in which the space is subdivided on each dimension. Only used internally (non-biological meaning), but is related to the volume the particles have in collisions (there can only be one particle on each of these cells).
+**Cytoplasm viscosity** | Viscosity of the cytoplasm (expressed as x times the viscosity of pure water).
 
 ## Compatibility
 Works in macOS 10.15 or later and iOS 13 or later. Requires a Metal-compatible graphic card.

@@ -103,6 +103,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Detachment probability: " + String(parameters.wOFF) + " s^-1\n"
     parametersString += "Timestep: " + String(parameters.deltat / Float(parameters.stepsPerMTPoint)) + " s\n"
     parametersString += "Cells per dimension: " + String(parameters.cellsPerDimension)
+    parametersString += "Cytoplasm viscosity: " + String(parameters.n_w) + " (water viscosity units)"
     
     // Write to file (atomically!)
     do{
