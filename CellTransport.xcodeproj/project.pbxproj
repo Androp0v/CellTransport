@@ -19,8 +19,11 @@
 		C4497938252333BF0097F06C /* MainScreenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = C4497937252333BF0097F06C /* MainScreenshot.png */; };
 		C4544D4D2402D86000EDB29A /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = C4544D4C2402D86000EDB29A /* Readme.md */; };
 		C475A4F125E06B1D00FAD923 /* FatalCrashAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C475A4F025E06B1D00FAD923 /* FatalCrashAlertController.swift */; };
+		C475A4FB25E08F0E00FAD923 /* SpawnMicrotubules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C475A4FA25E08F0E00FAD923 /* SpawnMicrotubules.swift */; };
 		C49029172522521100532ED5 /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49029162522521100532ED5 /* Parameters.swift */; };
 		C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
+		C4BB18C825E09276000648DE /* SpawnBoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */; };
+		C4BB18CC25E092FB000648DE /* SpawnCellNucleus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */; };
 		C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594423EA22E1000B871B /* AppDelegate.swift */; };
 		C4BD594723EA22E1000B871B /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594623EA22E1000B871B /* art.scnassets */; };
 		C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594823EA22E1000B871B /* GameViewController.swift */; };
@@ -51,8 +54,11 @@
 		C4497937252333BF0097F06C /* MainScreenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MainScreenshot.png; sourceTree = "<group>"; };
 		C4544D4C2402D86000EDB29A /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		C475A4F025E06B1D00FAD923 /* FatalCrashAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatalCrashAlertController.swift; sourceTree = "<group>"; };
+		C475A4FA25E08F0E00FAD923 /* SpawnMicrotubules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnMicrotubules.swift; sourceTree = "<group>"; };
 		C49029162522521100532ED5 /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
+		C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnBoundingBox.swift; sourceTree = "<group>"; };
+		C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnCellNucleus.swift; sourceTree = "<group>"; };
 		C4BD594123EA22E1000B871B /* CellTransport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellTransport.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4BD594423EA22E1000B871B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C4BD594623EA22E1000B871B /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -173,7 +179,10 @@
 		C4C603A5258452EA000A09EF /* Spawners */ = {
 			isa = PBXGroup;
 			children = (
+				C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */,
 				C4C603A62584530B000A09EF /* SpawnMembrane.swift */,
+				C475A4FA25E08F0E00FAD923 /* SpawnMicrotubules.swift */,
+				C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */,
 			);
 			path = Spawners;
 			sourceTree = "<group>";
@@ -294,6 +303,7 @@
 				C404E1B024EAF6AE00FD5489 /* LineChart2View.swift in Sources */,
 				C4BD596423EB14DD000B871B /* shaders.metal in Sources */,
 				C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */,
+				C4BB18C825E09276000648DE /* SpawnBoundingBox.swift in Sources */,
 				C4C603A72584530B000A09EF /* SpawnMembrane.swift in Sources */,
 				C4BD596823EB4769000B871B /* ParametersViewController.swift in Sources */,
 				C42A0440256D95A200329664 /* ComputeViewController.swift in Sources */,
@@ -305,6 +315,8 @@
 				C4BD596223EB139C000B871B /* LineDrawing.swift in Sources */,
 				C411F960241F0C88006BDEF3 /* CellMembrane.swift in Sources */,
 				C4BD595E23EA3954000B871B /* Compute.metal in Sources */,
+				C475A4FB25E08F0E00FAD923 /* SpawnMicrotubules.swift in Sources */,
+				C4BB18CC25E092FB000648DE /* SpawnCellNucleus.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,7 +464,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = CellTransport/CellTransport.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 4ND4CZC2FK;
 				INFOPLIST_FILE = CellTransport/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
@@ -474,7 +485,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = CellTransport/CellTransport.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 4ND4CZC2FK;
 				INFOPLIST_FILE = CellTransport/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.1;

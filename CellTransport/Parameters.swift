@@ -37,7 +37,7 @@ struct Parameters {
     static let localAngle: Float = 0.15 // 0.05 // 0.015 // Radians
     static let maxLocalAngle: Float = 1*localAngle // Radians
     static let maxNSegments = 3200 // 200
-    static let nucleusEnabled: Bool = false // Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
+    static let nucleusEnabled: Bool = true // Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
     static let nonFreeMTdistance: Float = 2000 // nm
     static let bendMTs: Bool = false // Wether to bend MTs near the cell wall or nucleus
     static let cellShape: Int32 = SPHERICAL_CELL // Cell shape

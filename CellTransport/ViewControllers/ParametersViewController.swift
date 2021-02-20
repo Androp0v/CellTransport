@@ -21,7 +21,14 @@ class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPop
     @IBOutlet weak var boundaryPickerButton: UIButton!
     
     var mainGameViewController: GameViewController?
-    
+
+    /// Restart main simulation
+    @IBAction func restartSimulation(_ sender: Any) {
+        DispatchQueue.global().async {
+            self.mainGameViewController?.restartSimulation()
+        }
+    }
+
     var selectedMotorFromPicker: Int32 = Parameters.molecularMotors
     var selectedBoundaryFromPicker: Int32 = Parameters.boundaryConditions
     var currentPickerViewController: ParameterPickerController = ParameterPickerController()

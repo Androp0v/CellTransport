@@ -46,9 +46,18 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var isBusy2 = false
     var isBusy3 = false
     var isBusy4 = false
+
+    // Control flow
+    var truePause = false // Signal to kill metalLoop(), true doesn't mean isRunning is already false
+    var pauseOnNextLoop = false // Wether to pause on next metalLoop() iteration
+    var isRunning = false // Wether or not metalLoop() is running
+    var isInitialized = false // Wether or not the simulation is initialized
+    var hasUIPause = false // Wether or not the UIButton displays the simulation as paused
     
     // Main computing loop
     func metalLoop() {
+        // Signal that the metalLoop has started
+        isRunning = true
         while !truePause {
             // Since we are running an infinite loop, we need to manually release the autoreleasepool after each iteration
             autoreleasepool {
@@ -82,6 +91,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                 setBenchmarkLabel(benchmarkLabel: benchmarkLabel, startTime: startTime, steps: stepCounter)
             }
         }
+        // Signal that the metalLoop has finished
+        isRunning = false
     }
     
     // MARK: - UI elements
@@ -125,9 +136,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             }
         }
     }
-    
-    var truePause = false
-    var pauseOnNextLoop = false
+
     @IBOutlet var pauseButton: UIButton!
     @IBAction func playPause(_ sender: Any) {
         // Reset benchmarking
@@ -136,9 +145,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Play or pause
         if pauseButton.currentImage == UIImage.init(systemName: "pause.fill") {
             pauseOnNextLoop = true
+            hasUIPause = true
             pauseButton.setImage(UIImage.init(systemName: "play.fill"), for: .normal)
         } else {
             pauseOnNextLoop = false
+            hasUIPause = false
             pauseButton.setImage(UIImage.init(systemName: "pause.fill"), for: .normal)
             if truePause {
                 truePause = false
@@ -223,9 +234,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var cellIDtoOccupiedBuffer: MTLBuffer?
     
     fileprivate var buffer: MTLCommandBuffer?
-    
-    var isRunning = false
-    
+
     var currentViewController: UIViewController?
     var firstChildTabVC: ParametersViewController?
     var secondChildTabVC: GraphsViewController?
@@ -414,7 +423,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.alertLabel.text = "Drawing bounding box"
             self.alertView.backgroundColor = UIColor.init(cgColor: CGColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.5))
         }
-        let boundingBox = spawnBoundingBox()
+        let boundingBoxNode = spawnBoundingBox()
+        scene.rootNode.addChildNode(boundingBoxNode)
         
         // Spawn the cell membrane
         DispatchQueue.main.async {
@@ -429,6 +439,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var nucleus: SCNNode = SCNNode()
         if Parameters.nucleusEnabled {
             nucleus = spawnCellNucleus()
+            scene.rootNode.addChildNode(nucleus)
         }
         
         // Spawn the microtubules
@@ -436,20 +447,31 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.alertLabel.text = "Generating microtubule structure"
         }
         let (microtubules, microtubulePointsReturned,
-                microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnAllMicrotubules()
+             microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnAllMicrotubules(alertLabel: alertLabel,
+                                                                                                  scene: scene,
+                                                                                                  computeTabViewController: thirdChildTabVC,
+                                                                                                  microtubulePointsArray: &microtubulePointsArray,
+                                                                                                  cellIDDict: &cellIDDict,
+                                                                                                  cellIDtoIndex: &cellIDtoIndex,
+                                                                                                  cellIDtoNMTs: &cellIDtoNMTs,
+                                                                                                  indexToPoint: &indexToPoint)
+
         microtubulePoints = microtubulePointsReturned
         microtubuleNSegments = microtubuleNSegmentsReturned
         microtubulePointsArray = microtubulePointsArrayReturned
-                
+
+        // Create MTLBuffers that require MT data
+        initializeMetalMTs()
+
+        // Compute initial mtPoint distances
         for microtubulePoint in microtubulePoints {
             microtubuleDistances.append(sqrt(microtubulePoint.x*microtubulePoint.x
                                                 + microtubulePoint.y*microtubulePoint.y
                                                 + microtubulePoint.z*microtubulePoint.z))
         }
-        
         self.secondChildTabVC?.setHistogramData3(cellRadius: Parameters.cellRadius, points: microtubulePoints)
         
-        // Spawn points
+        // Spawn particles
         DispatchQueue.main.async {
             self.alertLabel.text = "Initializing all particle positions"
         }
@@ -475,7 +497,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         scene.rootNode.addChildNode(pointsNode)
         
         // Animate the 3d object
-        boundingBox.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
+        boundingBoxNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         for membrane in membranes {
             membrane.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: rotationTime)))
         }
@@ -499,217 +521,23 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Set simulation start time
         startTime = NSDate.now
-        
+
+        // Signal that simulation has been initialized
+        isInitialized = true
+
+        // Disable truePause unless the UI is displaying the play button so metalLoop() can start
+        if hasUIPause {
+            truePause = true
+        } else {
+            truePause = false
+        }
+
         // Start simulation loop
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .default).async {
             self.metalLoop()
         }
     }
-    
-    // MARK: - Spawners
-    
-    func spawnBoundingBox() -> SCNNode {
-        
-        var boundingBox: SCNGeometry
 
-        boundingBox = SCNBox(width: CGFloat(2.0*Parameters.cellRadius),
-                             height: CGFloat(2.0*Parameters.cellRadius), length: CGFloat(2.0*Parameters.cellRadius),
-                             chamferRadius: 0.0)
-        boundingBox.firstMaterial?.fillMode = .lines
-        boundingBox.firstMaterial?.isDoubleSided = true
-        boundingBox.firstMaterial?.diffuse.contents = UIColor.white
-        boundingBox.firstMaterial?.transparency = 0.05
-        
-        let boundingBoxNode = SCNNode(geometry: boundingBox)
-        scene.rootNode.addChildNode(boundingBoxNode)
-        
-        return boundingBoxNode
-    }
-    
-    func spawnAllMicrotubules() -> ([SCNNode], [SCNVector3], [Int], [simd_float3]) {
-        
-        // Track progress of cells with completed MTs
-        var completedMTsCount: Int = Parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
-        var progressFinishedUpdating = true
-        let startTime = NSDate.now
-        
-        func updateProgress() {
-            let fractionCompleted = Float(completedMTsCount)/Float(Parameters.nMicrotubules*Parameters.nCells)
-            DispatchQueue.main.async {
-                self.alertLabel.text = "Generating microtubule structure of remaining cells: "
-                                        + String(format: "%.2f", 100*fractionCompleted)
-                                        + "% ("
-                                        + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
-                                        + ")"
-                progressFinishedUpdating = true
-            }
-        }
-        
-        // Create all-cells arrays
-        var nodelist: [SCNNode] = []
-        var microtubulePoints: [SCNVector3] = []
-        var microtubuleNSegments: [Int] = []
-        var separateMicrotubulePoints: [[simd_float3]] = []
-        
-        var cellsPointsNumber: [Int] = []
-        
-        // Add initial separator
-        microtubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
-                
-        // Generate MTs for the first cell
-                    
-        DispatchQueue.main.async {
-            self.alertLabel.text = "Generating microtubule structure of the first cell"
-        }
-        
-        var cellPoints: Int = 0
-        
-        for _ in 0..<Parameters.nMicrotubules {
-            let points = generateMicrotubule(cellRadius: Parameters.cellRadius,
-                                             centrosomeRadius: Parameters.centrosomeRadius,
-                                             centrosomeLocation: Parameters.centrosomeLocation,
-                                             nucleusRadius: Parameters.nucleusRadius,
-                                             nucleusLocation: Parameters.nucleusLocation)
-            microtubuleNSegments.append(points.count)
-            
-            for point in points {
-                microtubulePoints.append(point)
-                microtubulePointsArray.append(simd_float3(point))
-            }
-            
-            // Introduce separators after each MT (situated at an impossible point)
-            microtubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
-            
-            // Update the number of MT points in the cell (including separator, +1)
-            cellPoints += points.count + 1
-            
-            // UI configuration for the first cell (the only cell displayed on screen)
-    
-            let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
-            let geometry = SCNGeometry.lineThrough(points: points,
-                                                   width: 2,
-                                                   closed: false,
-                                                   color: microtubuleColor)
-            let node = SCNNode(geometry: geometry)
-            scene.rootNode.addChildNode(node)
-            nodelist.append(node)
-        }
-        // Update the length of each cell's MT points
-        cellsPointsNumber.append(cellPoints)
-
-        // Create a thread safe queue to write to all-cells arrays
-        let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays")
-        let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
-        
-        // Generate MTs for each cell concurrently (will use max available cores)
-        DispatchQueue.concurrentPerform(iterations: Parameters.nCells - 1, execute: { _ in
-            
-            var cellPoints: Int = 0
-            
-            var localMicrotubulePoints: [SCNVector3] = []
-            var localMicrotubuleNSegments: [Int] = []
-            var localMicrotubulePointsArray: [simd_float3] = []
-            var localSeparateMicrotubulePointsArray: [[simd_float3]] = []
-            
-            for _ in 0..<Parameters.nMicrotubules {
-                var localMicrotubule: [simd_float3] = []
-                let points = generateMicrotubule(cellRadius: Parameters.cellRadius,
-                                                 centrosomeRadius: Parameters.centrosomeRadius,
-                                                 centrosomeLocation: Parameters.centrosomeLocation,
-                                                 nucleusRadius: Parameters.nucleusRadius,
-                                                 nucleusLocation: Parameters.nucleusLocation)
-                
-                localMicrotubuleNSegments.append(points.count)
-                
-                for point in points {
-                    localMicrotubule.append(simd_float3(point))
-                    localMicrotubulePoints.append(point)
-                    localMicrotubulePointsArray.append(simd_float3(point))
-                }
-                
-                // Introduce separators after each MT (situated at an impossible point)
-                localMicrotubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
-                
-                // Update the number of MT points in the cell (including separator, +1)
-                cellPoints += points.count + 1
-                
-                // Mark the microtubule as completed and show progress
-                progressUpdateQueue.async {
-                    completedMTsCount += 1
-                    if progressFinishedUpdating {
-                        updateProgress()
-                    }
-                }
-                // Append microtubule
-                localSeparateMicrotubulePointsArray.append(localMicrotubule)
-            }
-            
-            // Update all-cells array with local ones safely
-            threadSafeQueueForArrays.sync {
-                
-                microtubulePoints.append(contentsOf: localMicrotubulePoints)
-                microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
-                self.microtubulePointsArray.append(contentsOf: localMicrotubulePointsArray)
-                
-                // Update the length of each cell's MT points
-                cellsPointsNumber.append(cellPoints)
-                separateMicrotubulePoints.append(contentsOf: localSeparateMicrotubulePointsArray)
-                
-            }
-        })
-        
-        thirdChildTabVC?.MTcollection = separateMicrotubulePoints
-        
-        DispatchQueue.main.sync {
-            self.alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
-        }
-        
-        // Add MTs to the CellID dictionary
-        
-        addMTToCellIDDict(cellIDDict: &cellIDDict,
-                          points: microtubulePointsArray,
-                          cellNMTPoints: cellsPointsNumber,
-                          cellRadius: Parameters.cellRadius,
-                          cellsPerDimension: Parameters.cellsPerDimension)
-        
-        // Convert MT dictionary to arrays
-        
-        cellIDDictToArrays(cellIDDict: cellIDDict,
-                           cellIDtoIndex: &cellIDtoIndex,
-                           cellIDtoNMTs: &cellIDtoNMTs,
-                           MTIndexArray: &indexToPoint,
-                           nCells: Parameters.nCells,
-                           cellsPerDimension: Parameters.cellsPerDimension,
-                           alertLabel: self.alertLabel)
-                
-        // Create MTLBuffers that require MT data
-        initializeMetalMTs()
-                
-        return (nodelist, microtubulePoints, microtubuleNSegments, microtubulePointsArray)
-    }
-    
-    func spawnCellNucleus() -> SCNNode {
-        var nucleus: SCNGeometry
-        // Generate nucleus as a perlin-noise biased icosphere. Low recursion level (vertex nuber) since texture will make it look good anyway
-        nucleus = SCNIcosphere(radius: Parameters.nucleusRadius, recursionLevel: 4, translucid: false, modulator: 0.00001, allowTexture: true)
-        // Base color purple, not seen unless no image is found
-        nucleus.firstMaterial?.diffuse.contents = UIColor.purple
-        // Cellular nucleus texture
-        nucleus.firstMaterial?.diffuse.contents = UIImage(named: "cellmembrane.png")
-        
-        // Create and move the SceneKit nodes
-        let nucleusNode = SCNNode(geometry: nucleus)
-        let nucleusAxis = SCNNode()
-        nucleusAxis.addChildNode(nucleusNode)
-        
-        scene.rootNode.addChildNode(nucleusAxis)
-        
-        nucleusAxis.position = SCNVector3(x: 0, y: 0, z: 0)
-        nucleusNode.position = Parameters.nucleusLocation
-        
-        return nucleusAxis
-    }
-    
     // MARK: - View lifecycle
     
     override func viewDidLoad() {
@@ -807,6 +635,43 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         } else {
             return .all
         }
+    }
+
+    // MARK: - Functions
+
+    func restartSimulation(timeout: Int = 10) {
+        // Check that the simulation has been initialized
+        guard isInitialized else { return }
+        // Signal initialization as not completed before restart
+        isInitialized = false
+        // Signal metalLoop to pause
+        truePause = true
+        // Wait, timeout if too much time passes
+        let startTime = Int(Date.timeIntervalSinceReferenceDate)
+        while isRunning {
+            let currentTime = Int(Date.timeIntervalSinceReferenceDate)
+            if  (currentTime - startTime) > timeout {
+                return
+            }
+        }
+        // Clear all graphs
+        secondChildTabVC?.clearAllGraphs(self)
+        // Clear the scene
+        scene.rootNode.enumerateChildNodes { (node, _) in
+            node.removeFromParentNode()
+        }
+        // Reset MT arrays and dicts
+        microtubuleDistances = []
+        microtubulePoints = []
+        microtubuleNSegments = []
+        microtubulePointsArray = []
+        cellIDDict = [Int: [Int]]()
+        cellIDtoIndex = []
+        cellIDtoNMTs = []
+        indexToPoint = []
+        // Restart simulation
+        initializeMetal()
+        initializeSimulation()
     }
     
     // MARK: - Metal loop

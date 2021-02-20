@@ -36,6 +36,7 @@ class GraphsViewController: UIViewController {
         histogramChart1?.clearHistogram()
         histogramChart2?.clearHistogram()
         histogramChart3?.clearHistogram()
+        histogramChart4?.clearHistogram()
     }
     
     func getHistogramData(number: Float) -> [[Float]]? {
