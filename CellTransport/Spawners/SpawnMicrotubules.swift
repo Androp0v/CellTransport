@@ -8,8 +8,8 @@
 import Foundation
 import SceneKit
 
-func spawnAllMicrotubules(alertLabel: UILabel,
-                          scene: SCNScene,
+func spawnAllMicrotubules(alertLabel: UILabel?,
+                          scene: SCNScene?,
                           computeTabViewController: ComputeViewController?,
                           microtubulePointsArray: inout [simd_float3],
                           cellIDDict: inout [Int: [Int]],
@@ -25,7 +25,7 @@ func spawnAllMicrotubules(alertLabel: UILabel,
     func updateProgress() {
         let fractionCompleted = Float(completedMTsCount)/Float(Parameters.nMicrotubules*Parameters.nCells)
         DispatchQueue.main.async {
-            alertLabel.text = "Generating microtubule structure of remaining cells: "
+            alertLabel?.text = "Generating microtubule structure of remaining cells: "
                                     + String(format: "%.2f", 100*fractionCompleted)
                                     + "% ("
                                     + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
@@ -48,7 +48,7 @@ func spawnAllMicrotubules(alertLabel: UILabel,
     // Generate MTs for the first cell
 
     DispatchQueue.main.async {
-        alertLabel.text = "Generating microtubule structure of the first cell"
+        alertLabel?.text = "Generating microtubule structure of the first cell"
     }
 
     var cellPoints: Int = 0
@@ -80,7 +80,7 @@ func spawnAllMicrotubules(alertLabel: UILabel,
                                                closed: false,
                                                color: microtubuleColor)
         let node = SCNNode(geometry: geometry)
-        scene.rootNode.addChildNode(node)
+        scene?.rootNode.addChildNode(node)
         nodelist.append(node)
     }
 
@@ -150,8 +150,8 @@ func spawnAllMicrotubules(alertLabel: UILabel,
 
     computeTabViewController?.MTcollection = separateMicrotubulePoints
 
-    DispatchQueue.main.sync {
-        alertLabel.text = "Generating microtubule structure: Converting arrays for Metal"
+    DispatchQueue.main.async {
+        alertLabel?.text = "Generating microtubule structure: Converting arrays for Metal"
     }
 
     // Add MTs to the CellID dictionary

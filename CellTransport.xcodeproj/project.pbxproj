@@ -24,6 +24,13 @@
 		C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
 		C4BB18C825E09276000648DE /* SpawnBoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */; };
 		C4BB18CC25E092FB000648DE /* SpawnCellNucleus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */; };
+		C4BB18D925E13730000648DE /* CellTransportPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18D825E13730000648DE /* CellTransportPerformanceTests.swift */; };
+		C4BB18EA25E13828000648DE /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49029162522521100532ED5 /* Parameters.swift */; };
+		C4BB18ED25E13E37000648DE /* SpawnMicrotubules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C475A4FA25E08F0E00FAD923 /* SpawnMicrotubules.swift */; };
+		C4BB18F025E13E3C000648DE /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
+		C4BB18F525E13FB3000648DE /* ComputeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A043F256D95A200329664 /* ComputeViewController.swift */; };
+		C4BB18F825E1401A000648DE /* Microtubules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596523EB15AA000B871B /* Microtubules.swift */; };
+		C4BB18FB25E1402C000648DE /* LineDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD596123EB139C000B871B /* LineDrawing.swift */; };
 		C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594423EA22E1000B871B /* AppDelegate.swift */; };
 		C4BD594723EA22E1000B871B /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C4BD594623EA22E1000B871B /* art.scnassets */; };
 		C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BD594823EA22E1000B871B /* GameViewController.swift */; };
@@ -40,6 +47,16 @@
 		C4C603A72584530B000A09EF /* SpawnMembrane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C603A62584530B000A09EF /* SpawnMembrane.swift */; };
 		C4F35DB72527A5BC001D8F3A /* ParameterPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C4BB18E025E13733000648DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C4BD593923EA22E1000B871B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C4BD594023EA22E1000B871B;
+			remoteInfo = CellTransport;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		C403DB4223F6B394008368CB /* LineChart1View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChart1View.swift; sourceTree = "<group>"; };
@@ -59,6 +76,9 @@
 		C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnBoundingBox.swift; sourceTree = "<group>"; };
 		C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnCellNucleus.swift; sourceTree = "<group>"; };
+		C4BB18D625E13730000648DE /* CellTransportPerformanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellTransportPerformanceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4BB18D825E13730000648DE /* CellTransportPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellTransportPerformanceTests.swift; sourceTree = "<group>"; };
+		C4BB18DA25E13730000648DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C4BD594123EA22E1000B871B /* CellTransport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellTransport.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4BD594423EA22E1000B871B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C4BD594623EA22E1000B871B /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -80,6 +100,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C4BB18D325E13730000648DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4BD593E23EA22E1000B871B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -130,12 +157,22 @@
 			path = LineCharts;
 			sourceTree = "<group>";
 		};
+		C4BB18D725E13730000648DE /* CellTransportPerformanceTests */ = {
+			isa = PBXGroup;
+			children = (
+				C4BB18D825E13730000648DE /* CellTransportPerformanceTests.swift */,
+				C4BB18DA25E13730000648DE /* Info.plist */,
+			);
+			path = CellTransportPerformanceTests;
+			sourceTree = "<group>";
+		};
 		C4BD593823EA22E1000B871B = {
 			isa = PBXGroup;
 			children = (
 				C4544D4C2402D86000EDB29A /* Readme.md */,
 				C4497937252333BF0097F06C /* MainScreenshot.png */,
 				C4BD594323EA22E1000B871B /* CellTransport */,
+				C4BB18D725E13730000648DE /* CellTransportPerformanceTests */,
 				C4BD594223EA22E1000B871B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -144,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				C4BD594123EA22E1000B871B /* CellTransport.app */,
+				C4BB18D625E13730000648DE /* CellTransportPerformanceTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,6 +236,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C4BB18D525E13730000648DE /* CellTransportPerformanceTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C4BB18DB25E13730000648DE /* Build configuration list for PBXNativeTarget "CellTransportPerformanceTests" */;
+			buildPhases = (
+				C4BB18D225E13730000648DE /* Sources */,
+				C4BB18D325E13730000648DE /* Frameworks */,
+				C4BB18D425E13730000648DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C4BB18E125E13733000648DE /* PBXTargetDependency */,
+			);
+			name = CellTransportPerformanceTests;
+			productName = CellTransportPerformanceTests;
+			productReference = C4BB18D625E13730000648DE /* CellTransportPerformanceTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		C4BD594023EA22E1000B871B /* CellTransport */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C4BD595523EA22E3000B871B /* Build configuration list for PBXNativeTarget "CellTransport" */;
@@ -222,10 +278,13 @@
 		C4BD593923EA22E1000B871B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1130;
+				LastSwiftUpdateCheck = 1240;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "Raúl Montón Pinillos";
 				TargetAttributes = {
+					C4BB18D525E13730000648DE = {
+						CreatedOnToolsVersion = 12.4;
+					};
 					C4BD594023EA22E1000B871B = {
 						CreatedOnToolsVersion = 11.3;
 					};
@@ -245,11 +304,19 @@
 			projectRoot = "";
 			targets = (
 				C4BD594023EA22E1000B871B /* CellTransport */,
+				C4BB18D525E13730000648DE /* CellTransportPerformanceTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C4BB18D425E13730000648DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4BD593F23EA22E1000B871B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -287,6 +354,20 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C4BB18D225E13730000648DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4BB18FB25E1402C000648DE /* LineDrawing.swift in Sources */,
+				C4BB18F525E13FB3000648DE /* ComputeViewController.swift in Sources */,
+				C4BB18F825E1401A000648DE /* Microtubules.swift in Sources */,
+				C4BB18D925E13730000648DE /* CellTransportPerformanceTests.swift in Sources */,
+				C4BB18F025E13E3C000648DE /* HelperFunctions.swift in Sources */,
+				C4BB18EA25E13828000648DE /* Parameters.swift in Sources */,
+				C4BB18ED25E13E37000648DE /* SpawnMicrotubules.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4BD593D23EA22E1000B871B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -322,6 +403,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		C4BB18E125E13733000648DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C4BD594023EA22E1000B871B /* CellTransport */;
+			targetProxy = C4BB18E025E13733000648DE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		C4BD594A23EA22E1000B871B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
@@ -342,6 +431,47 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		C4BB18DC25E13730000648DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4ND4CZC2FK;
+				INFOPLIST_FILE = CellTransportPerformanceTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raulmonton.CellTransportPerformanceTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C4BB18DD25E13730000648DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4ND4CZC2FK;
+				INFOPLIST_FILE = CellTransportPerformanceTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raulmonton.CellTransportPerformanceTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		C4BD595323EA22E3000B871B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -503,6 +633,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C4BB18DB25E13730000648DE /* Build configuration list for PBXNativeTarget "CellTransportPerformanceTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4BB18DC25E13730000648DE /* Debug */,
+				C4BB18DD25E13730000648DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C4BD593C23EA22E1000B871B /* Build configuration list for PBXProject "CellTransport" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

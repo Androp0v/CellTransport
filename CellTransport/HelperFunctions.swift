@@ -125,7 +125,7 @@ func addMTToCellIDDict(cellIDDict: inout [Int: [Int]], points: [simd_float3], ce
     }
 }
 
-func cellIDDictToArrays(cellIDDict: [Int: [Int]], cellIDtoIndex: inout [Int32], cellIDtoNMTs: inout [Int16], MTIndexArray: inout [Int32], nCells: Int, cellsPerDimension: Int, alertLabel: UILabel) {
+func cellIDDictToArrays(cellIDDict: [Int: [Int]], cellIDtoIndex: inout [Int32], cellIDtoNMTs: inout [Int16], MTIndexArray: inout [Int32], nCells: Int, cellsPerDimension: Int, alertLabel: UILabel?) {
     
     let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
     var progressFinishedUpdating = true
@@ -134,7 +134,7 @@ func cellIDDictToArrays(cellIDDict: [Int: [Int]], cellIDtoIndex: inout [Int32], 
     func updateProgress(cellNumber: Int) {
         let fractionCompleted = Float(cellNumber)/Float(Parameters.nCells)
         DispatchQueue.main.async {
-            alertLabel.text = "Converting arrays for metal: "
+            alertLabel?.text = "Converting arrays for metal: "
                                     + String(format: "%.2f", 100*fractionCompleted)
                                     + "% ("
                                     + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
