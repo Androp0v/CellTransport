@@ -214,16 +214,15 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var timeLastJumpBuffer: MTLBuffer?
     fileprivate var updatedTimeLastJumpBuffer: MTLBuffer?
     fileprivate var timeBetweenJumpsBuffer: MTLBuffer?
-    
-    fileprivate var oldTimeBuffer: MTLBuffer?
-    fileprivate var newTimeBuffer: MTLBuffer?
-    
+
     fileprivate var microtubulePointsBuffer: MTLBuffer?
     fileprivate var cellIDtoIndexBuffer: MTLBuffer?
     fileprivate var cellIDtoNMTsBuffer: MTLBuffer?
     fileprivate var indextoPointsBuffer: MTLBuffer?
     fileprivate var isAttachedInBuffer: MTLBuffer?
     fileprivate var isAttachedOutBuffer: MTLBuffer?
+
+    fileprivate var time: Float = 0
     
     fileprivate var randomSeedsInBuffer: MTLBuffer?
     fileprivate var randomSeedsOutBuffer: MTLBuffer?
@@ -232,7 +231,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var MTstepNumberOutBuffer: MTLBuffer?
     
     fileprivate var cellIDtoOccupiedBuffer: MTLBuffer?
-    
+
     fileprivate var buffer: MTLCommandBuffer?
 
     var currentViewController: UIViewController?
@@ -341,18 +340,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             bytes: initializedTimeBetweenJumps,
             length: Parameters.nbodies * MemoryLayout<Float>.stride
         )
-        
-        let oldTime = [Float](repeating: 0.0, count: Parameters.nbodies)
-        
-        oldTimeBuffer = device.makeBuffer(
-            bytes: oldTime,
-            length: Parameters.nbodies * MemoryLayout<Float>.stride
-        )
-        
-        newTimeBuffer = device.makeBuffer(
-            length: Parameters.nbodies * MemoryLayout<Float>.stride
-        )
-        
+
         var randomSeeds: [Float] = []
         while randomSeeds.count != Parameters.nbodies {
             let number = Float.random(in: 0 ..< 1)
@@ -562,6 +550,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             return
         }
 
+        // Reset simulation time
+        time = 0
+
         // Start simulation loop
         DispatchQueue.global(qos: .default).async {
             self.metalLoop()
@@ -715,6 +706,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var molecularMotors: Int32
         var nucleusRadius: Float
         var nucleusLocation: simd_float3
+        var time: Float
     }
     
     func metalUpdater() {
@@ -727,7 +719,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                                                               boundaryConditions: Parameters.boundaryConditions,
                                                               molecularMotors: Parameters.molecularMotors,
                                                               nucleusRadius: Parameters.nucleusRadius,
-                                                              nucleusLocation: simd_float3(Parameters.nucleusLocation))
+                                                              nucleusLocation: simd_float3(Parameters.nucleusLocation),
+                                                              time: time)
         
         // Reset the buffers if required, wait until the buffer is not being read by the plotting functions
         if resetArrivalTimesRequired && !isBusy2 {
@@ -773,20 +766,18 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeEncoder?.setBuffer(timeLastJumpBuffer, offset: 0, index: 3)
         computeEncoder?.setBuffer(updatedTimeLastJumpBuffer, offset: 0, index: 4)
         computeEncoder?.setBuffer(timeBetweenJumpsBuffer, offset: 0, index: 5)
-        computeEncoder?.setBuffer(oldTimeBuffer, offset: 0, index: 6)
-        computeEncoder?.setBuffer(newTimeBuffer, offset: 0, index: 7)
-        computeEncoder?.setBuffer(microtubulePointsBuffer, offset: 0, index: 8)
-        computeEncoder?.setBuffer(cellIDtoIndexBuffer, offset: 0, index: 9)
-        computeEncoder?.setBuffer(cellIDtoNMTsBuffer, offset: 0, index: 10)
-        computeEncoder?.setBuffer(indextoPointsBuffer, offset: 0, index: 11)
-        computeEncoder?.setBuffer(isAttachedInBuffer, offset: 0, index: 12)
-        computeEncoder?.setBuffer(isAttachedOutBuffer, offset: 0, index: 13)
-        computeEncoder?.setBuffer(randomSeedsInBuffer, offset: 0, index: 14)
-        computeEncoder?.setBuffer(randomSeedsOutBuffer, offset: 0, index: 15)
-        computeEncoder?.setBuffer(MTstepNumberInBuffer, offset: 0, index: 16)
-        computeEncoder?.setBuffer(MTstepNumberOutBuffer, offset: 0, index: 17)
+        computeEncoder?.setBuffer(microtubulePointsBuffer, offset: 0, index: 6)
+        computeEncoder?.setBuffer(cellIDtoIndexBuffer, offset: 0, index: 7)
+        computeEncoder?.setBuffer(cellIDtoNMTsBuffer, offset: 0, index: 8)
+        computeEncoder?.setBuffer(indextoPointsBuffer, offset: 0, index: 9)
+        computeEncoder?.setBuffer(isAttachedInBuffer, offset: 0, index: 10)
+        computeEncoder?.setBuffer(isAttachedOutBuffer, offset: 0, index: 11)
+        computeEncoder?.setBuffer(randomSeedsInBuffer, offset: 0, index: 12)
+        computeEncoder?.setBuffer(randomSeedsOutBuffer, offset: 0, index: 13)
+        computeEncoder?.setBuffer(MTstepNumberInBuffer, offset: 0, index: 14)
+        computeEncoder?.setBuffer(MTstepNumberOutBuffer, offset: 0, index: 15)
         
-        computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<SimulationParameters>.stride, index: 18)
+        computeEncoder?.setBytes(&simulationParametersObject, length: MemoryLayout<SimulationParameters>.stride, index: 16)
         computeEncoder?.dispatchThreads(threadsPerArray, threadsPerThreadgroup: groupsize)
           
         computeEncoder?.endEncoding()
@@ -822,10 +813,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Swap in/out arrays
                 
         swap(&timeLastJumpBuffer, &updatedTimeLastJumpBuffer)
-        swap(&oldTimeBuffer, &newTimeBuffer)
         swap(&randomSeedsInBuffer, &randomSeedsOutBuffer)
         swap(&MTstepNumberInBuffer, &MTstepNumberOutBuffer)
-        
+
+        // Update simulation time
+
+        time += Parameters.deltat / Float(Parameters.stepsPerMTPoint)
+
         // Asynchronously launch histogram computations if not already running
         
         let distances = distancesBuffer!.contents().assumingMemoryBound(to: Float.self)
@@ -906,10 +900,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     // MARK: - Other
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        let fatalAlert = FatalCrashAlertController(title: "Low memory",
-                                                   message: "The application is running out of memory. Try lowering the number of cells or particles",
-                                                   preferredStyle: .alert)
-        self.present(fatalAlert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            let fatalAlert = FatalCrashAlertController(title: "Low memory",
+                                                       message: "The application is running out of memory. "
+                                                       + "Try lowering the number of cells or particles",
+                                                       preferredStyle: .alert)
+            self.present(fatalAlert, animated: true, completion: nil)
+        }
     }
     
 }

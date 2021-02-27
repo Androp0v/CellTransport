@@ -41,6 +41,7 @@ struct simulation_parameters {
     int32_t molecularMotors;
     float nucleusRadius;
     simd_float3 nucleusLocation;
+    float time;
 };
 
 // MARK: - Helper functions
@@ -207,23 +208,19 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float *timeLastJumpIn [[buffer(3)]],
                     device float *timeLastJumpOut [[buffer(4)]],
                     device float *timeBetweenJumps [[buffer(5)]],
-                    device float *oldTime [[buffer(6)]],
-                    device float *newTime [[buffer(7)]],
-                    device simd_float3 *MTpoints [[buffer(8)]],
-                    device int32_t *cellIDtoIndex [[buffer(9)]],
-                    device int16_t *cellIDtoNMTs [[buffer(10)]],
-                    device int32_t *indexToPoints [[buffer(11)]],
-                    device int32_t *isAttachedIn [[buffer(12)]],
-                    device int32_t *isAttachedOut [[buffer(13)]],
-                    device float *randomSeedsIn [[buffer(14)]],
-                    device float *randomSeedsOut [[buffer(15)]],
-                    device int32_t *MTstepNumberIn [[buffer(16)]],
-                    device int32_t *MTstepNumberOut [[buffer(17)]],
-                    constant simulation_parameters & parameters [[buffer(18)]],
+                    device simd_float3 *MTpoints [[buffer(6)]],
+                    device int32_t *cellIDtoIndex [[buffer(7)]],
+                    device int16_t *cellIDtoNMTs [[buffer(8)]],
+                    device int32_t *indexToPoints [[buffer(9)]],
+                    device int32_t *isAttachedIn [[buffer(10)]],
+                    device int32_t *isAttachedOut [[buffer(11)]],
+                    device float *randomSeedsIn [[buffer(12)]],
+                    device float *randomSeedsOut [[buffer(13)]],
+                    device int32_t *MTstepNumberIn [[buffer(14)]],
+                    device int32_t *MTstepNumberOut [[buffer(15)]],
+                    constant simulation_parameters & parameters [[buffer(16)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
-    
-    newTime[i] = oldTime[i] + deltat / stepsPerMTPoint;
 
     // Create temporal values here for better coalescing of writes
     int32_t isAttached = isAttachedIn[i];
@@ -373,7 +370,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     // Ceck if particle is inside centrosome
     if (shouldResetTime(parameters.boundaryConditions, cellRadius, distance)){
-        timeLastJump = newTime[i];
+        timeLastJump = parameters.time;
     }
     
     // MARK: - Reinjection
@@ -382,8 +379,8 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, cellRadius);
     switch (outsideBounds) {
         case OUTSIDE_AND_COUNT_TIME: {
-            timeBetweenJumps[i] = oldTime[i] - timeLastJump;
-            timeLastJump = newTime[i];
+            timeBetweenJumps[i] = parameters.time - timeLastJump;
+            timeLastJump = parameters.time;
             isAttached = -1;
             
             // Reinject point in the correct position given boundary conditions

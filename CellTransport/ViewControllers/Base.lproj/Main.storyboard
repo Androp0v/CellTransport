@@ -69,15 +69,15 @@
                                                     <action selector="freeze:" destination="BV1-FR-VrT" eventType="touchUpInside" id="81D-9a-YyB"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LKp-kt-PoI">
-                                                <rect key="frame" x="123" y="12" width="24.5" height="22"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LKp-kt-PoI">
+                                                <rect key="frame" x="129" y="12" width="24.5" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="camera.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
                                                 </state>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7y-hq-3N8">
-                                                <rect key="frame" x="165.5" y="12" width="18" height="22"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7y-hq-3N8">
+                                                <rect key="frame" x="171.5" y="12" width="18" height="22"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" image="arrow.down.doc.fill" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="medium"/>
@@ -108,8 +108,8 @@
                                             <constraint firstItem="OIj-Cf-SeM" firstAttribute="centerY" secondItem="pdv-XQ-5NM" secondAttribute="centerY" id="GZO-Z9-vum"/>
                                             <constraint firstItem="0Hy-uh-Gk0" firstAttribute="centerY" secondItem="pdv-XQ-5NM" secondAttribute="centerY" id="S3j-49-En1"/>
                                             <constraint firstAttribute="bottom" secondItem="OIj-Cf-SeM" secondAttribute="bottom" constant="12" id="Sxh-K9-1zJ"/>
-                                            <constraint firstAttribute="trailing" secondItem="x7y-hq-3N8" secondAttribute="trailing" constant="12" id="Y8L-ug-k1b"/>
                                             <constraint firstItem="x7y-hq-3N8" firstAttribute="leading" secondItem="LKp-kt-PoI" secondAttribute="trailing" constant="18" id="ZC1-ue-Hqd"/>
+                                            <constraint firstAttribute="trailing" secondItem="x7y-hq-3N8" secondAttribute="trailing" constant="18" id="ev3-4h-f5y"/>
                                             <constraint firstItem="L8T-dy-2ou" firstAttribute="leading" secondItem="0Hy-uh-Gk0" secondAttribute="trailing" constant="18" id="iQG-K8-KjL"/>
                                             <constraint firstItem="x7y-hq-3N8" firstAttribute="centerY" secondItem="pdv-XQ-5NM" secondAttribute="centerY" id="jum-KG-hTI"/>
                                             <constraint firstItem="L8T-dy-2ou" firstAttribute="centerY" secondItem="pdv-XQ-5NM" secondAttribute="centerY" id="mh5-e0-5pI"/>
@@ -282,13 +282,13 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="Zxd-8O-adK" userLabel="ParticlesStack">
                                         <rect key="frame" x="0.0" y="73" width="292" height="28.5"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Total particles:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4L1-iA-8kP">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total particles:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4L1-iA-8kP">
                                                 <rect key="frame" x="12" y="0.0" width="118" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="524288" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" enabled="NO" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bnH-Eq-Jjr">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="524288" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" enabled="NO" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bnH-Eq-Jjr">
                                                 <rect key="frame" x="136" y="0.0" width="144" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <nil key="textColor"/>
@@ -296,7 +296,7 @@
                                             </label>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="bnH-Eq-Jjr" firstAttribute="leading" secondItem="4L1-iA-8kP" secondAttribute="trailing" constant="4" id="sZD-43-0Cl"/>
+                                            <constraint firstItem="bnH-Eq-Jjr" firstAttribute="leading" secondItem="4L1-iA-8kP" secondAttribute="trailing" constant="8" id="Cs9-FX-d4E"/>
                                         </constraints>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
