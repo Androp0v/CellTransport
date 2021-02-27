@@ -14,13 +14,8 @@ class FatalCrashAlertController: UIAlertController {
         super.viewDidLoad()
         let closeAppAction = UIAlertAction(title: "OK",
                                            style: .default,
-                                           handler: {(_: UIAlertAction!) in self.closeApp()})
+                                           handler: nil)
         self.addAction(closeAppAction)
-    }
-
-    /// Kill the app
-    private func closeApp() {
-        UIControl().sendAction(#selector(NSXPCConnection.suspend), to: UIApplication.shared, for: nil)
     }
 
 }

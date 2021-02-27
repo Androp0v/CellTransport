@@ -267,6 +267,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             self.currentViewController = viewController
         }
     }
+
+    // MARK: - Pipeline initialization
     
     func initComputePipelineState(_ device: MTLDevice) {
 
@@ -292,19 +294,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Compile functions using current constants
         guard let compute = try? library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants) else {
             NSLog("Failed to compile compute function")
-            let fatalAlert = FatalCrashAlertController(title: "Fatal error",
-                                                       message: "Failed to compile compute GPU function",
-                                                       preferredStyle: .alert)
-            self.present(fatalAlert, animated: true, completion: nil)
             return
         }
         guard let verifyCollisions = try? library.makeFunction(name: "verifyCollisions", constantValues: computeFunctionCompileConstants) else {
             NSLog("Failed to compile verifyCollisions function")
-            let fatalAlert = FatalCrashAlertController(title: "Fatal error",
-                                                       message: "Failed to compile collisions GPU function",
-                                                       preferredStyle: .alert)
-            self.present(fatalAlert, animated: true, completion: nil)
-
             return
         }
 
@@ -313,9 +306,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         verifyCollisionsPipelineState = try? device.makeComputePipelineState(function: verifyCollisions)
         
     }
-    
+
     // MARK: - Initialization
-    
+
     func initializeMetal() {
         device = MTLCreateSystemDefaultDevice()
         queue = device.makeCommandQueue()
@@ -545,6 +538,28 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             truePause = true
         } else {
             truePause = false
+        }
+
+        // Check that the compute and verify collisions pipelines have been created successfully
+
+        guard computePipelineState != nil else {
+            DispatchQueue.main.async {
+                let fatalAlert = FatalCrashAlertController(title: "Fatal error",
+                                                           message: "Failed to compile compute GPU function",
+                                                           preferredStyle: .alert)
+                self.present(fatalAlert, animated: true, completion: nil)
+            }
+            return
+        }
+
+        guard verifyCollisionsPipelineState != nil else {
+            DispatchQueue.main.async {
+                let fatalAlert = FatalCrashAlertController(title: "Fatal error",
+                                                           message: "Failed to compile collisions GPU function",
+                                                           preferredStyle: .alert)
+                self.present(fatalAlert, animated: true, completion: nil)
+            }
+            return
         }
 
         // Start simulation loop
