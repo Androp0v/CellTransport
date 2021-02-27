@@ -23,7 +23,7 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
     let startTime = NSDate.now
 
     func updateProgress() {
-        let fractionCompleted = Float(completedMTsCount)/Float(Parameters.nMicrotubules*Parameters.nCells)
+        let fractionCompleted = Float(completedMTsCount) / Float(Parameters.nMicrotubules * Parameters.nCells)
         DispatchQueue.main.async {
             alertLabel?.text = "Generating microtubule structure of remaining cells: "
                                     + String(format: "%.2f", 100*fractionCompleted)
@@ -160,7 +160,7 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
                       points: microtubulePointsArray,
                       cellNMTPoints: cellsPointsNumber,
                       cellRadius: Parameters.cellRadius,
-                      cellsPerDimension: Parameters.cellsPerDimension)
+                      cellsPerDimension: Int(Parameters.cellsPerDimension))
 
     // Convert MT dictionary to arrays
 
@@ -169,7 +169,7 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
                        cellIDtoNMTs: &cellIDtoNMTs,
                        MTIndexArray: &indexToPoint,
                        nCells: Parameters.nCells,
-                       cellsPerDimension: Parameters.cellsPerDimension,
+                       cellsPerDimension: Int(Parameters.cellsPerDimension),
                        alertLabel: alertLabel)
 
     return (nodelist, microtubulePoints, microtubuleNSegments, microtubulePointsArray)

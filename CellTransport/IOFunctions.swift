@@ -24,7 +24,7 @@ func exportHistogramToFile(histogram: [[Float]], folderURL: URL, filename: Strin
     var histogramString = String()
     
     // Check that the histogram array is not empty
-    if histogram.isEmpty {
+    if histogram.count > 0 {
         // Loop over all positions and digits
         for i in 0..<histogram[0].count {
             for (column, columnData) in histogram.enumerated() {
@@ -102,8 +102,8 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Attachment probability: " + String(Parameters.wON) + " nm^3*s^-1\n"
     parametersString += "Detachment probability: " + String(Parameters.wOFF) + " s^-1\n"
     parametersString += "Timestep: " + String(Parameters.deltat / Float(Parameters.stepsPerMTPoint)) + " s\n"
-    parametersString += "Cells per dimension: " + String(Parameters.cellsPerDimension)
-    parametersString += "Cytoplasm viscosity: " + String(Parameters.n_w) + " (water viscosity units)"
+    parametersString += "Cells per dimension: " + String(Parameters.cellsPerDimension) + "\n"
+    parametersString += "Cytoplasm viscosity: " + String(Parameters.n_w) + " (water viscosity units)\n"
     
     // Write to file (atomically!)
     do {

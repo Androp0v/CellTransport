@@ -48,7 +48,7 @@ struct Parameters {
     static var molecularMotors: Int32 = KINESIN_ONLY // Molecular motor choice and boundary conditions
     static var collisionsFlag: Bool = false // Enables or disables collisions
     static var deltat: Float = 0.0 // Timestep. Fixed by microtubule speed
-    static var stepsPerMTPoint: Int32 = 10 //  Subdivisions of each deltat timestep
+    static var stepsPerMTPoint: Int = 10 //  Subdivisions of each deltat timestep
     static var wON: Float = 33000000 // Probability of attachment, nm^3/s
     static var wOFF: Float = 1.0 // Probability of dettachment, s^-1
     static var n_w: Float = 10 // Viscosity in water viscosity units

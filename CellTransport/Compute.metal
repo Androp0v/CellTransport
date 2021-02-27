@@ -21,25 +21,26 @@ constant int OUTSIDE_AND_COUNT_TIME = 0;
 constant int INSIDE = 1;
 constant int OUTSIDE_AND_NOT_COUNT_TIME = 2;
 
-constant int32_t stepsPerMTPoint [[ function_constant(0) ]];
+// MARK: - Compile time constants
+
+constant float deltat [[ function_constant(0) ]];
+constant int32_t stepsPerMTPoint [[ function_constant(1) ]];
+constant float cellRadius [[ function_constant(2) ]];
+constant int32_t cellsPerDimension [[ function_constant(3) ]];
+constant int32_t nBodies [[ function_constant(4) ]];
+constant int32_t nCells [[ function_constant(5) ]];
+constant bool nucleusEnabled [[ function_constant(6) ]];
 
 // MARK: - Input parameters struct
 
 struct simulation_parameters {
-    float deltat; //TODO: Declare as constant
-    float cellRadius; //TODO: Declare as constant
-    int32_t cellsPerDimension; //TODO: Declare as constant
-    int32_t nBodies; //TODO: Declare as constant
-    int32_t nCells; //TODO: Declare as constant
     float wON;
     float wOFF;
     float n_w;
     int32_t boundaryConditions;
-    int32_t molecularMotors; //TODO: Declare as constant
-    int32_t stepsPerMTPoint; //DELETE: now declared constant
-    bool nucleusEnabled; //TODO: Declare as constant
-    float nucleusRadius; //TODO: Declare as constant
-    simd_float3 nucleusLocation; //TODO: Declare as constant
+    int32_t molecularMotors;
+    float nucleusRadius;
+    simd_float3 nucleusLocation;
 };
 
 // MARK: - Helper functions
@@ -60,7 +61,7 @@ int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension
 }
 
 // Check if a position is inside the cell nucleus
-bool checkIfInsideNucleus(float3 MTPoint, bool nucleusEnabled, float nucleusRadius, float3 nucleusLocation) {
+bool checkIfInsideNucleus(float3 MTPoint, float nucleusRadius, float3 nucleusLocation) {
     // Always return false if the nucleus is not enabled
     if (!nucleusEnabled) {
         return false;
@@ -203,8 +204,8 @@ bool shouldResetTime(int32_t boundaryConditions, float cellRadius, float distanc
 kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float3 *positionsOut [[buffer(1)]],
                     device float *distances [[buffer(2)]],
-                    device float *timeLastJump [[buffer(3)]],
-                    device float *updatedTimeLastJump [[buffer(4)]],
+                    device float *timeLastJumpIn [[buffer(3)]],
+                    device float *timeLastJumpOut [[buffer(4)]],
                     device float *timeBetweenJumps [[buffer(5)]],
                     device float *oldTime [[buffer(6)]],
                     device float *newTime [[buffer(7)]],
@@ -222,37 +223,48 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     uint i [[thread_position_in_grid]],
                     uint l [[thread_position_in_threadgroup]]) {
     
-    newTime[i] = oldTime[i] + parameters.deltat / stepsPerMTPoint;
+    newTime[i] = oldTime[i] + deltat / stepsPerMTPoint;
+
+    // Create temporal values here for better coalescing of writes
+    int32_t isAttached = isAttachedIn[i];
+    float3 position = positionsIn[i];
+    int32_t MTstepNumber = MTstepNumberIn[i];
+    float timeLastJump = timeLastJumpIn[i];
+
+    // Initialize useful values
+    int currentCellNumber = int( i / int(nBodies / nCells) );
     
-    int currentCellNumber = int(i / int(parameters.nBodies/parameters.nCells));
-    
-    int currentCellID = getCellID(positionsIn[i].x, positionsIn[i].y, positionsIn[i].z, parameters.cellRadius, parameters.cellsPerDimension, currentCellNumber);
+    int currentCellID = getCellID(position.x,
+                                  position.y,
+                                  position.z,
+                                  cellRadius,
+                                  cellsPerDimension,
+                                  currentCellNumber);
                 
     // Flag wether or not the particle should diffuse. Default to true
     bool diffuseFlag = true;
-    
+
     // Precompute the random number used in MT dynamics
     float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
-    randomSeedsOut[i] = randNumber;
     
     // MARK: - Microtubule attach/detach
         
-    // Check if the particle is currently attached to something (so isAttachedIn != -1)
-    if (isAttachedIn[i] != -1){
+    // Check if the particle is currently attached to something (so isAttached != -1)
+    if (isAttached != -1) {
         
         // Probability that the particle detaches
-        bool willDetach = (randNumber < parameters.wOFF*parameters.deltat / stepsPerMTPoint);
+        bool willDetach = (randNumber < parameters.wOFF * deltat / stepsPerMTPoint);
         
         // Check that the particle hasn't reached the end of the MT
-        bool isAtMTLastPoint = abs(MTpoints[isAttachedIn[i] + 1].x == parameters.cellRadius) &&
-                                abs(MTpoints[isAttachedIn[i] + 1].y == parameters.cellRadius) &&
-                                abs(MTpoints[isAttachedIn[i] + 1].z == parameters.cellRadius);
+        bool isAtMTLastPoint = abs(MTpoints[isAttached + 1].x == cellRadius) &&
+                                abs(MTpoints[isAttached + 1].y == cellRadius) &&
+                                abs(MTpoints[isAttached + 1].z == cellRadius);
         
         // If the particle will naturally detach or is ar the end of a MT, detach
         if (willDetach || isAtMTLastPoint) {
             
-            isAttachedOut[i] = -1;
-            MTstepNumberOut[i] = 1;
+            isAttached = -1;
+            MTstepNumber = 1;
             
         } else {
             
@@ -260,7 +272,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
             diffuseFlag = false;
 
             // Check if the particle should advance to the next MTPoint
-            if (MTstepNumberIn[i] >= stepsPerMTPoint){
+            if (MTstepNumber >= stepsPerMTPoint) {
                 
                 int MTdirection;
                 
@@ -279,43 +291,43 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                 }
                 
                 // Move in MTdirection
-                positionsOut[i] = MTpoints[isAttachedIn[i] + MTdirection];
-                isAttachedOut[i] = isAttachedIn[i] + MTdirection;
-                MTstepNumberOut[i] = 1;
+                position = MTpoints[isAttached + MTdirection];
+                isAttached += MTdirection;
+                MTstepNumber = 1;
                 
-            }else{
-                
-                isAttachedOut[i] = isAttachedIn[i];
-                positionsOut[i] = positionsIn[i];
-                MTstepNumberOut[i] = MTstepNumberIn[i] + 1;
+            } else {
+
+                MTstepNumber += 1;
                 
             }
             
         }
         
-    }else{
+    } else {
+
+        // cellVolume is computed as compile time as cellRadius and cellsPerDimension are known at compile time
+        float cellVolume = pow(2*cellRadius / cellsPerDimension, 3);
         
-        float cellVolume = pow(2*parameters.cellRadius / parameters.cellsPerDimension, 3);
-        
-        //Probability that the particle attaches
-        if (randNumber < 1 - pow(1 - parameters.wON * (parameters.deltat / stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
+        // Probability that the particle attaches
+        if (randNumber < 1 - pow(1 - parameters.wON * (deltat / stepsPerMTPoint) / cellVolume, cellIDtoNMTs[currentCellID])){
             
-            //Check if it can attach to anything
+            // Check if it can attach to anything
             if (cellIDtoNMTs[currentCellID] != 0){
                 
                 int nMTs = cellIDtoNMTs[currentCellID];
-                int chosenMT = int(rand(int(positionsIn[i].x*1000000), int(positionsIn[i].y*1000000), int(positionsIn[i].z*1000000))*nMTs);
+                int chosenMT = int(rand(int(position.x*1000000),
+                                        int(position.y*1000000),
+                                        int(position.z*1000000))
+                                   *nMTs);
                 
                 int MTindex = cellIDtoIndex[currentCellID];
                 float3 MTpointOfAttachment = MTpoints[indexToPoints[MTindex + chosenMT]];
-                positionsOut[i] = MTpointOfAttachment;
+                position = MTpointOfAttachment;
                 
-                isAttachedOut[i] = indexToPoints[MTindex + chosenMT];
+                isAttached = indexToPoints[MTindex + chosenMT];
                 diffuseFlag = false;
             }
             
-        }else{
-            isAttachedOut[i] = isAttachedIn[i];
         }
     }
     
@@ -323,83 +335,106 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     if (diffuseFlag){
         
-        float randNumber1 = rand(int(randomSeedsIn[i]*100000), 0, 0);
+        float randNumber1 = rand(int(randNumber*100000), 0, 0);
         float randNumber2 = rand(int(randNumber1*100000), 0, 0);
         float randNumber3 = rand(int(randNumber2*100000), int(randNumber1*100000), 0);
-        randomSeedsOut[i] = randNumber3;
+        randNumber = randNumber3;
         
-        float randNumberX = 2*rand(int(randNumber1*10000), int(positionsIn[i].y*10000), int(positionsIn[i].z*10000)) - 1;
-        float randNumberY = 2*rand(int(positionsIn[i].y*10000), int(randNumber2*10000), int(positionsIn[i].z*10000)) - 1;
-        float randNumberZ = 2*rand(int(positionsIn[i].y*10000), int(positionsIn[i].x*10000), int(randNumber3*10000)) - 1;
+        float randNumberX = 2*rand(int(randNumber1*10000),
+                                   int(position.y*10000),
+                                   int(position.z*10000)) - 1;
+
+        float randNumberY = 2*rand(int(position.y*10000),
+                                   int(randNumber2*10000),
+                                   int(position.z*10000)) - 1;
+
+        float randNumberZ = 2*rand(int(position.y*10000),
+                                   int(position.x*10000),
+                                   int(randNumber3*10000)) - 1;
         
-        //Compute the diffusion movement factor (compiler should optimize this)
-        float diffusivity = 1.59349*pow(float(10), float(6))/parameters.n_w;
-        float deltatMT = parameters.deltat / stepsPerMTPoint; //REDUCED DELTA T
-        float msqdistance = sqrt(6*diffusivity*deltatMT);
-        float factor = msqdistance/0.8660254038;
+        // Compute the diffusion movement factor (compiler should optimize this)
+        float diffusivity = 1.59349 * pow(10.0, 6.0) / parameters.n_w;
+        float deltatMT = deltat / stepsPerMTPoint; //REDUCED DELTA T
+        float msqdistance = sqrt(6 * diffusivity * deltatMT);
+        float factor = msqdistance / 0.8660254038;
         
-        positionsOut[i] = positionsIn[i] + factor*float3(randNumberX,randNumberY,randNumberZ);
-        
-        isAttachedOut[i] = -1;
+        position += factor*float3(randNumberX,randNumberY,randNumberZ);
+        isAttached = -1;
     }
     
     // Avoid particle diffusing into the nucleus
-    if (checkIfInsideNucleus(positionsOut[i], parameters.nucleusEnabled, parameters.nucleusRadius, parameters.nucleusLocation)) {
-        positionsOut[i] = positionsIn[i];
+    if (checkIfInsideNucleus(position, parameters.nucleusRadius, parameters.nucleusLocation)) {
+        // Return particle position to initial position
+        position = positionsIn[i];
     }
     
-    //Precompute distance
-    float distance = sqrt(pow(positionsOut[i].x, 2) + pow(positionsOut[i].y, 2) + pow(positionsOut[i].z, 2));
+    // Precompute distance
+    float distance = sqrt(pow(position.x, 2) + pow(position.y, 2) + pow(position.z, 2));
     
-    //Ceck if particle is inside centrosome
-    if (shouldResetTime(parameters.boundaryConditions, parameters.cellRadius, distance)){
-        updatedTimeLastJump[i] = newTime[i];
+    // Ceck if particle is inside centrosome
+    if (shouldResetTime(parameters.boundaryConditions, cellRadius, distance)){
+        timeLastJump = newTime[i];
     }
     
     // MARK: - Reinjection
-    //Check if new point is outside specified boundary conditions
+    // Check if new point is outside specified boundary conditions
     
-    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, parameters.cellRadius);
+    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, cellRadius);
     switch (outsideBounds) {
         case OUTSIDE_AND_COUNT_TIME: {
-            updatedTimeLastJump[i] = newTime[i];
-            timeBetweenJumps[i] = oldTime[i] - timeLastJump[i];
-            isAttachedOut[i] = -1;
+            timeBetweenJumps[i] = oldTime[i] - timeLastJump;
+            timeLastJump = newTime[i];
+            isAttached = -1;
             
             // Reinject point in the correct position given boundary conditions
-            float4 point = reinjectPosition(parameters.boundaryConditions, distance, parameters.cellRadius, positionsOut[i], positionsIn[i]);
+            float4 point = reinjectPosition(parameters.boundaryConditions,
+                                            distance,
+                                            cellRadius,
+                                            position,
+                                            positionsIn[i]);
             
-            positionsOut[i].x = point.x;
-            positionsOut[i].y = point.y;
-            positionsOut[i].z = point.z;
+            position.x = point.x;
+            position.y = point.y;
+            position.z = point.z;
             
             distance = point.w;
             break;
         }
         case OUTSIDE_AND_NOT_COUNT_TIME: {
-            isAttachedOut[i] = -1;
+            isAttached = -1;
             
             // Reinject point in the correct position given boundary conditions
-            float4 point = reinjectPosition(parameters.boundaryConditions, distance, parameters.cellRadius, positionsOut[i], positionsIn[i]);
+            float4 point = reinjectPosition(parameters.boundaryConditions,
+                                            distance,
+                                            cellRadius,
+                                            position,
+                                            positionsIn[i]);
             
-            positionsOut[i].x = point.x;
-            positionsOut[i].y = point.y;
-            positionsOut[i].z = point.z;
+            position.x = point.x;
+            position.y = point.y;
+            position.z = point.z;
             
             distance = point.w;
             break;
         }
         case INSIDE: {
-            //Don't do anything
+            // Don't do anything
             break;
         }
         default: {
-            //Don't do anything
+            // Don't do anything
             break;
         }
     }
-    
+
+    // MARK: - Write to buffers
+    // Coalesce all writes to buffer at the same time
+    isAttachedOut[i] = isAttached;
+    positionsOut[i] = position;
+    MTstepNumberOut[i] = MTstepNumber;
+    randomSeedsOut[i] = randNumber;
     distances[i] = distance;
+    timeLastJumpOut[i] = timeLastJump;
     
 }
 
@@ -414,15 +449,15 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
                              constant simulation_parameters & parameters [[buffer(6)]],
                              uint i [[thread_position_in_grid]]){
     
-    int particlesPerCell = parameters.nBodies/parameters.nCells;
+    int particlesPerCell = nBodies / nCells;
     
     //Update the cellIDtoOccupied hypermatrix
     for(int j=0; j < particlesPerCell; j++){
         cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
                                    positionsIn[j + particlesPerCell*i].y,
                                    positionsIn[j + particlesPerCell*i].z,
-                                   parameters.cellRadius,
-                                   parameters.cellsPerDimension,
+                                   cellRadius,
+                                   cellsPerDimension,
                                    i)] += 1;
     }
                                  
@@ -432,18 +467,18 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
         int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
                                  positionsIn[j + particlesPerCell*i].y,
                                  positionsIn[j + particlesPerCell*i].z,
-                                 parameters.cellRadius,
-                                 parameters.cellsPerDimension,
+                                 cellRadius,
+                                 cellsPerDimension,
                                  i);
         int cellIdOut = getCellID(positionsOut[j + particlesPerCell*i].x,
                                   positionsOut[j + particlesPerCell*i].y,
                                   positionsOut[j + particlesPerCell*i].z,
-                                  parameters.cellRadius,
-                                  parameters.cellsPerDimension,
+                                  cellRadius,
+                                  cellsPerDimension,
                                   i);
         
         //Check if it moved into the same cell and if it's the only particle in that cell
-        if ((cellIdOut == cellIdIn) || distances[j + particlesPerCell*i] < parameters.cellRadius*0.1){
+        if ((cellIdOut == cellIdIn) || distances[j + particlesPerCell*i] < cellRadius*0.1){
             positionsIn[j + particlesPerCell*i] = positionsOut[j + particlesPerCell*i];
             isAttachedIn[j + particlesPerCell*i] = isAttachedOut[j + particlesPerCell*i];
             //Free the cell just left
@@ -470,14 +505,14 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
         cellIDtoOccupied[getCellID(positionsIn[j + particlesPerCell*i].x,
                                    positionsIn[j + particlesPerCell*i].y,
                                    positionsIn[j + particlesPerCell*i].z,
-                                   parameters.cellRadius,
-                                   parameters.cellsPerDimension,
+                                   cellRadius,
+                                   cellsPerDimension,
                                    i)] = 0;
         cellIDtoOccupied[getCellID(positionsOut[j + particlesPerCell*i].x,
                                 positionsOut[j + particlesPerCell*i].y,
                                 positionsOut[j + particlesPerCell*i].z,
-                                parameters.cellRadius,
-                                parameters.cellsPerDimension,
+                                cellRadius,
+                                cellsPerDimension,
                                 i)] = 0;
     }
     

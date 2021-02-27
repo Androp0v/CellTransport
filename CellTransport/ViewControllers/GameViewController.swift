@@ -269,10 +269,25 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     func initComputePipelineState(_ device: MTLDevice) {
-        
+
+        // Create temporal variables so Parameters can be kept let constants
+        var deltatCompileConstant: Float = Parameters.deltat
+        var stepsPerMTPointCompileConstant: Int = Int(Parameters.stepsPerMTPoint)
+        var cellRadiusCompileConstant: Float = Parameters.cellRadius
+        var cellsPerDimensionCompileConstant: Int = Int(Parameters.cellsPerDimension)
+        var nBodiesCompileConstant: Int = Int(Parameters.nbodies)
+        var nCellsCompileConstant: Int = Int(Parameters.nCells)
+        var nucleusEnabledCompileConstant: Bool = Parameters.nucleusEnabled
+
         // Create compute compiler constants
         let computeFunctionCompileConstants = MTLFunctionConstantValues()
-        computeFunctionCompileConstants.setConstantValue(&Parameters.stepsPerMTPoint, type: .int, index: 0)
+        computeFunctionCompileConstants.setConstantValue(&deltatCompileConstant, type: .float, index: 0)
+        computeFunctionCompileConstants.setConstantValue(&stepsPerMTPointCompileConstant, type: .int, index: 1)
+        computeFunctionCompileConstants.setConstantValue(&cellRadiusCompileConstant, type: .float, index: 2)
+        computeFunctionCompileConstants.setConstantValue(&cellsPerDimensionCompileConstant, type: .int, index: 3)
+        computeFunctionCompileConstants.setConstantValue(&nBodiesCompileConstant, type: .int, index: 4)
+        computeFunctionCompileConstants.setConstantValue(&nCellsCompileConstant, type: .int, index: 5)
+        computeFunctionCompileConstants.setConstantValue(&nucleusEnabledCompileConstant, type: .bool, index: 6)
         
         // Compile functions using current constants
         guard let compute = try? library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants) else {
@@ -678,18 +693,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Define a struct of parameters to be passed to the kernel function in Metal
     struct SimulationParameters {
-        var deltat_to_metal: Float
-        var cellRadius_to_metal: Float
-        var cellsPerDimension_to_metal: Int32
-        var nBodies_to_Metal: Int32
-        var nCells_to_Metal: Int32
         var wON: Float
         var wOFF: Float
         var n_w: Float
         var boundaryConditions: Int32
         var molecularMotors: Int32
-        var stepsPerMTPoint: Int32
-        var nucleusEnabled: Bool
         var nucleusRadius: Float
         var nucleusLocation: simd_float3
     }
@@ -698,18 +706,11 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         // Create simulationParameters struct
         
-        var simulationParametersObject = SimulationParameters(deltat_to_metal: Parameters.deltat,
-                                                              cellRadius_to_metal: Parameters.cellRadius,
-                                                              cellsPerDimension_to_metal: Int32(Parameters.cellsPerDimension),
-                                                              nBodies_to_Metal: Int32(Parameters.nbodies),
-                                                              nCells_to_Metal: Int32(Parameters.nCells),
-                                                              wON: Parameters.wON,
+        var simulationParametersObject = SimulationParameters(wON: Parameters.wON,
                                                               wOFF: Parameters.wOFF,
                                                               n_w: Parameters.n_w,
                                                               boundaryConditions: Parameters.boundaryConditions,
                                                               molecularMotors: Parameters.molecularMotors,
-                                                              stepsPerMTPoint: Parameters.stepsPerMTPoint,
-                                                              nucleusEnabled: Parameters.nucleusEnabled,
                                                               nucleusRadius: Parameters.nucleusRadius,
                                                               nucleusLocation: simd_float3(Parameters.nucleusLocation))
         
@@ -744,8 +745,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             
         // Compute kernel
         let threadsPerArray = MTLSizeMake(Parameters.nbodies, 1, 1)
-        // let groupsize = MTLSizeMake(computePipelineState[0]!.maxTotalThreadsPerThreadgroup,1,1)
-        let groupsize = MTLSizeMake(64, 1, 1)
+        let groupsize = MTLSizeMake(computePipelineState!.maxTotalThreadsPerThreadgroup, 1, 1)
+        // let groupsize = MTLSizeMake(64, 1, 1)
         
         let computeEncoder = buffer!.makeComputeCommandEncoder()
           
