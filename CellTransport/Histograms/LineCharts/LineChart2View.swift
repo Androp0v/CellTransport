@@ -22,6 +22,8 @@ class LineChart2: UIView {
     private var graphOrigin: CGPoint = CGPoint(x: 0.0, y: 0.0)
         
     let bins: Int = 2000
+    let correlationTime: Float = 240.0 // s
+    var timeOfLastGraph: Float = 0.0 // s
     
     var histogramArray = [Float](repeating: 0.0, count: 2000)
     public var returnableArray: [Float] = []
@@ -32,12 +34,19 @@ class LineChart2: UIView {
         
     func clearHistogram() {
         histogramArray = [Float](repeating: 0.0, count: bins)
+        timeOfLastGraph = 0
     }
         
     func drawChart(times: UnsafeMutablePointer<Float>, nBodies: Int, autoMerge: Bool) {
                     
         if !autoMerge {
             clearHistogram()
+        }
+
+        // Compute merged histogram only if a greater timestep than correlation time has elapsed
+        if autoMerge {
+            guard Parameters.time - timeOfLastGraph > correlationTime else { return }
+            timeOfLastGraph = Parameters.time
         }
         
         DispatchQueue.main.sync {

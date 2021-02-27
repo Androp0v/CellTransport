@@ -52,6 +52,9 @@ struct Parameters {
     static var wON: Float = 33000000 // Probability of attachment, nm^3/s
     static var wOFF: Float = 1.0 // Probability of dettachment, s^-1
     static var n_w: Float = 10 // Viscosity in water viscosity units
+
+    /* RUNNING SIMULATION STATS */
+    static var time: Float = 0 // Simulation running time
     
     /* GRAPH PARAMETERS */
     

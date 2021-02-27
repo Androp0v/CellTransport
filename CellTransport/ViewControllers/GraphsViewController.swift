@@ -58,7 +58,7 @@ class GraphsViewController: UIViewController {
     }
     
     func setHistogramData2(cellRadius: Float, distances: UnsafeMutablePointer<Float>, nBodies: Int) {
-        histogramChart2?.drawChart(times: distances, nBodies: nBodies, autoMerge: false)
+        histogramChart2?.drawChart(times: distances, nBodies: nBodies, autoMerge: autoMerge)
     }
     
     func setHistogramData3(cellRadius: Float, points: [SCNVector3]) {

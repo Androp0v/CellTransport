@@ -222,8 +222,6 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var isAttachedInBuffer: MTLBuffer?
     fileprivate var isAttachedOutBuffer: MTLBuffer?
 
-    fileprivate var time: Float = 0
-    
     fileprivate var randomSeedsInBuffer: MTLBuffer?
     fileprivate var randomSeedsOutBuffer: MTLBuffer?
     
@@ -551,7 +549,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         }
 
         // Reset simulation time
-        time = 0
+        Parameters.time = 0
 
         // Start simulation loop
         DispatchQueue.global(qos: .default).async {
@@ -720,7 +718,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
                                                               molecularMotors: Parameters.molecularMotors,
                                                               nucleusRadius: Parameters.nucleusRadius,
                                                               nucleusLocation: simd_float3(Parameters.nucleusLocation),
-                                                              time: time)
+                                                              time: Parameters.time)
         
         // Reset the buffers if required, wait until the buffer is not being read by the plotting functions
         if resetArrivalTimesRequired && !isBusy2 {
@@ -818,7 +816,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
 
         // Update simulation time
 
-        time += Parameters.deltat / Float(Parameters.stepsPerMTPoint)
+        Parameters.time += Parameters.deltat / Float(Parameters.stepsPerMTPoint)
 
         // Asynchronously launch histogram computations if not already running
         
