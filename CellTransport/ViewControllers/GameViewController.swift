@@ -567,12 +567,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeDeltaT()
 
         // Initialize tabs viewcontrollers
-        //self.firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
         self.firstChildTabVC = ParametersTableViewController(nibName: "ParametersTableViewController", bundle: nil)
         self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
         self.thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController") as? ComputeViewController
-
-        //firstChildTabVC?.mainGameViewController = self
 
         // Initialize Metal for GPU calculations
         initializeMetal()
@@ -629,8 +626,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         segmentedControl.selectedSegmentIndex = TabIndex.firstChildTab.rawValue
         displayCurrentTab(TabIndex.firstChildTab.rawValue)
 
+        segmentedControl.isSelected = true
+
         // UI changes for macOS
-        sidebarWidthConstraint.constant = 300 // FIXME: should be lower
+        if UIDevice.current.userInterfaceIdiom == .mac {
+            sidebarWidthConstraint.constant = 300 // May be configured to be narrower in the future
+        }
         
         // Initialize the simulation
         DispatchQueue.global(qos: .default).async {

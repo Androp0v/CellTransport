@@ -22,7 +22,7 @@ struct PickerAndDropDownView: View {
                        Text(self.pickerOptions[$0])
                     }
                  }
-        .pickerStyle(DefaultPickerStyle())
+        .pickerStyle(MenuPickerStyle())
         .padding(.leading, 15)
         .padding(.trailing, 12)
         .onChange(of: selectedOption.value, perform: { value in

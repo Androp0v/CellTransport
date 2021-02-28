@@ -81,6 +81,11 @@ let setWON: (String) -> Bool = { wON in
     guard let wON = Float(wON) else {
         return false
     }
+
+    // Check for numerical stability
+    guard isNumericallyStable(wON: wON) else { return false }
+
+    // Save the value and return
     Parameters.wON = wON
     return false
 }

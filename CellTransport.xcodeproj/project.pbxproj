@@ -25,6 +25,7 @@
 		C480F6A725EBE5A70034E498 /* PickerParameterTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C480F6A525EBE5A70034E498 /* PickerParameterTableViewCell.swift */; };
 		C480F6A825EBE5A70034E498 /* PickerParameterTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C480F6A625EBE5A70034E498 /* PickerParameterTableViewCell.xib */; };
 		C480F6AC25EBE73C0034E498 /* PickerAndDropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C480F6AB25EBE73C0034E498 /* PickerAndDropDownView.swift */; };
+		C480F6B725EC130C0034E498 /* NumericalStabilityChecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = C480F6B625EC130C0034E498 /* NumericalStabilityChecks.swift */; };
 		C49029172522521100532ED5 /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49029162522521100532ED5 /* Parameters.swift */; };
 		C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
 		C4BB18C825E09276000648DE /* SpawnBoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */; };
@@ -87,6 +88,7 @@
 		C480F6A525EBE5A70034E498 /* PickerParameterTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerParameterTableViewCell.swift; sourceTree = "<group>"; };
 		C480F6A625EBE5A70034E498 /* PickerParameterTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PickerParameterTableViewCell.xib; sourceTree = "<group>"; };
 		C480F6AB25EBE73C0034E498 /* PickerAndDropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerAndDropDownView.swift; sourceTree = "<group>"; };
+		C480F6B625EC130C0034E498 /* NumericalStabilityChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericalStabilityChecks.swift; sourceTree = "<group>"; };
 		C49029162522521100532ED5 /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnBoundingBox.swift; sourceTree = "<group>"; };
@@ -188,6 +190,14 @@
 			path = "Headers and footers";
 			sourceTree = "<group>";
 		};
+		C480F6B325EC05E50034E498 /* SwiftUI Views */ = {
+			isa = PBXGroup;
+			children = (
+				C480F6AB25EBE73C0034E498 /* PickerAndDropDownView.swift */,
+			);
+			path = "SwiftUI Views";
+			sourceTree = "<group>";
+		};
 		C4BB18D725E13730000648DE /* CellTransportPerformanceTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +235,7 @@
 				C4BD594623EA22E1000B871B /* art.scnassets */,
 				C49029162522521100532ED5 /* Parameters.swift */,
 				C40F0BCB241155E3008A5619 /* IOFunctions.swift */,
+				C480F6B625EC130C0034E498 /* NumericalStabilityChecks.swift */,
 				C4C603A5258452EA000A09EF /* Spawners */,
 				C475A4F525E0770200FAD923 /* ViewControllers */,
 				C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */,
@@ -247,6 +258,7 @@
 		C4C1E87A25EAADAD008BAD6C /* ParameterCells */ = {
 			isa = PBXGroup;
 			children = (
+				C480F6B325EC05E50034E498 /* SwiftUI Views */,
 				C480F68C25EB39DD0034E498 /* Headers and footers */,
 				C4C1E87B25EAAE17008BAD6C /* BaseParameterTableViewCell.swift */,
 				C4C1E88225EAAE92008BAD6C /* TextInputParameterTableViewCell.xib */,
@@ -254,7 +266,6 @@
 				C480F68325EB0E1A0034E498 /* SwitchParameterTableViewCell.xib */,
 				C480F68225EB0E1A0034E498 /* SwitchParameterTableViewCell.swift */,
 				C480F6A625EBE5A70034E498 /* PickerParameterTableViewCell.xib */,
-				C480F6AB25EBE73C0034E498 /* PickerAndDropDownView.swift */,
 				C480F6A525EBE5A70034E498 /* PickerParameterTableViewCell.swift */,
 			);
 			path = ParameterCells;
@@ -429,6 +440,7 @@
 				C40F0BCC241155E3008A5619 /* IOFunctions.swift in Sources */,
 				C4C1E88D25EAAF68008BAD6C /* ParametersTableViewController.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
+				C480F6B725EC130C0034E498 /* NumericalStabilityChecks.swift in Sources */,
 				C4F35DB72527A5BC001D8F3A /* ParameterPickerController.swift in Sources */,
 				C404E1B224EAF73C00FD5489 /* LineChart3View.swift in Sources */,
 				C480F6A725EBE5A70034E498 /* PickerParameterTableViewCell.swift in Sources */,

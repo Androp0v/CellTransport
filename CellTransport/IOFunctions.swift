@@ -52,7 +52,7 @@ func getMolecularMotorName(molecularMotors: Int32) -> String {
     switch molecularMotors {
     case Parameters.KINESIN_ONLY:
         return "KINESIN_ONLY"
-    case Parameters.KINESIN_ONLY:
+    case Parameters.DYNEIN_ONLY:
         return "DYNEIN_ONLY"
     default:
         return "DEFAULT_TO_KINESIN_ONLY"
