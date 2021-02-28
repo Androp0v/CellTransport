@@ -124,6 +124,9 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
+                                                <variation key="userInterfaceIdiom=mac">
+                                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                </variation>
                                             </label>
                                         </subviews>
                                         <color key="backgroundColor" red="0.5" green="0.5" blue="0.5" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
@@ -139,6 +142,9 @@
                                         <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="12"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="10"/>
+                                        </variation>
                                     </label>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -172,6 +178,9 @@
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                        </variation>
                                     </label>
                                     <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="A0q-Od-ymt">
                                         <rect key="frame" x="18" y="52.5" width="264" height="32"/>
@@ -226,6 +235,7 @@
                         <outlet property="scnContainer" destination="y2h-Zf-dmp" id="LSt-3n-r8e"/>
                         <outlet property="scnView" destination="XiD-5r-A3n" id="S2J-eK-ZOM"/>
                         <outlet property="segmentedControl" destination="A0q-Od-ymt" id="NTq-5n-iRc"/>
+                        <outlet property="sidebarWidthConstraint" destination="9MK-ey-LlD" id="Eiv-dt-Obm"/>
                         <outlet property="slowModeButton" destination="0Hy-uh-Gk0" id="8Y3-5P-fOk"/>
                         <outlet property="topBarBackground" destination="8BS-bg-Xv2" id="82R-1d-CIs"/>
                     </connections>
@@ -671,6 +681,9 @@
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                        </variation>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nb8-Gs-eb4">
                                         <rect key="frame" x="260" y="11" width="22" height="22"/>
@@ -693,6 +706,9 @@
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                        </variation>
                                     </label>
                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="80e-mu-shh" customClass="LineChart2" customModule="CellTransport" customModuleProvider="target">
                                         <rect key="frame" x="18" y="247" width="264" height="160"/>
@@ -706,6 +722,9 @@
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                        </variation>
                                     </label>
                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OJ0-ss-233" customClass="LineChart3" customModule="CellTransport" customModuleProvider="target">
                                         <rect key="frame" x="18" y="453.5" width="264" height="160"/>
@@ -719,6 +738,9 @@
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                        </variation>
                                     </label>
                                     <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rYf-H9-7zY" customClass="LineChart4" customModule="CellTransport" customModuleProvider="target">
                                         <rect key="frame" x="18" y="660" width="264" height="160"/>
@@ -735,6 +757,9 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
+                                                <variation key="userInterfaceIdiom=mac">
+                                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                </variation>
                                             </label>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Hio-0f-aG0">
                                                 <rect key="frame" x="203" y="0.0" width="51" height="20.5"/>
@@ -745,13 +770,17 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="12" bottom="8" right="12"/>
                                     </stackView>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Sim-UT-CW1">
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Sim-UT-CW1">
                                         <rect key="frame" x="18" y="895" width="264" height="91"/>
                                         <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <color key="tintColor" systemColor="systemRedColor"/>
                                         <state key="normal" title="Clear graph data">
                                             <color key="titleColor" systemColor="systemRedColor"/>
                                         </state>
+                                        <variation key="userInterfaceIdiom=mac">
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        </variation>
                                         <connections>
                                             <action selector="clearAllGraphs:" destination="Y6r-am-NQD" eventType="touchUpInside" id="kQ4-Uh-xPo"/>
                                         </connections>

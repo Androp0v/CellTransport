@@ -60,7 +60,7 @@ struct Parameters {
     
 }
 
-/// Struct containing parameters that will be used in the simulation after a restart
+/// Struct containing parameters that will be used in the simulation after a restart but are not yet in use
 struct NotSetParameters {
     static var nCells: Int?
 }
@@ -70,9 +70,9 @@ public func computeDeltaT() {
     Parameters.deltat = Parameters.microtubuleSegmentLength / Parameters.microtubuleSpeed
 }
 
-// MARK: - Setters for user-requested changes
-// Closures return true if a restart is required to apply the changes, false if a restart
-// is not required.
+// MARK: - Setters
+// Setter closures return true if a restart is required to apply the changes, false if a
+// restart is not required.
 
 // Dynamic setters: values can be changed on-the-fly
 
@@ -130,4 +130,36 @@ let setNCells: (String) -> Bool = { nCells in
     } else {
         return true
     }
+}
+
+let setMolecularMotors: (String) -> Bool = { molecularMotor in
+    // Check that viscosity can be converted to a valid int
+    guard let molecularMotor = Int32(molecularMotor) else {
+        return false
+    }
+    switch molecularMotor {
+    case Parameters.KINESIN_ONLY:
+        Parameters.molecularMotors = Parameters.KINESIN_ONLY
+    case Parameters.DYNEIN_ONLY:
+        Parameters.molecularMotors = Parameters.DYNEIN_ONLY
+    default:
+        // Don't change anything otherwise
+        return false
+    }
+    return false
+}
+
+// MARK: - Getters
+/// Some UI functions use this getters since they have to process the value to retrieve a useful string
+
+let getMolecularMotors: () -> String = {
+    switch Parameters.molecularMotors {
+    case Parameters.KINESIN_ONLY:
+        return "0"
+    case Parameters.DYNEIN_ONLY:
+        return "1"
+    default:
+        return "Error"
+    }
+
 }

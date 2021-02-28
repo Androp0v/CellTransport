@@ -102,6 +102,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     let scene = SCNScene(named: "art.scnassets/ship.scn")!
     @IBOutlet var segmentedControl: UISegmentedControl!
     @IBOutlet var containerView: UIView!
+    @IBOutlet weak var sidebarWidthConstraint: NSLayoutConstraint!
     @IBOutlet var buttonContainerView: UIView!
     @IBAction func changeSegment(_ sender: UISegmentedControl) {
         self.currentViewController!.view.removeFromSuperview()
@@ -627,13 +628,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         segmentedControl.selectedSegmentIndex = TabIndex.firstChildTab.rawValue
         displayCurrentTab(TabIndex.firstChildTab.rawValue)
-        
-        // Finish VC UIs
-        
-        //self.firstChildTabVC?.changenCellsText(text: String(Parameters.nCells))
-        //self.firstChildTabVC?.changeParticlesPerCellText(text: String(Parameters.nbodies/Parameters.nCells))
-        //self.firstChildTabVC?.changenBodiesText(text: String(Parameters.nbodies))
-        //self.firstChildTabVC?.changeMicrotubulesText(text: String(Parameters.nMicrotubules))
+
+        // UI changes for macOS
+        sidebarWidthConstraint.constant = 300 // FIXME: should be lower
         
         // Initialize the simulation
         DispatchQueue.global(qos: .default).async {
@@ -698,7 +695,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Define a struct of parameters to be passed to the kernel function in Metal
     struct SimulationParameters {
-        var wON: Float
+        var wON: Float32
         var wOFF: Float
         var n_w: Float
         var boundaryConditions: Int32

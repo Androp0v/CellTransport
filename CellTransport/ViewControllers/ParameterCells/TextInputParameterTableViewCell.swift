@@ -12,6 +12,8 @@ class TextInputParameterTableViewCell: BaseParameterTableViewCell {
 
     @IBOutlet private weak var titleLabel: UILabel!
     @IBOutlet private weak var textInputField: UITextField!
+    @IBOutlet weak var topSpacingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bottomSpacingConstraint: NSLayoutConstraint!
     
     @IBAction func setValue(_ sender: Any) {
 
@@ -44,6 +46,10 @@ class TextInputParameterTableViewCell: BaseParameterTableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        if UIDevice.current.userInterfaceIdiom == .mac {
+            topSpacingConstraint.constant = 2
+            bottomSpacingConstraint.constant = 2
+        }
     }
 
     public func setTitleLabel(text: String) {

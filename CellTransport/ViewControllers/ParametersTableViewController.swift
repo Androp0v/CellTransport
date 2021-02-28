@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class ParametersTableViewController: UITableViewController {
 
@@ -15,6 +16,7 @@ class ParametersTableViewController: UITableViewController {
         let typeIdentifier: String
         let setFromUI: ((String) -> Bool)?
         let getForUI: (() -> String?)?
+        let pickerOptions: [String]?
     }
 
     private var cells: [CellConfig] = []
@@ -27,6 +29,7 @@ class ParametersTableViewController: UITableViewController {
         // Register custom cells used
         tableView.register(UINib(nibName: "TextInputParameterTableViewCell", bundle: nil), forCellReuseIdentifier: "parameterTextInputCell")
         tableView.register(UINib(nibName: "SwitchParameterTableViewCell", bundle: nil), forCellReuseIdentifier: "parameterSwitchCell")
+        tableView.register(PickerParameterTableViewCell<PickerAndDropDownView>.self, forCellReuseIdentifier: "parameterPickerCell")
 
         // Datasource and delegate
         self.tableView.delegate = self
@@ -47,29 +50,40 @@ class ParametersTableViewController: UITableViewController {
         cells.append(CellConfig(name: "Attachment probability:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setWON,
-                                getForUI: { return String(Parameters.wON) }))
+                                getForUI: { return String(Parameters.wON) },
+                                pickerOptions: nil))
         cells.append(CellConfig(name: "Detachment probability:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setWOFF,
-                                getForUI: { return String(Parameters.wOFF) }))
+                                getForUI: { return String(Parameters.wOFF) },
+                                pickerOptions: nil))
         cells.append(CellConfig(name: "Viscosity:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setViscosity,
-                                getForUI: { return String(Parameters.n_w) }))
+                                getForUI: { return String(Parameters.n_w) },
+                                pickerOptions: nil))
         cells.append(CellConfig(name: "Collisions enabled:",
                                 typeIdentifier: "parameterSwitchCell",
                                 setFromUI: toggleCollisions,
-                                getForUI: { return String(Parameters.collisionsFlag) }))
+                                getForUI: { return String(Parameters.collisionsFlag) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Molecular motors:",
+                                typeIdentifier: "parameterPickerCell",
+                                setFromUI: setMolecularMotors,
+                                getForUI: getMolecularMotors,
+                                pickerOptions: ["Kinesins", "Dyneins"]))
 
         // Require simulation restart
         cells.append(CellConfig(name: "Number of cells:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setNCells,
-                                getForUI: { return String(Parameters.nCells) }))
+                                getForUI: { return String(Parameters.nCells) },
+                                pickerOptions: nil))
         cells.append(CellConfig(name: "Number of organelles:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: nil,
-                                getForUI: { return String(Parameters.nbodies) }))
+                                getForUI: { return String(Parameters.nbodies) },
+                                pickerOptions: nil))
     }
 
     // MARK: - Table view data source
@@ -84,9 +98,12 @@ class ParametersTableViewController: UITableViewController {
         return cells.count
     }
 
+    // MARK: - Cell creation
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         switch cells[indexPath.row].typeIdentifier {
+
         case "parameterTextInputCell":
             // TextInput cells initialization
             var cell = tableView.dequeueReusableCell(withIdentifier: "parameterTextInputCell", for: indexPath) as? TextInputParameterTableViewCell
@@ -99,6 +116,7 @@ class ParametersTableViewController: UITableViewController {
                 return cell!
             }
             return cell!
+
         case "parameterSwitchCell":
             // Switch cells initialization
             var cell = tableView.dequeueReusableCell(withIdentifier: "parameterSwitchCell", for: indexPath) as? SwitchParameterTableViewCell
@@ -111,54 +129,35 @@ class ParametersTableViewController: UITableViewController {
                 return cell!
             }
             return cell!
+
+        case "parameterPickerCell":
+            // Switch cells initialization
+            var cell = tableView.dequeueReusableCell(withIdentifier: "parameterPickerCell",
+                                                     for: indexPath) as? PickerParameterTableViewCell<PickerAndDropDownView>
+            cell?.valueGetter = cells[indexPath.row].getForUI
+            cell?.valueSetter = cells[indexPath.row].setFromUI
+            guard cell != nil else {
+                cell = PickerParameterTableViewCell.init()
+                // Create a HostViewController for the SwiftUI view (only way to have pickers/dropdown menus on .mac idiom)
+                cell!.host(PickerAndDropDownView(titleLabel: cells[indexPath.row].name,
+                                                 pickerOptions: cells[indexPath.row].pickerOptions ?? [],
+                                                 setter: cells[indexPath.row].setFromUI),
+                           parent: self)
+                cell?.fetchParameterValue()
+                return cell!
+            }
+            // Create a HostViewController for the SwiftUI view (only way to have pickers/dropdown menus on .mac idiom)
+            cell!.host(PickerAndDropDownView(titleLabel: cells[indexPath.row].name,
+                                             pickerOptions: ["Kinesins", "Dyneins"],
+                                             setter: cells[indexPath.row].setFromUI),
+                       parent: self)
+            cell?.fetchParameterValue()
+            return cell!
+
         default:
             return UITableViewCell()
         }
-    }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
 
     }
-    */
 
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
 }

@@ -12,6 +12,8 @@ class SwitchParameterTableViewCell: BaseParameterTableViewCell {
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var switchItem: UISwitch!
+    @IBOutlet weak var topSpacingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bottomSpacingConstraint: NSLayoutConstraint!
     @IBAction func setSwitchValue(_ sender: Any) {
 
         guard let valueSetter = valueSetter else {
@@ -40,6 +42,10 @@ class SwitchParameterTableViewCell: BaseParameterTableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        if UIDevice.current.userInterfaceIdiom == .mac {
+            topSpacingConstraint.constant = 2
+            bottomSpacingConstraint.constant = 2
+        }
     }
 
     public func setTitleLabel(text: String) {
