@@ -82,6 +82,11 @@ let setWON: (String) -> Bool = { wON in
         return false
     }
 
+    // Check that the value is greater than 0
+    guard wON >= 0 else {
+        return false
+    }
+
     // Check for numerical stability
     guard isNumericallyStable(wON: wON) else { return false }
 
@@ -93,6 +98,10 @@ let setWON: (String) -> Bool = { wON in
 let setWOFF: (String) -> Bool = { wOFF in
     // Check that wOFF can be converted to a valid float
     guard let wOFF = Float(wOFF) else {
+        return false
+    }
+    // Check that the value is greater than 0
+    guard wOFF >= 0 else {
         return false
     }
     Parameters.wOFF = wOFF

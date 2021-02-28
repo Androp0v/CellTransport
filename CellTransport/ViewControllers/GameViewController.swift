@@ -201,6 +201,26 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         case firstChildTab = 0
         case secondChildTab = 1
     }
+
+    /// Handle invalid parameter errors
+    /// - Parameter notification: Notification
+    @objc func didReceiveInputError(notification: Notification) {
+
+        // Process notification content
+        var title: String?
+        var message: String?
+        if let dict = notification.userInfo as NSDictionary? {
+            title = dict["title"] as? String
+            message = dict["message"] as? String
+        }
+
+        DispatchQueue.main.async {
+            let fatalAlert = FatalCrashAlertController(title: title,
+                                                       message: message,
+                                                       preferredStyle: .alert)
+            self.present(fatalAlert, animated: true, completion: nil)
+        }
+    }
     
     // MARK: - Metal variables
     
@@ -234,7 +254,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var buffer: MTLCommandBuffer?
 
     var currentViewController: UIViewController?
-    var firstChildTabVC: ParametersTableViewController?
+    var firstChildTabVC: ParametersViewController?
     var secondChildTabVC: GraphsViewController?
     var thirdChildTabVC: ComputeViewController?
     
@@ -567,7 +587,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeDeltaT()
 
         // Initialize tabs viewcontrollers
-        self.firstChildTabVC = ParametersTableViewController(nibName: "ParametersTableViewController", bundle: nil)
+        let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
+        self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
         self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
         self.thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController") as? ComputeViewController
 
@@ -632,6 +653,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         if UIDevice.current.userInterfaceIdiom == .mac {
             sidebarWidthConstraint.constant = 300 // May be configured to be narrower in the future
         }
+
+        // Register for notifications from parameter input errors
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didReceiveInputError(notification:)),
+                                               name: .inputErrorNotification,
+                                               object: nil)
         
         // Initialize the simulation
         DispatchQueue.global(qos: .default).async {

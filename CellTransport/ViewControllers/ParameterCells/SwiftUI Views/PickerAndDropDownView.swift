@@ -22,9 +22,11 @@ struct PickerAndDropDownView: View {
                        Text(self.pickerOptions[$0])
                     }
                  }
-        .pickerStyle(MenuPickerStyle())
+        .pickerStyle(InlinePickerStyle())
         .padding(.leading, 15)
         .padding(.trailing, 12)
+        .padding(.top, 4)
+        .padding(.bottom, 4)
         .onChange(of: selectedOption.value, perform: { value in
             // Set value, ignore return since pickers can't fail
             _ = setter?(String(value))
