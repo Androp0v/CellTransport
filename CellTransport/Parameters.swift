@@ -24,9 +24,9 @@ struct Parameters {
     static let CUBIC_CELL: Int32 = 1 // Cubic cell
     
     /* FIXED PARAMETERS */
-    static let nCells: Int = 20 // Number of biological cells to simulate simultaneously
+    static let nCells: Int = 2 // Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 // Cells are divided in cubic cells: cellsPerDimension for each side
-    static let nbodies: Int = 40000 // 400 // 524288 // 4194304 //  16777216
+    static let nbodies: Int = 4000 // 400 // 524288 // 4194304 //  16777216
     static let nMicrotubules: Int = 200 // 400
     static let cellRadius: Float = 12000 // nm
     static let centrosomeRadius: Float = 1200 // nm
@@ -60,7 +60,74 @@ struct Parameters {
     
 }
 
+/// Struct containing parameters that will be used in the simulation after a restart
+struct NotSetParameters {
+    static var nCells: Int?
+}
+
 public func computeDeltaT() {
     // Computes deltat based on microtubule segment lenght and speed
-    Parameters.deltat = Parameters.microtubuleSegmentLength/Parameters.microtubuleSpeed
+    Parameters.deltat = Parameters.microtubuleSegmentLength / Parameters.microtubuleSpeed
+}
+
+// MARK: - Setters for user-requested changes
+// Closures return true if a restart is required to apply the changes, false if a restart
+// is not required.
+
+// Dynamic setters: values can be changed on-the-fly
+
+let setWON: (String) -> Bool = { wON in
+    // Check that wON can be converted to a valid float
+    guard let wON = Float(wON) else {
+        return false
+    }
+    Parameters.wON = wON
+    return false
+}
+
+let setWOFF: (String) -> Bool = { wOFF in
+    // Check that wOFF can be converted to a valid float
+    guard let wOFF = Float(wOFF) else {
+        return false
+    }
+    Parameters.wOFF = wOFF
+    return false
+}
+
+let setViscosity: (String) -> Bool = { viscosity in
+    // Check that viscosity can be converted to a valid float
+    guard let viscosity = Float(viscosity) else {
+        return false
+    }
+    Parameters.n_w = viscosity
+    return false
+}
+
+let toggleCollisions: (String) -> Bool = { state in
+    if state == "true" {
+        Parameters.collisionsFlag = true
+        return false
+    } else if state == "false" {
+        Parameters.collisionsFlag = false
+        return false
+    } else {
+        NSLog("Invalid value passed to toggleCollisions")
+        return false
+    }
+}
+
+// Other setters: require restart
+
+let setNCells: (String) -> Bool = { nCells in
+    // Check that viscosity can be converted to a valid int
+    guard let nCells = Int(nCells) else {
+        return false
+    }
+    NotSetParameters.nCells = nCells
+    // A restart is required unless the simulation is already using the target value
+    if nCells == Parameters.nCells {
+        return false
+    } else {
+        return true
+    }
 }

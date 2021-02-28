@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPopoverPresentationControllerDelegate {
+class ParametersViewControllerOld: UIViewController, ParameterPickerDelegate, UIPopoverPresentationControllerDelegate {
     
     @IBOutlet var nCells: UITextField!
     @IBOutlet var nParticlesPerCell: UITextField!
