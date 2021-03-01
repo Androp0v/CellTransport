@@ -56,7 +56,6 @@
 		C4C1E88425EAAE92008BAD6C /* TextInputParameterTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C4C1E88225EAAE92008BAD6C /* TextInputParameterTableViewCell.xib */; };
 		C4C1E88D25EAAF68008BAD6C /* ParametersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C1E88B25EAAF68008BAD6C /* ParametersViewController.swift */; };
 		C4C603A72584530B000A09EF /* SpawnMembrane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C603A62584530B000A09EF /* SpawnMembrane.swift */; };
-		C4F35DB72527A5BC001D8F3A /* ParameterPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,7 +117,6 @@
 		C4C1E88225EAAE92008BAD6C /* TextInputParameterTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputParameterTableViewCell.xib; sourceTree = "<group>"; };
 		C4C1E88B25EAAF68008BAD6C /* ParametersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersViewController.swift; sourceTree = "<group>"; };
 		C4C603A62584530B000A09EF /* SpawnMembrane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnMembrane.swift; sourceTree = "<group>"; };
-		C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterPickerController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,7 +238,6 @@
 				C475A4F525E0770200FAD923 /* ViewControllers */,
 				C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */,
 				C4BD596523EB15AA000B871B /* Microtubules.swift */,
-				C4F35DB02527A54B001D8F3A /* Popovers */,
 				C475A4EF25E06AE300FAD923 /* Alerts */,
 				C411F95F241F0C88006BDEF3 /* CellMembrane.swift */,
 				C4BD595F23EA4CDA000B871B /* MetalMeshDeformable.swift */,
@@ -280,14 +277,6 @@
 				C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */,
 			);
 			path = Spawners;
-			sourceTree = "<group>";
-		};
-		C4F35DB02527A54B001D8F3A /* Popovers */ = {
-			isa = PBXGroup;
-			children = (
-				C4F35DB62527A5BC001D8F3A /* ParameterPickerController.swift */,
-			);
-			path = Popovers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -442,7 +431,6 @@
 				C4C1E88D25EAAF68008BAD6C /* ParametersViewController.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
 				C480F6B725EC130C0034E498 /* NumericalStabilityChecks.swift in Sources */,
-				C4F35DB72527A5BC001D8F3A /* ParameterPickerController.swift in Sources */,
 				C404E1B224EAF73C00FD5489 /* LineChart3View.swift in Sources */,
 				C480F6A725EBE5A70034E498 /* PickerParameterTableViewCell.swift in Sources */,
 				C403DB4323F6B394008368CB /* LineChart1View.swift in Sources */,
