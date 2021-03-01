@@ -2,238 +2,209 @@
 //  ParametersViewController.swift
 //  CellTransport
 //
-//  Created by Raúl Montón Pinillos on 05/02/2020.
-//  Copyright © 2020 Raúl Montón Pinillos. All rights reserved.
+//  Created by Raúl Montón Pinillos on 27/2/21.
+//  Copyright © 2021 Raúl Montón Pinillos. All rights reserved.
 //
 
 import UIKit
+import SwiftUI
 
-class ParametersViewController: UIViewController, ParameterPickerDelegate, UIPopoverPresentationControllerDelegate {
-    
-    @IBOutlet var nCells: UITextField!
-    @IBOutlet var nParticlesPerCell: UITextField!
-    @IBOutlet var nBodies: UILabel!
-    @IBOutlet var nMicrotubules: UITextField!
-    @IBOutlet weak var wON: UITextField!
-    @IBOutlet weak var wOFF: UITextField!
-    @IBOutlet weak var viscosity: UITextField!
-    @IBOutlet weak var motorPickerButton: UIButton!
-    @IBOutlet weak var boundaryPickerButton: UIButton!
-    
-    var mainGameViewController: GameViewController?
+class ParametersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, BaseParameterTableViewCellDelegate {
 
-    /// Restart main simulation
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet private weak var bottomSheetView: UIView!
+
+    public weak var mainController: GameViewController?
+
+    // Height constraint of the bottomSheetView, used to animate the button show/hide
+    var heightConstraint: NSLayoutConstraint?
+
     @IBAction func restartSimulation(_ sender: Any) {
         DispatchQueue.global().async {
-            self.mainGameViewController?.restartSimulation()
+            self.mainController?.restartSimulation()
         }
     }
 
-    var selectedMotorFromPicker: Int32 = Parameters.molecularMotors
-    var selectedBoundaryFromPicker: Int32 = Parameters.boundaryConditions
-    var currentPickerViewController: ParameterPickerController = ParameterPickerController()
-    
-    @IBAction func boundaryPickerButtonPressed(_ sender: Any) {
-        guard let currentPickerViewController = self.storyboard?.instantiateViewController(withIdentifier: "ParameterPickerViewControllerID")
-                as? ParameterPickerController else { return }
-        self.currentPickerViewController = currentPickerViewController
-        self.currentPickerViewController.parameterTag = "boundaryConditions"
-        self.currentPickerViewController.modalPresentationStyle = .popover
-        self.currentPickerViewController.popoverPresentationController?.sourceView = boundaryPickerButton
-        self.currentPickerViewController.presentationController?.delegate = self
-        self.currentPickerViewController.delegate = self
-        
-        self.currentPickerViewController.pickerOptions = ["Reinject inside", "Reinject outside", "Contain inside"]
-        self.currentPickerViewController.pickedIDs = [Parameters.REINJECT_INSIDE, Parameters.REINJECT_OUTSIDE, Parameters.CONTAIN_INSIDE]
-        
-        switch Parameters.boundaryConditions {
-        case Parameters.REINJECT_INSIDE:
-            self.currentPickerViewController.currentlySelectedRow = 0
-        case Parameters.REINJECT_OUTSIDE:
-            self.currentPickerViewController.currentlySelectedRow = 1
-        case Parameters.CONTAIN_INSIDE:
-            self.currentPickerViewController.currentlySelectedRow = 2
-        default:
-            self.currentPickerViewController.currentlySelectedRow = 0
+    public func reloadParameters() {
+        DispatchQueue.main.sync {
+            self.mayRequireRestart()
+            self.tableView.reloadData()
         }
-        
-        self.present(self.currentPickerViewController, animated: true, completion: nil)
     }
-    @IBAction func motorPickerButtonPressed(_ sender: Any) {
-        guard let currentPickerViewController = self.storyboard?.instantiateViewController(withIdentifier: "ParameterPickerViewControllerID")
-                as? ParameterPickerController else { return }
-        self.currentPickerViewController = currentPickerViewController
-        self.currentPickerViewController.parameterTag = "molecularMotors"
-        self.currentPickerViewController.modalPresentationStyle = .popover
-        self.currentPickerViewController.popoverPresentationController?.sourceView = motorPickerButton
-        self.currentPickerViewController.presentationController?.delegate = self
-        self.currentPickerViewController.delegate = self
-        
-        self.currentPickerViewController.pickerOptions = ["Kinesins", "Dyneins"]
-        self.currentPickerViewController.pickedIDs = [Parameters.KINESIN_ONLY, Parameters.DYNEIN_ONLY]
-        
-        switch Parameters.molecularMotors {
-        case Parameters.KINESIN_ONLY:
-            self.currentPickerViewController.currentlySelectedRow = 0
-        case Parameters.DYNEIN_ONLY:
-            self.currentPickerViewController.currentlySelectedRow = 1
-        default:
-            self.currentPickerViewController.currentlySelectedRow = 0
-        }
-        
-        self.present(self.currentPickerViewController, animated: true, completion: nil)
 
+    struct CellConfig {
+        let name: String
+        let typeIdentifier: String
+        let setFromUI: ((String) -> Bool)?
+        let getForUI: (() -> String?)?
+        let pickerOptions: [String]?
     }
-    
-    // Called when motorPickerViewControlled is dismissed
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        
-        print("presentationControllerDidDismiss")
-        
-    }
-    
-    @IBOutlet weak var collisionsSwitch: UISwitch!
-    @IBAction func collisionsSwitchChange(_ sender: Any) {
-        if collisionsSwitch.isOn == true {
-            Parameters.collisionsFlag = true
-        } else {
-            Parameters.collisionsFlag = false
-        }
-    }
-    @IBAction func wONChanged(_ sender: Any) {
-        // Check that the input value is a number
-        if Float(String(wON.text!)) != nil {
-            // Set parameter used in the simulation
-            Parameters.wON = Float(String(wON.text!))!
-            // Rewrite the text in the textfield to properly format numbers without decimal separator
-            wON.text = String(Parameters.wON)
-        } else {
-            // Default the textfield text to the previous valid value
-            wON.text = String(Parameters.wON)
-        }
-        mainGameViewController?.resetArrivalTimesRequired = true
-    }
-    @IBAction func wOFFChanged(_ sender: Any) {
-        // Check that the input value is a number
-        if Float(String(wOFF.text!)) != nil {
-            // Set parameter used in the simulation
-            Parameters.wOFF = Float(String(wOFF.text!))!
-            // Rewrite the text in the textfield to properly format numbers without decimal separator
-            wOFF.text = String(Parameters.wOFF)
-        } else {
-            // Default the textfield text to the previous valid value
-            wOFF.text = String(Parameters.wOFF)
-        }
-    }
-    
-    @IBAction func viscosityChanged(_ sender: Any) {
-        // Check that the input value is a number
-        if Float(String(viscosity.text!)) != nil {
-            // Set parameter used in the simulation
-            Parameters.n_w = Float(String(viscosity.text!))!
-            // Rewrite the text in the textfield to properly format numbers without decimal separator
-            viscosity.text = String(Parameters.n_w)
-        } else {
-            // Default the textfield text to the previous valid value
-            viscosity.text = String(Parameters.n_w)
-        }
-    }
-    
-    func changenCellsText(text: String) {
-        self.nCells.text = text
-    }
-    
-    func changeParticlesPerCellText(text: String) {
-        self.nParticlesPerCell.text = text
-    }
-    
-    func changenBodiesText(text: String) {
-        self.nBodies.text = text
-    }
-    
-    func changeMicrotubulesText(text: String) {
-        self.nMicrotubules.text = text
-    }
-    
-    // ParameterPickerDelegate methods
-    
-    func parameterPicked(parameterInt32Value: Int32, parameterTag: String) {
-        
-        print("parameterPicked")
-        
-        switch parameterTag {
-        case "molecularMotors":
-            selectedMotorFromPicker = parameterInt32Value
-        case "boundaryConditions":
-            selectedBoundaryFromPicker = parameterInt32Value
-        default:
-            break
-        }
-    }
-    
-    func doneButtonPressed(parameterTag: String) {
-        
-        print("doneButtonPressed", parameterTag)
-        
-        switch parameterTag {
-        
-        case "molecularMotors":
-            switch selectedMotorFromPicker {
-            case Parameters.KINESIN_ONLY:
-                motorPickerButton.setTitle("Kinesins", for: .normal)
-            case Parameters.DYNEIN_ONLY:
-                motorPickerButton.setTitle("Dyneins", for: .normal)
-            default:
-                motorPickerButton.setTitle("Kinesins", for: .normal)
-            }
-            Parameters.molecularMotors = selectedMotorFromPicker
-            
-        case "boundaryConditions":
-            switch selectedBoundaryFromPicker {
-            case Parameters.REINJECT_INSIDE:
-                boundaryPickerButton.setTitle("Reinject inside", for: .normal)
-            case Parameters.REINJECT_OUTSIDE:
-                boundaryPickerButton.setTitle("Reinject outside", for: .normal)
-            case Parameters.CONTAIN_INSIDE:
-                boundaryPickerButton.setTitle("Contain inside", for: .normal)
-            default:
-                boundaryPickerButton.setTitle("einject inside", for: .normal)
-            }
-            Parameters.boundaryConditions = selectedBoundaryFromPicker
-            
-        default:
-            break
-        }
-        
-        self.currentPickerViewController.dismiss(animated: true, completion: nil)
-        
-    }
-        
+
+    private var cells: [CellConfig] = []
+
+    // MARK: - Configuration
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-        if Parameters.collisionsFlag == true {
-            collisionsSwitch.setOn(true, animated: false)
-        } else {
-            collisionsSwitch.setOn(false, animated: false)
-        }
-        
-        wON.keyboardType = .numberPad
-        wON.text = String(Parameters.wON)
-        wOFF.keyboardType = .numberPad
-        wOFF.text = String(Parameters.wOFF)
-        
-    }
-    
-    /*
-    // MARK: - Navigation
+        // Set initial restart simulation view height to zero (hidden)
+        heightConstraint = bottomSheetView.heightAnchor.constraint(equalToConstant: 0)
+        heightConstraint?.isActive = true
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        // Register custom cells used
+        tableView.register(UINib(nibName: "TextInputParameterTableViewCell", bundle: nil), forCellReuseIdentifier: "parameterTextInputCell")
+        tableView.register(UINib(nibName: "SwitchParameterTableViewCell", bundle: nil), forCellReuseIdentifier: "parameterSwitchCell")
+        tableView.register(PickerParameterTableViewCell<PickerAndDropDownView>.self, forCellReuseIdentifier: "parameterPickerCell")
+
+        // Datasource and delegate
+        self.tableView.delegate = self
+        self.tableView.dataSource = self
+
+        // Top spacing for segmented control bar
+        self.tableView.contentInset = UIEdgeInsets(top: 97.5, left: 0, bottom: 0, right: 0)
+
+        // Footer to remove bottom separators
+        self.tableView.tableFooterView = UIView()
+
+        // Automatic height
+        self.tableView.rowHeight = UITableView.automaticDimension
+
+        // MARK: - Add cells
+
+        // Dynamic values: can be changed on-the-fly
+        cells.append(CellConfig(name: "Attachment probability:",
+                                typeIdentifier: "parameterTextInputCell",
+                                setFromUI: setWON,
+                                getForUI: { return String(Parameters.wON) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Detachment probability:",
+                                typeIdentifier: "parameterTextInputCell",
+                                setFromUI: setWOFF,
+                                getForUI: { return String(Parameters.wOFF) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Viscosity:",
+                                typeIdentifier: "parameterTextInputCell",
+                                setFromUI: setViscosity,
+                                getForUI: { return String(Parameters.n_w) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Collisions enabled:",
+                                typeIdentifier: "parameterSwitchCell",
+                                setFromUI: toggleCollisions,
+                                getForUI: { return String(Parameters.collisionsFlag) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Molecular motors:",
+                                typeIdentifier: "parameterPickerCell",
+                                setFromUI: setMolecularMotors,
+                                getForUI: getMolecularMotors,
+                                pickerOptions: ["Kinesins", "Dyneins"]))
+
+        // Require simulation restart
+        cells.append(CellConfig(name: "Number of cells:",
+                                typeIdentifier: "parameterTextInputCell",
+                                setFromUI: setNCells,
+                                getForUI: { return String(Parameters.nCells) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Number of organelles:",
+                                typeIdentifier: "parameterTextInputCell",
+                                setFromUI: setNBodies,
+                                getForUI: { return String(Parameters.nbodies) },
+                                pickerOptions: nil))
     }
-    */
+
+    // MARK: - Table view data source
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        // #warning Incomplete implementation, return the number of sections
+        return 1
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        // #warning Incomplete implementation, return the number of rows
+        return cells.count
+    }
+
+    // MARK: - Cell creation
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        switch cells[indexPath.row].typeIdentifier {
+
+        case "parameterTextInputCell":
+            // TextInput cells initialization
+            var cell = tableView.dequeueReusableCell(withIdentifier: "parameterTextInputCell", for: indexPath) as? TextInputParameterTableViewCell
+            cell?.delegate = self
+            cell?.setTitleLabel(text: cells[indexPath.row].name)
+            cell?.valueGetter = cells[indexPath.row].getForUI
+            cell?.valueSetter = cells[indexPath.row].setFromUI
+            cell?.fetchParameterValue()
+            guard cell != nil else {
+                cell = TextInputParameterTableViewCell.init()
+                cell?.delegate = self
+                return cell!
+            }
+            return cell!
+
+        case "parameterSwitchCell":
+            // Switch cells initialization
+            var cell = tableView.dequeueReusableCell(withIdentifier: "parameterSwitchCell", for: indexPath) as? SwitchParameterTableViewCell
+            cell?.setTitleLabel(text: cells[indexPath.row].name)
+            cell?.valueGetter = cells[indexPath.row].getForUI
+            cell?.valueSetter = cells[indexPath.row].setFromUI
+            cell?.fetchParameterValue()
+            guard cell != nil else {
+                cell = SwitchParameterTableViewCell.init()
+                cell?.delegate = self
+                return cell!
+            }
+            return cell!
+
+        case "parameterPickerCell":
+            // Switch cells initialization
+            var cell = tableView.dequeueReusableCell(withIdentifier: "parameterPickerCell",
+                                                     for: indexPath) as? PickerParameterTableViewCell<PickerAndDropDownView>
+            cell?.valueGetter = cells[indexPath.row].getForUI
+            cell?.valueSetter = cells[indexPath.row].setFromUI
+            guard cell != nil else {
+                cell = PickerParameterTableViewCell.init()
+                // Create a HostViewController for the SwiftUI view (only way to have pickers/dropdown menus on .mac idiom)
+                cell!.host(PickerAndDropDownView(titleLabel: cells[indexPath.row].name,
+                                                 pickerOptions: cells[indexPath.row].pickerOptions ?? [],
+                                                 setter: cells[indexPath.row].setFromUI),
+                           parent: self)
+                cell?.delegate = self
+                cell?.fetchParameterValue()
+                return cell!
+            }
+            // Create a HostViewController for the SwiftUI view (only way to have pickers/dropdown menus on .mac idiom)
+            cell!.host(PickerAndDropDownView(titleLabel: cells[indexPath.row].name,
+                                             pickerOptions: ["Kinesins", "Dyneins"],
+                                             setter: cells[indexPath.row].setFromUI),
+                       parent: self)
+            cell?.fetchParameterValue()
+            cell?.delegate = self
+            return cell!
+
+        default:
+            return UITableViewCell()
+        }
+
+    }
+
+    // MARK: - Private functions
+    func mayRequireRestart() {
+        if requiresRestart() {
+            // Show the restart button
+            heightConstraint?.isActive = false
+            UIView.animate(withDuration: 0.2) {
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            // Hide the restart button
+            heightConstraint?.isActive = true
+            UIView.animate(withDuration: 0.2) {
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
 
 }

@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  CellTransport
+
+  Created by Raúl Montón Pinillos on 28/2/21.
+  Copyright © 2021 Raúl Montón Pinillos. All rights reserved.
+*/
+
+"wON_string_prob_gt_1" = "You tried to set an attachment probability factor value that could result in a probability of attachment greater than 1 when evaluating the probability due to limited 32-bit floating-point precision.";
+
+"wON_string_prob_lt_0" = "You tried to set an attachment probability factor value that could result in a negative probability of attachment when evaluating the probability due to limited 32-bit floating-point precision.";
+
+"wON_string_numerical_precision" = "You tried to set an attachment probability factor value that could result in unacceptable numerical precision loss due to limited 32-bit floating-point precision when evaluating the probability";

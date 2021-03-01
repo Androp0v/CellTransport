@@ -91,7 +91,7 @@ float4 randomSpherePoint(float radius, int x, int y, int z){
     float v = rand(z, x, y);
     float theta = u * 2.0 * M_PI_F;
     float phi = acos(2.0 * v - 1.0);
-    float r = radius*pow(rand(y, z, x), 1.0/3.0);
+    float r = radius * pow(rand(y, z, x), 1.0/3.0);
     float sinTheta = sin(theta);
     float cosTheta = cos(theta);
     float sinPhi = sin(phi);
@@ -170,7 +170,7 @@ float4 reinjectPosition(int32_t boundaryConditions, float distance, float cellRa
             return randomSurfaceSpherePoint(almostCellRadius, int(position.x*100000), int(position.y*100000), int(position.z*100000));
         }
         case CONTAIN_INSIDE: {
-            float distance = sqrt(pow(positionOld.x, 2) + pow(positionOld.y, 2) + pow(positionOld.z, 2));
+            float distance = length(positionOld);
             return float4(positionOld.x,positionOld.y,positionOld.z,distance);
         }
         default: {
@@ -332,42 +332,42 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     if (diffuseFlag){
         
-        float randNumber1 = rand(int(randNumber*100000), 0, 0);
-        float randNumber2 = rand(int(randNumber1*100000), 0, 0);
-        float randNumber3 = rand(int(randNumber2*100000), int(randNumber1*100000), 0);
+        float randNumber1 = rand(int(randNumber * 100000), 0, 0);
+        float randNumber2 = rand(int(randNumber1 * 100000), 0, 0);
+        float randNumber3 = rand(int(randNumber2 * 100000), int(randNumber1*100000), 0);
         randNumber = randNumber3;
         
-        float randNumberX = 2*rand(int(randNumber1*10000),
-                                   int(position.y*10000),
-                                   int(position.z*10000)) - 1;
+        float randNumberX = 2*rand(int(randNumber1 * 10000),
+                                   int(position.y * 10000),
+                                   int(position.z * 10000)) - 1;
 
-        float randNumberY = 2*rand(int(position.y*10000),
-                                   int(randNumber2*10000),
-                                   int(position.z*10000)) - 1;
+        float randNumberY = 2*rand(int(position.y * 10000),
+                                   int(randNumber2 * 10000),
+                                   int(position.z * 10000)) - 1;
 
-        float randNumberZ = 2*rand(int(position.y*10000),
-                                   int(position.x*10000),
-                                   int(randNumber3*10000)) - 1;
+        float randNumberZ = 2*rand(int(position.y * 10000),
+                                   int(position.x * 10000),
+                                   int(randNumber3 * 10000)) - 1;
         
         // Compute the diffusion movement factor (compiler should optimize this)
         float diffusivity = 1.59349 * pow(10.0, 6.0) / parameters.n_w;
         float deltatMT = deltat / stepsPerMTPoint; //REDUCED DELTA T
-        float msqdistance = sqrt(6 * diffusivity * deltatMT);
-        float factor = msqdistance / 0.8660254038;
+        float meanSquaredDistance = sqrt(6 * diffusivity * deltatMT);
+        float normalizationFactor = meanSquaredDistance / 0.8660254038;
         
-        position += factor*float3(randNumberX,randNumberY,randNumberZ);
+        position += normalizationFactor * float3(randNumberX, randNumberY, randNumberZ);
         isAttached = -1;
     }
     
     // Avoid particle diffusing into the nucleus
     if (checkIfInsideNucleus(position, parameters.nucleusRadius, parameters.nucleusLocation)) {
-        // Return particle position to initial position
+        // Return particle position to initial position, undo all changes
         position = positionsIn[i];
     }
     
-    // Precompute distance
-    float distance = sqrt(pow(position.x, 2) + pow(position.y, 2) + pow(position.z, 2));
-    
+    // Precompute distance to the center of the cell (0,0,0)
+    float distance = length(position);
+
     // Ceck if particle is inside centrosome
     if (shouldResetTime(parameters.boundaryConditions, cellRadius, distance)){
         timeLastJump = parameters.time;

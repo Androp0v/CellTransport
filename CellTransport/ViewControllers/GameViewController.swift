@@ -102,6 +102,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     let scene = SCNScene(named: "art.scnassets/ship.scn")!
     @IBOutlet var segmentedControl: UISegmentedControl!
     @IBOutlet var containerView: UIView!
+    @IBOutlet weak var sidebarWidthConstraint: NSLayoutConstraint!
     @IBOutlet var buttonContainerView: UIView!
     @IBAction func changeSegment(_ sender: UISegmentedControl) {
         self.currentViewController!.view.removeFromSuperview()
@@ -199,6 +200,26 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     enum TabIndex: Int {
         case firstChildTab = 0
         case secondChildTab = 1
+    }
+
+    /// Handle invalid parameter errors
+    /// - Parameter notification: Notification
+    @objc func didReceiveInputError(notification: Notification) {
+
+        // Process notification content
+        var title: String?
+        var message: String?
+        if let dict = notification.userInfo as NSDictionary? {
+            title = dict["title"] as? String
+            message = dict["message"] as? String
+        }
+
+        DispatchQueue.main.async {
+            let fatalAlert = FatalCrashAlertController(title: title,
+                                                       message: message,
+                                                       preferredStyle: .alert)
+            self.present(fatalAlert, animated: true, completion: nil)
+        }
     }
     
     // MARK: - Metal variables
@@ -566,11 +587,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeDeltaT()
 
         // Initialize tabs viewcontrollers
-        self.firstChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
-        self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
-        self.thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController") as? ComputeViewController
+        let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
+        self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController")
+            as? ParametersViewController
+        self.firstChildTabVC?.mainController = self
 
-        firstChildTabVC?.mainGameViewController = self
+        self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
+
+        self.thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController") as? ComputeViewController
 
         // Initialize Metal for GPU calculations
         initializeMetal()
@@ -626,13 +650,19 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         
         segmentedControl.selectedSegmentIndex = TabIndex.firstChildTab.rawValue
         displayCurrentTab(TabIndex.firstChildTab.rawValue)
-        
-        // Finish VC UIs
-        
-        self.firstChildTabVC?.changenCellsText(text: String(Parameters.nCells))
-        self.firstChildTabVC?.changeParticlesPerCellText(text: String(Parameters.nbodies/Parameters.nCells))
-        self.firstChildTabVC?.changenBodiesText(text: String(Parameters.nbodies))
-        self.firstChildTabVC?.changeMicrotubulesText(text: String(Parameters.nMicrotubules))
+
+        segmentedControl.isSelected = true
+
+        // UI changes for macOS
+        if UIDevice.current.userInterfaceIdiom == .mac {
+            sidebarWidthConstraint.constant = 300 // May be configured to be narrower in the future
+        }
+
+        // Register for notifications from parameter input errors
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didReceiveInputError(notification:)),
+                                               name: .inputErrorNotification,
+                                               object: nil)
         
         // Initialize the simulation
         DispatchQueue.global(qos: .default).async {
@@ -688,6 +718,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         cellIDtoIndex = []
         cellIDtoNMTs = []
         indexToPoint = []
+        // Apply new parameter values
+        applyNewParameters()
+        // Notify ParametersViewController of the changes
+        firstChildTabVC?.reloadParameters()
         // Restart simulation
         initializeMetal()
         initializeSimulation()
@@ -697,7 +731,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     // Define a struct of parameters to be passed to the kernel function in Metal
     struct SimulationParameters {
-        var wON: Float
+        var wON: Float32
         var wOFF: Float
         var n_w: Float
         var boundaryConditions: Int32
