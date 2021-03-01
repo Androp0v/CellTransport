@@ -9,6 +9,8 @@
 import Foundation
 import SceneKit
 
+// MARK: - Parameters
+
 /// Struct containing all parameters and constants used in the simulation
 struct Parameters {
     
@@ -24,7 +26,7 @@ struct Parameters {
     static let CUBIC_CELL: Int32 = 1 // Cubic cell
     
     /* FIXED PARAMETERS */
-    static let nCells: Int = 2 // Number of biological cells to simulate simultaneously
+    static var nCells: Int = 2 // Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 // Cells are divided in cubic cells: cellsPerDimension for each side
     static let nbodies: Int = 4000 // 400 // 524288 // 4194304 //  16777216
     static let nMicrotubules: Int = 200 // 400
@@ -63,6 +65,28 @@ struct Parameters {
 /// Struct containing parameters that will be used in the simulation after a restart but are not yet in use
 struct NotSetParameters {
     static var nCells: Int?
+}
+
+// MARK: - Functions
+
+/// Wether or not a restart is required to apply all parameters to the simulation
+/// - Returns: `true` if a restart is required, `false` otherwise
+public func requiresRestart() -> Bool {
+    if NotSetParameters.nCells != nil {
+        if NotSetParameters.nCells != Parameters.nCells {
+            return true
+        }
+    }
+    // All checks passed, no restart required
+    return false
+}
+
+public func applyNewParameters() {
+    if NotSetParameters.nCells != nil {
+        Parameters.nCells = NotSetParameters.nCells!
+    }
+    // Make all values nil again
+    NotSetParameters.nCells = nil
 }
 
 public func computeDeltaT() {

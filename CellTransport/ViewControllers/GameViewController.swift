@@ -588,8 +588,12 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
 
         // Initialize tabs viewcontrollers
         let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
-        self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController") as? ParametersViewController
+        self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController")
+            as? ParametersViewController
+        self.firstChildTabVC?.mainController = self
+
         self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
+
         self.thirdChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "ComputeViewController") as? ComputeViewController
 
         // Initialize Metal for GPU calculations
@@ -714,6 +718,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         cellIDtoIndex = []
         cellIDtoNMTs = []
         indexToPoint = []
+        // Apply new parameter values
+        applyNewParameters()
+        // Notify ParametersViewController of the changes
+        firstChildTabVC?.reloadParameters()
         // Restart simulation
         initializeMetal()
         initializeSimulation()

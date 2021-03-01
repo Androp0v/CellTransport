@@ -9,12 +9,28 @@
 import UIKit
 import SwiftUI
 
-class ParametersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ParametersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, BaseParameterTableViewCellDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet private weak var bottomSheetView: UIView!
 
+    public weak var mainController: GameViewController?
+
+    // Height constraint of the bottomSheetView, used to animate the button show/hide
     var heightConstraint: NSLayoutConstraint?
+
+    @IBAction func restartSimulation(_ sender: Any) {
+        DispatchQueue.global().async {
+            self.mainController?.restartSimulation()
+        }
+    }
+
+    public func reloadParameters() {
+        DispatchQueue.main.sync {
+            self.mayRequireRestart()
+            self.tableView.reloadData()
+        }
+    }
 
     struct CellConfig {
         let name: String
@@ -116,12 +132,14 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
         case "parameterTextInputCell":
             // TextInput cells initialization
             var cell = tableView.dequeueReusableCell(withIdentifier: "parameterTextInputCell", for: indexPath) as? TextInputParameterTableViewCell
+            cell?.delegate = self
             cell?.setTitleLabel(text: cells[indexPath.row].name)
             cell?.valueGetter = cells[indexPath.row].getForUI
             cell?.valueSetter = cells[indexPath.row].setFromUI
             cell?.fetchParameterValue()
             guard cell != nil else {
                 cell = TextInputParameterTableViewCell.init()
+                cell?.delegate = self
                 return cell!
             }
             return cell!
@@ -135,6 +153,7 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
             cell?.fetchParameterValue()
             guard cell != nil else {
                 cell = SwitchParameterTableViewCell.init()
+                cell?.delegate = self
                 return cell!
             }
             return cell!
@@ -152,6 +171,7 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                                                  pickerOptions: cells[indexPath.row].pickerOptions ?? [],
                                                  setter: cells[indexPath.row].setFromUI),
                            parent: self)
+                cell?.delegate = self
                 cell?.fetchParameterValue()
                 return cell!
             }
@@ -161,12 +181,30 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                                              setter: cells[indexPath.row].setFromUI),
                        parent: self)
             cell?.fetchParameterValue()
+            cell?.delegate = self
             return cell!
 
         default:
             return UITableViewCell()
         }
 
+    }
+
+    // MARK: - Private functions
+    func mayRequireRestart() {
+        if requiresRestart() {
+            // Show the restart button
+            heightConstraint?.isActive = false
+            UIView.animate(withDuration: 0.2) {
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            // Hide the restart button
+            heightConstraint?.isActive = true
+            UIView.animate(withDuration: 0.2) {
+                self.view.layoutIfNeeded()
+            }
+        }
     }
 
 }

@@ -35,11 +35,13 @@ class TextInputParameterTableViewCell: BaseParameterTableViewCell {
         if needsRestart {
             titleLabel.textColor = .systemRed
             textInputField.textColor = .systemRed
+            delegate?.mayRequireRestart()
         } else {
             titleLabel.textColor = .label
             textInputField.textColor = .label
             // Call updateValue to retrieve the converted value in case of error
             fetchParameterValue()
+            delegate?.mayRequireRestart()
         }
     }
     
@@ -50,6 +52,11 @@ class TextInputParameterTableViewCell: BaseParameterTableViewCell {
             topSpacingConstraint.constant = 2
             bottomSpacingConstraint.constant = 2
         }
+    }
+
+    override func prepareForReuse() {
+        titleLabel.textColor = .label
+        textInputField.textColor = .label
     }
 
     public func setTitleLabel(text: String) {

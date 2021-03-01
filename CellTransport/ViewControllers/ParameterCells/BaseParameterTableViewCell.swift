@@ -8,11 +8,18 @@
 
 import UIKit
 
+protocol BaseParameterTableViewCellDelegate: class {
+    func mayRequireRestart()
+}
+
 class BaseParameterTableViewCell: UITableViewCell {
 
     // Returns the value of the associated property
     public var valueGetter: (() -> String?)?
     public var valueSetter: ((String) -> Bool)?
+
+    // Delegate
+    public weak var delegate: BaseParameterTableViewCellDelegate?
 
     override func awakeFromNib() {
         super.awakeFromNib()

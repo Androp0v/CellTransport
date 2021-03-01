@@ -32,10 +32,12 @@ class SwitchParameterTableViewCell: BaseParameterTableViewCell {
         // If a restart is required, text should be red
         if needsRestart {
             titleLabel.textColor = .systemRed
+            delegate?.mayRequireRestart()
         } else {
             titleLabel.textColor = .label
             // Call updateValue to retrieve the converted value in case of error
             fetchParameterValue()
+            delegate?.mayRequireRestart()
         }
     }
 
