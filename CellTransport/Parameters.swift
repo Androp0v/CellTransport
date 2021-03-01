@@ -28,7 +28,7 @@ struct Parameters {
     /* FIXED PARAMETERS */
     static var nCells: Int = 2 // Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 // Cells are divided in cubic cells: cellsPerDimension for each side
-    static let nbodies: Int = 4000 // 400 // 524288 // 4194304 //  16777216
+    static var nbodies: Int = 4000 // 400 // 524288 // 4194304 //  16777216
     static let nMicrotubules: Int = 200 // 400
     static let cellRadius: Float = 12000 // nm
     static let centrosomeRadius: Float = 1200 // nm
@@ -65,6 +65,7 @@ struct Parameters {
 /// Struct containing parameters that will be used in the simulation after a restart but are not yet in use
 struct NotSetParameters {
     static var nCells: Int?
+    static var nbodies: Int?
 }
 
 // MARK: - Functions
@@ -77,6 +78,11 @@ public func requiresRestart() -> Bool {
             return true
         }
     }
+    if NotSetParameters.nbodies != nil {
+        if NotSetParameters.nbodies != Parameters.nbodies {
+            return true
+        }
+    }
     // All checks passed, no restart required
     return false
 }
@@ -85,8 +91,12 @@ public func applyNewParameters() {
     if NotSetParameters.nCells != nil {
         Parameters.nCells = NotSetParameters.nCells!
     }
+    if NotSetParameters.nbodies != nil {
+        Parameters.nbodies = NotSetParameters.nbodies!
+    }
     // Make all values nil again
     NotSetParameters.nCells = nil
+    NotSetParameters.nbodies = nil
 }
 
 public func computeDeltaT() {
@@ -164,6 +174,20 @@ let setNCells: (String) -> Bool = { nCells in
     NotSetParameters.nCells = nCells
     // A restart is required unless the simulation is already using the target value
     if nCells == Parameters.nCells {
+        return false
+    } else {
+        return true
+    }
+}
+
+let setNBodies: (String) -> Bool = { nbodies in
+    // Check that viscosity can be converted to a valid int
+    guard let nbodies = Int(nbodies) else {
+        return false
+    }
+    NotSetParameters.nbodies = nbodies
+    // A restart is required unless the simulation is already using the target value
+    if nbodies == Parameters.nbodies {
         return false
     } else {
         return true

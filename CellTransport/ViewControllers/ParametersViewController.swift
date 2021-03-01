@@ -106,7 +106,7 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                                 pickerOptions: nil))
         cells.append(CellConfig(name: "Number of organelles:",
                                 typeIdentifier: "parameterTextInputCell",
-                                setFromUI: nil,
+                                setFromUI: setNBodies,
                                 getForUI: { return String(Parameters.nbodies) },
                                 pickerOptions: nil))
     }
