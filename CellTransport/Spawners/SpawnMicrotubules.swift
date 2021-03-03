@@ -8,31 +8,23 @@
 import Foundation
 import SceneKit
 
-func spawnAllMicrotubules(alertLabel: UILabel?,
-                          scene: SCNScene?,
-                          computeTabViewController: ComputeViewController?,
-                          microtubulePointsArray: inout [simd_float3],
-                          cellIDDict: inout [Int: [Int]],
-                          cellIDtoIndex: inout [Int32],
-                          cellIDtoNMTs: inout [Int16],
-                          indexToPoint: inout [Int32]) -> ([SCNNode], [SCNVector3], [Int], [simd_float3]) {
+/// Class to coordinate creating the structure of microtubules for all cells concurrently and update the UI
+/// simultaneously. The implementation of the single microtubule generation itself is not part of this class,
+/// as this class focuses
+class MicrotubuleSpawner {
 
-    // Track progress of cells with completed MTs
-    var completedMTsCount: Int = Parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
-    var progressFinishedUpdating = true
-    let startTime = NSDate.now
+    // MARK: - Properties
 
-    func updateProgress() {
-        let fractionCompleted = Float(completedMTsCount) / Float(Parameters.nMicrotubules * Parameters.nCells)
-        DispatchQueue.main.async {
-            alertLabel?.text = "Generating microtubule structure of remaining cells: "
-                                    + String(format: "%.2f", 100*fractionCompleted)
-                                    + "% ("
-                                    + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
-                                    + ")"
-            progressFinishedUpdating = true
-        }
-    }
+    // UI elements
+    private weak var alertLabel: UILabel?
+    private weak var scene: SCNScene?
+    private weak var computeTabViewController: ComputeViewController?
+
+    // Control flow variables to handle progress update
+    var completedMTsCount: Int?
+    var progressFinishedUpdating: Bool?
+    var startTime: Date?
+    var progressUpdateQueue: DispatchQueue?
 
     // Create all-cells arrays
     var nodelist: [SCNNode] = []
@@ -42,57 +34,103 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
 
     var cellsPointsNumber: [Int] = []
 
-    // Add initial separator
-    microtubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
+    // Thread safe queue to write to all-cells arrays
+    var threadSafeQueueForArrays: DispatchQueue?
 
-    // Generate MTs for the first cell
-
-    DispatchQueue.main.async {
-        alertLabel?.text = "Generating microtubule structure of the first cell"
+    init(alertLabel: UILabel?, scene: SCNScene?, computeTabViewController: ComputeViewController?) {
+        self.alertLabel = alertLabel
+        self.scene = scene
+        self.computeTabViewController = computeTabViewController
     }
 
-    var cellPoints: Int = 0
+    // MARK: - Private functions
 
-    for _ in 0..<Parameters.nMicrotubules {
-        let points = generateMicrotubule(cellRadius: Parameters.cellRadius,
-                                         centrosomeRadius: Parameters.centrosomeRadius,
-                                         centrosomeLocation: Parameters.centrosomeLocation,
-                                         nucleusRadius: Parameters.nucleusRadius,
-                                         nucleusLocation: Parameters.nucleusLocation)
-        microtubuleNSegments.append(points.count)
-
-        for point in points {
-            microtubulePoints.append(point)
-            microtubulePointsArray.append(simd_float3(point))
+    func updateProgress() {
+        guard let completedMTsCount = self.completedMTsCount else { return }
+        guard let startTime = self.startTime else { return }
+        let fractionCompleted = Float(completedMTsCount) / Float(Parameters.nMicrotubules * Parameters.nCells)
+        DispatchQueue.main.async {
+            self.alertLabel?.text = "Generating microtubule structure of remaining cells: "
+                                    + String(format: "%.2f", 100*fractionCompleted)
+                                    + "% ("
+                                    + formatRemainingTime(startTime: startTime, progress: fractionCompleted)
+                                    + ")"
+            self.progressFinishedUpdating = true
         }
+    }
 
-        // Introduce separators after each MT (situated at an impossible point)
+    // MARK: - Microtubule spawning
+
+    func spawnAllMicrotubules(microtubulePointsArray: inout [simd_float3],
+                              cellIDDict: inout [Int: [Int]],
+                              cellIDtoIndex: inout [Int32],
+                              cellIDtoNMTs: inout [Int16],
+                              indexToPoint: inout [Int32]) -> ([SCNNode], [SCNVector3], [Int], [simd_float3]) {
+
+        // Track progress of cells with completed MTs
+        completedMTsCount = Parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
+        progressFinishedUpdating = true
+        startTime = NSDate.now
+
+        // Create all-cells arrays
+        nodelist = []
+        microtubulePoints = []
+        microtubuleNSegments = []
+        separateMicrotubulePoints = []
+
+        cellsPointsNumber = []
+
+        // Setup queues for writing to the all-cells arrays (computed concurrently after the first cell)
+
+        threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays")
+        progressUpdateQueue = DispatchQueue(label: "Progress update queue")
+
+        // Add initial separator
         microtubulePointsArray.append(simd_float3(Parameters.cellRadius, Parameters.cellRadius, Parameters.cellRadius))
 
-        // Update the number of MT points in the cell (including separator, +1)
-        cellPoints += points.count + 1
+        // Generate MTs for the first cell
 
-        // UI configuration for the first cell (the only cell displayed on screen)
+        DispatchQueue.main.async {
+            self.alertLabel?.text = "Generating microtubule structure of the first cell"
+        }
 
-        let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
-        let geometry = SCNGeometry.lineThrough(points: points,
-                                               width: 2,
-                                               closed: false,
-                                               color: microtubuleColor)
-        let node = SCNNode(geometry: geometry)
-        scene?.rootNode.addChildNode(node)
-        nodelist.append(node)
+        spawnOneCellMicrotubules(microtubulePointsArray: &microtubulePointsArray, isFirstCell: true)
+
+        // Generate MTs for each cell concurrently (will use max available cores)
+        DispatchQueue.concurrentPerform(iterations: Parameters.nCells - 1, execute: { _ in
+            spawnOneCellMicrotubules(microtubulePointsArray: &microtubulePointsArray, isFirstCell: false)
+        })
+
+        computeTabViewController?.MTcollection = separateMicrotubulePoints
+
+        DispatchQueue.main.async {
+            self.alertLabel?.text = "Generating microtubule structure: Converting arrays for Metal"
+        }
+
+        // Add MTs to the CellID dictionary
+
+        addMTToCellIDDict(cellIDDict: &cellIDDict,
+                          points: microtubulePointsArray,
+                          cellNMTPoints: cellsPointsNumber,
+                          cellRadius: Parameters.cellRadius,
+                          cellsPerDimension: Int(Parameters.cellsPerDimension))
+
+        // Convert MT dictionary to arrays
+
+        cellIDDictToArrays(cellIDDict: cellIDDict,
+                           cellIDtoIndex: &cellIDtoIndex,
+                           cellIDtoNMTs: &cellIDtoNMTs,
+                           MTIndexArray: &indexToPoint,
+                           nCells: Parameters.nCells,
+                           cellsPerDimension: Int(Parameters.cellsPerDimension),
+                           alertLabel: alertLabel)
+
+        return (nodelist, microtubulePoints, microtubuleNSegments, microtubulePointsArray)
     }
 
-    // Update the length of each cell's MT points
-    cellsPointsNumber.append(cellPoints)
+    // MARK: - Spawn MTs for one cell
 
-    // Create a thread safe queue to write to all-cells arrays
-    let threadSafeQueueForArrays = DispatchQueue(label: "Thread-safe write to arrays")
-    let progressUpdateQueue = DispatchQueue(label: "Progress update queue")
-
-    // Generate MTs for each cell concurrently (will use max available cores)
-    DispatchQueue.concurrentPerform(iterations: Parameters.nCells - 1, execute: { _ in
+    private func spawnOneCellMicrotubules(microtubulePointsArray: inout [simd_float3], isFirstCell: Bool) {
 
         var cellPoints: Int = 0
 
@@ -123,11 +161,25 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
             // Update the number of MT points in the cell (including separator, +1)
             cellPoints += points.count + 1
 
+            // UI configuration for the first cell (the only cell displayed on screen)
+            if isFirstCell {
+                let microtubuleColor = UIColor.green.withAlphaComponent(0.0).cgColor
+                let geometry = SCNGeometry.lineThrough(points: points,
+                                                       width: 2,
+                                                       closed: false,
+                                                       color: microtubuleColor)
+                let node = SCNNode(geometry: geometry)
+                scene?.rootNode.addChildNode(node)
+                nodelist.append(node)
+            }
+
             // Mark the microtubule as completed and show progress
-            progressUpdateQueue.async {
-                completedMTsCount += 1
+            progressUpdateQueue?.async {
+                guard self.completedMTsCount != nil else { return }
+                guard let progressFinishedUpdating = self.progressFinishedUpdating else { return }
+                self.completedMTsCount! += 1
                 if progressFinishedUpdating {
-                    updateProgress()
+                    self.updateProgress()
                 }
             }
             // Append microtubule
@@ -135,7 +187,7 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
         }
 
         // Update all-cells array with local ones safely
-        threadSafeQueueForArrays.sync {
+        threadSafeQueueForArrays?.sync {
 
             microtubulePoints.append(contentsOf: localMicrotubulePoints)
             microtubuleNSegments.append(contentsOf: localMicrotubuleNSegments)
@@ -144,33 +196,7 @@ func spawnAllMicrotubules(alertLabel: UILabel?,
             // Update the length of each cell's MT points
             cellsPointsNumber.append(cellPoints)
             separateMicrotubulePoints.append(contentsOf: localSeparateMicrotubulePointsArray)
-
         }
-    })
-
-    computeTabViewController?.MTcollection = separateMicrotubulePoints
-
-    DispatchQueue.main.async {
-        alertLabel?.text = "Generating microtubule structure: Converting arrays for Metal"
     }
 
-    // Add MTs to the CellID dictionary
-
-    addMTToCellIDDict(cellIDDict: &cellIDDict,
-                      points: microtubulePointsArray,
-                      cellNMTPoints: cellsPointsNumber,
-                      cellRadius: Parameters.cellRadius,
-                      cellsPerDimension: Int(Parameters.cellsPerDimension))
-
-    // Convert MT dictionary to arrays
-
-    cellIDDictToArrays(cellIDDict: cellIDDict,
-                       cellIDtoIndex: &cellIDtoIndex,
-                       cellIDtoNMTs: &cellIDtoNMTs,
-                       MTIndexArray: &indexToPoint,
-                       nCells: Parameters.nCells,
-                       cellsPerDimension: Int(Parameters.cellsPerDimension),
-                       alertLabel: alertLabel)
-
-    return (nodelist, microtubulePoints, microtubuleNSegments, microtubulePointsArray)
 }

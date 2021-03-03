@@ -461,15 +461,18 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         DispatchQueue.main.async {
             self.alertLabel.text = "Generating microtubule structure"
         }
-        let (microtubules, microtubulePointsReturned,
-             microtubuleNSegmentsReturned, microtubulePointsArrayReturned) = spawnAllMicrotubules(alertLabel: alertLabel,
-                                                                                                  scene: scene,
-                                                                                                  computeTabViewController: thirdChildTabVC,
-                                                                                                  microtubulePointsArray: &microtubulePointsArray,
-                                                                                                  cellIDDict: &cellIDDict,
-                                                                                                  cellIDtoIndex: &cellIDtoIndex,
-                                                                                                  cellIDtoNMTs: &cellIDtoNMTs,
-                                                                                                  indexToPoint: &indexToPoint)
+
+        let microtubuleSpawner = MicrotubuleSpawner(alertLabel: alertLabel,
+                                                    scene: scene,
+                                                    computeTabViewController: thirdChildTabVC)
+        let (microtubules,
+             microtubulePointsReturned,
+             microtubuleNSegmentsReturned,
+             microtubulePointsArrayReturned) = microtubuleSpawner.spawnAllMicrotubules(microtubulePointsArray: &microtubulePointsArray,
+                                                                                       cellIDDict: &cellIDDict,
+                                                                                       cellIDtoIndex: &cellIDtoIndex,
+                                                                                       cellIDtoNMTs: &cellIDtoNMTs,
+                                                                                       indexToPoint: &indexToPoint)
 
         microtubulePoints = microtubulePointsReturned
         microtubuleNSegments = microtubuleNSegmentsReturned
