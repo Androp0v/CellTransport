@@ -87,6 +87,7 @@ public func requiresRestart() -> Bool {
     return false
 }
 
+/// Copy the parameters from the NotSetParameters struct to the Parameters struct used in the simulation
 public func applyNewParameters() {
     if NotSetParameters.nCells != nil {
         Parameters.nCells = NotSetParameters.nCells!
@@ -99,8 +100,11 @@ public func applyNewParameters() {
     NotSetParameters.nbodies = nil
 }
 
+/// Computes the timestep used in the simulation (deltat) based on microtubule segment length and speed.
+///
+/// The compute funcion moves an organelle from one point in the microtubule to the next point every `stepsPerMTPoint`
+/// steps, effectively setting the simulation timestep.
 public func computeDeltaT() {
-    // Computes deltat based on microtubule segment lenght and speed
     Parameters.deltat = Parameters.microtubuleSegmentLength / Parameters.microtubuleSpeed
 }
 

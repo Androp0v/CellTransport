@@ -43,9 +43,9 @@ class MicrotubuleSpawner {
         self.computeTabViewController = computeTabViewController
     }
 
-    // MARK: - Private functions
+    // MARK: - UI updating functions
 
-    func updateProgress() {
+    private func updateProgress() {
         guard let completedMTsCount = self.completedMTsCount else { return }
         guard let startTime = self.startTime else { return }
         let fractionCompleted = Float(completedMTsCount) / Float(Parameters.nMicrotubules * Parameters.nCells)
