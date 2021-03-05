@@ -21,15 +21,22 @@ constant int OUTSIDE_AND_COUNT_TIME = 0;
 constant int INSIDE = 1;
 constant int OUTSIDE_AND_NOT_COUNT_TIME = 2;
 
+constant int SPHERICAL_CELL = 0;
+constant int ORTHOGONAL_CELL = 1;
+
 // MARK: - Compile time constants
 
 constant float deltat [[ function_constant(0) ]];
 constant int32_t stepsPerMTPoint [[ function_constant(1) ]];
 constant float cellRadius [[ function_constant(2) ]];
-constant int32_t cellsPerDimension [[ function_constant(3) ]];
-constant int32_t nBodies [[ function_constant(4) ]];
-constant int32_t nCells [[ function_constant(5) ]];
-constant bool nucleusEnabled [[ function_constant(6) ]];
+constant float cellWidth [[ function_constant(3) ]];
+constant float cellHeight [[ function_constant(4) ]];
+constant float cellLength [[ function_constant(5) ]];
+constant int32_t cellShape [[ function_constant(6) ]];
+constant int32_t cellsPerDimension [[ function_constant(7) ]];
+constant int32_t nBodies [[ function_constant(8) ]];
+constant int32_t nCells [[ function_constant(9) ]];
+constant bool nucleusEnabled [[ function_constant(10) ]];
 
 // MARK: - Input parameters struct
 
@@ -122,29 +129,68 @@ float4 randomSurfaceSpherePoint(float radius, int x, int y, int z){
 }
 
 // Check if particle is outside bounds
-int isOutsideBounds(int32_t boundaryConditions, float distance, float cellRadius) {
+int isOutsideBounds(int32_t boundaryConditions, float3 position, float distance) {
     switch (boundaryConditions) {
         case REINJECT_INSIDE: {
-            if (distance >= cellRadius){
-                return OUTSIDE_AND_COUNT_TIME;
-            }else{
-                return INSIDE;
+            switch (cellShape) {
+                case SPHERICAL_CELL: {
+                    if (distance >= cellRadius){
+                        return OUTSIDE_AND_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
+                case ORTHOGONAL_CELL: {
+                    if (position.x > cellWidth / 2 ||
+                        position.x < -cellWidth / 2 ||
+                        position.y > cellHeight / 2 ||
+                        position.y < -cellHeight / 2 ||
+                        position.z > cellLength / 2 ||
+                        position.z < -cellLength / 2){
+                        return OUTSIDE_AND_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
             }
         }
         case CONTAIN_INSIDE: {
-            if (distance >= cellRadius){
-                return OUTSIDE_AND_NOT_COUNT_TIME;
-            }else{
-                return INSIDE;
+            switch (cellShape) {
+                case SPHERICAL_CELL: {
+                    if (distance >= cellRadius){
+                        return OUTSIDE_AND_NOT_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
+                case ORTHOGONAL_CELL: {
+                    if (position.x > cellWidth / 2 ||
+                        position.x < -cellWidth / 2 ||
+                        position.y > cellHeight / 2 ||
+                        position.y < -cellHeight / 2 ||
+                        position.z > cellLength / 2 ||
+                        position.z < -cellLength / 2){
+                        return OUTSIDE_AND_NOT_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
             }
         }
         case REINJECT_OUTSIDE:{
-            if (distance <= cellRadius*0.1) {
-                return OUTSIDE_AND_COUNT_TIME;
-            } else if (distance > cellRadius) {
-                return OUTSIDE_AND_NOT_COUNT_TIME;
-            } else {
-                return INSIDE;
+            switch (cellShape) {
+                case SPHERICAL_CELL: {
+                    if (distance <= cellRadius*0.1) {
+                        return OUTSIDE_AND_COUNT_TIME;
+                    } else if (distance > cellRadius) {
+                        return OUTSIDE_AND_NOT_COUNT_TIME;
+                    } else {
+                        return INSIDE;
+                    }
+                }
+                case ORTHOGONAL_CELL: {
+                    // NOT IMPLEMENTED
+                }
             }
         }
         default: {
@@ -376,7 +422,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     // MARK: - Reinjection
     // Check if new point is outside specified boundary conditions
     
-    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, cellRadius);
+    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, position, distance);
     switch (outsideBounds) {
         case OUTSIDE_AND_COUNT_TIME: {
             timeBetweenJumps[i] = parameters.time - timeLastJump;

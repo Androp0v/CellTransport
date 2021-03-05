@@ -294,6 +294,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var deltatCompileConstant: Float = Parameters.deltat
         var stepsPerMTPointCompileConstant: Int = Int(Parameters.stepsPerMTPoint)
         var cellRadiusCompileConstant: Float = Parameters.cellRadius
+        var cellWidthCompileConstant: Float = Parameters.cellWidth
+        var cellHeightCompileConstant: Float = Parameters.cellHeight
+        var cellLengthCompileConstant: Float = Parameters.cellLength
+        var cellShapeCompileConstant: Int = Int(Parameters.cellShape)
         var cellsPerDimensionCompileConstant: Int = Int(Parameters.cellsPerDimension)
         var nBodiesCompileConstant: Int = Int(Parameters.nbodies)
         var nCellsCompileConstant: Int = Int(Parameters.nCells)
@@ -304,10 +308,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeFunctionCompileConstants.setConstantValue(&deltatCompileConstant, type: .float, index: 0)
         computeFunctionCompileConstants.setConstantValue(&stepsPerMTPointCompileConstant, type: .int, index: 1)
         computeFunctionCompileConstants.setConstantValue(&cellRadiusCompileConstant, type: .float, index: 2)
-        computeFunctionCompileConstants.setConstantValue(&cellsPerDimensionCompileConstant, type: .int, index: 3)
-        computeFunctionCompileConstants.setConstantValue(&nBodiesCompileConstant, type: .int, index: 4)
-        computeFunctionCompileConstants.setConstantValue(&nCellsCompileConstant, type: .int, index: 5)
-        computeFunctionCompileConstants.setConstantValue(&nucleusEnabledCompileConstant, type: .bool, index: 6)
+        computeFunctionCompileConstants.setConstantValue(&cellWidthCompileConstant, type: .float, index: 3)
+        computeFunctionCompileConstants.setConstantValue(&cellHeightCompileConstant, type: .float, index: 4)
+        computeFunctionCompileConstants.setConstantValue(&cellLengthCompileConstant, type: .float, index: 5)
+        computeFunctionCompileConstants.setConstantValue(&cellShapeCompileConstant, type: .int, index: 6)
+        computeFunctionCompileConstants.setConstantValue(&cellsPerDimensionCompileConstant, type: .int, index: 7)
+        computeFunctionCompileConstants.setConstantValue(&nBodiesCompileConstant, type: .int, index: 8)
+        computeFunctionCompileConstants.setConstantValue(&nCellsCompileConstant, type: .int, index: 9)
+        computeFunctionCompileConstants.setConstantValue(&nucleusEnabledCompileConstant, type: .bool, index: 10)
         
         // Compile functions using current constants
         guard let compute = try? library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants) else {

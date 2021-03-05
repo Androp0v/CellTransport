@@ -18,7 +18,10 @@ class ObservablePicker: ObservableObject {
 class PickerParameterTableViewCell<Content: View>: BaseParameterTableViewCell {
 
     private weak var controller: UIHostingController<Content>?
-    private var pickerSwiftUIView: PickerAndDropDownView?
+    public var pickerSwiftUIView: PickerAndDropDownView?
+
+    /// Picker changes passed by SwiftUI subview
+    var pickerUpdated: (String) -> Bool = { _ in return false}
 
     // Combine-related: @Published object to share values to SwiftUI view
     private var observablePicker = ObservablePicker()
@@ -47,6 +50,8 @@ class PickerParameterTableViewCell<Content: View>: BaseParameterTableViewCell {
         if let controller = controller {
             controller.rootView = pickerView
             controller.view.layoutIfNeeded()
+
+            pickerSwiftUIView?.onPickerChange = pickerUpdated
 
             // This is where values of SwiftUI view and UIKit get glued together
             self.observablePicker.$value.assign(to: \.selectedOption.value,
@@ -95,10 +100,13 @@ class PickerParameterTableViewCell<Content: View>: BaseParameterTableViewCell {
             swiftUICellViewController.didMove(toParent: parent)
             swiftUICellViewController.view.layoutIfNeeded()
 
+            pickerSwiftUIView?.onPickerChange = pickerUpdated
+
             // This is where values of SwiftUI view and UIKit get glued together
             self.observablePicker.$value.assign(to: \.selectedOption.value,
                                                 on: pickerSwiftUIView!)
                 .store(in: &self.cancellables)
+        
         }
     }
 }

@@ -30,6 +30,7 @@
 		C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */; };
 		C49463D525EC208500EE19DF /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C49463D425EC208500EE19DF /* Localizable.strings */; };
 		C49463EB25EC322A00EE19DF /* ParametersViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C49463EA25EC322A00EE19DF /* ParametersViewController.storyboard */; };
+		C49DCA4D25F05D1100FEC6DF /* SimulationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49DCA4C25F05D1100FEC6DF /* SimulationState.swift */; };
 		C4BB18C825E09276000648DE /* SpawnBoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */; };
 		C4BB18CC25E092FB000648DE /* SpawnCellNucleus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */; };
 		C4BB18D925E13730000648DE /* CellTransportPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BB18D825E13730000648DE /* CellTransportPerformanceTests.swift */; };
@@ -92,6 +93,7 @@
 		C493AB5B24AAA63D00710F67 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		C49463D425EC208500EE19DF /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		C49463EA25EC322A00EE19DF /* ParametersViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = ParametersViewController.storyboard; sourceTree = "<group>"; };
+		C49DCA4C25F05D1100FEC6DF /* SimulationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationState.swift; sourceTree = "<group>"; };
 		C4BB18C725E09276000648DE /* SpawnBoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnBoundingBox.swift; sourceTree = "<group>"; };
 		C4BB18CB25E092FB000648DE /* SpawnCellNucleus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnCellNucleus.swift; sourceTree = "<group>"; };
 		C4BB18D625E13730000648DE /* CellTransportPerformanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CellTransportPerformanceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -230,6 +232,7 @@
 			children = (
 				C4BD595823EA22ED000B871B /* CellTransport.entitlements */,
 				C4BD594423EA22E1000B871B /* AppDelegate.swift */,
+				C49DCA4C25F05D1100FEC6DF /* SimulationState.swift */,
 				C4BD594623EA22E1000B871B /* art.scnassets */,
 				C49029162522521100532ED5 /* Parameters.swift */,
 				C40F0BCB241155E3008A5619 /* IOFunctions.swift */,
@@ -445,6 +448,7 @@
 				C42A0440256D95A200329664 /* ComputeViewController.swift in Sources */,
 				C475A4F125E06B1D00FAD923 /* FatalCrashAlertController.swift in Sources */,
 				C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */,
+				C49DCA4D25F05D1100FEC6DF /* SimulationState.swift in Sources */,
 				C4BD594523EA22E1000B871B /* AppDelegate.swift in Sources */,
 				C4BD596A23EB477F000B871B /* GraphsViewController.swift in Sources */,
 				C4C1E88325EAAE92008BAD6C /* TextInputParameterTableViewCell.swift in Sources */,

@@ -45,8 +45,8 @@ class SwitchParameterTableViewCell: BaseParameterTableViewCell {
         super.awakeFromNib()
         // Initialization code
         if UIDevice.current.userInterfaceIdiom == .mac {
-            topSpacingConstraint.constant = 2
-            bottomSpacingConstraint.constant = 2
+            topSpacingConstraint.constant = 4
+            bottomSpacingConstraint.constant = 4
         }
     }
 

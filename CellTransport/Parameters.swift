@@ -23,30 +23,39 @@ struct Parameters {
     static let CONTAIN_INSIDE: Int32 = 2 // Contain organelles inside the cell
     
     static let SPHERICAL_CELL: Int32 = 0 // Spherical cell
-    static let CUBIC_CELL: Int32 = 1 // Cubic cell
+    static let ORTHOGONAL_CELL: Int32 = 1 // Orthogonal cell
+
+    static let RADIAL_MTS: Int32 = 0 // Radial microtubules
+    static let APICAL_BASAL_MTS: Int32 = 1 // Apical-basal microtubules
     
     /* FIXED PARAMETERS */
     static var nCells: Int = 20 // Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 // Cells are divided in cubic cells: cellsPerDimension for each side
     static var nbodies: Int = 40000 // 400 // 524288 // 4194304 //  16777216
     static let nMicrotubules: Int = 200 // 400
-    static let cellRadius: Float = 12000 // nm
     static let centrosomeRadius: Float = 1200 // nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0, 0.0, 0.0) // nm
     static let nucleusRadius: Float = 5000 // nm
     static let nucleusLocation: SCNVector3 = SCNVector3(6500, 0.0, 0.0) // nm
     static let microtubuleSpeed: Float = 800 // nm/s
     static let microtubuleSegmentLength: Float = 50 // nm
-    static let localAngle: Float = 0.15 // 0.05 // 0.015 // Radians
+    static let localAngle: Float = 0.05 // 0.15 // 0.05 // 0.015 // Radians
     static let maxLocalAngle: Float = 1*localAngle // Radians
     static let maxNSegments = 3200 // 200
-    static let nucleusEnabled: Bool = false // Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
+    static var nucleusEnabled: Bool = false // Wether to generate a nucleus or not
     static let nonFreeMTdistance: Float = 2000 // nm
     static let bendMTs: Bool = false // Wether to bend MTs near the cell wall or nucleus
-    static let cellShape: Int32 = SPHERICAL_CELL // Cell shape
+
+    /* CELL GEOMETRY */
+    static var cellShape: Int32 = ORTHOGONAL_CELL // Cell shape
+    static let cellRadius: Float = 12000 // nm, used only for SPHERICAL_CELL
+    static let cellWidth: Float = 12000 // nm, used only for ORTHOGONAL_CELL
+    static let cellHeight: Float = 24000 // nm, used only for ORTHOGONAL_CELL
+    static let cellLength: Float = 12000 // nm, used only for ORTHOGONAL_CELL
+    static let microtubulePreferredDirection = APICAL_BASAL_MTS // Microtubule structure preferred direction
     
     /* VARIABLE PARAMETERS */
-    static var boundaryConditions: Int32 = REINJECT_INSIDE // Molecular motor choice and boundary conditions
+    static var boundaryConditions: Int32 = CONTAIN_INSIDE // Molecular motor choice and boundary conditions
     static var molecularMotors: Int32 = KINESIN_ONLY // Molecular motor choice and boundary conditions
     static var collisionsFlag: Bool = false // Enables or disables collisions
     static var deltat: Float = 0.0 // Timestep. Fixed by microtubule speed
@@ -66,6 +75,8 @@ struct Parameters {
 struct NotSetParameters {
     static var nCells: Int?
     static var nbodies: Int?
+    static var nucleusEnabled: Bool?
+    static var cellShape: Int32?
 }
 
 // MARK: - Functions
@@ -77,9 +88,16 @@ public func requiresRestart() -> Bool {
         if NotSetParameters.nCells != Parameters.nCells {
             return true
         }
-    }
-    if NotSetParameters.nbodies != nil {
+    } else if NotSetParameters.nbodies != nil {
         if NotSetParameters.nbodies != Parameters.nbodies {
+            return true
+        }
+    } else if NotSetParameters.nucleusEnabled != nil {
+        if NotSetParameters.nucleusEnabled != Parameters.nucleusEnabled {
+            return true
+        }
+    } else if NotSetParameters.cellShape != nil {
+        if NotSetParameters.cellShape != Parameters.cellShape {
             return true
         }
     }
@@ -94,6 +112,12 @@ public func applyNewParameters() {
     }
     if NotSetParameters.nbodies != nil {
         Parameters.nbodies = NotSetParameters.nbodies!
+    }
+    if NotSetParameters.nucleusEnabled != nil {
+        Parameters.nucleusEnabled = NotSetParameters.nucleusEnabled!
+    }
+    if NotSetParameters.cellShape != nil {
+        Parameters.cellShape = NotSetParameters.cellShape!
     }
     // Make all values nil again
     NotSetParameters.nCells = nil
@@ -168,6 +192,27 @@ let toggleCollisions: (String) -> Bool = { state in
     }
 }
 
+let toggleNucleus: (String) -> Bool = { state in
+    if state == "true" {
+        NotSetParameters.nucleusEnabled = true
+        if NotSetParameters.nucleusEnabled == Parameters.nucleusEnabled {
+            return false
+        } else {
+            return true
+        }
+    } else if state == "false" {
+        NotSetParameters.nucleusEnabled = false
+        if NotSetParameters.nucleusEnabled == Parameters.nucleusEnabled {
+            return false
+        } else {
+            return true
+        }
+    } else {
+        NSLog("Invalid value passed to toggleCollisions")
+        return false
+    }
+}
+
 // Other setters: require restart
 
 let setNCells: (String) -> Bool = { nCells in
@@ -215,6 +260,46 @@ let setMolecularMotors: (String) -> Bool = { molecularMotor in
     return false
 }
 
+let setBoundaryConditions: (String) -> Bool = { boundaryConditions in
+    // Check that viscosity can be converted to a valid int
+    guard let boundaryConditions = Int32(boundaryConditions) else {
+        return false
+    }
+    switch boundaryConditions {
+    case Parameters.REINJECT_INSIDE:
+        Parameters.boundaryConditions = Parameters.REINJECT_INSIDE
+    case Parameters.REINJECT_OUTSIDE:
+        Parameters.boundaryConditions = Parameters.REINJECT_OUTSIDE
+    case Parameters.CONTAIN_INSIDE:
+        Parameters.boundaryConditions = Parameters.CONTAIN_INSIDE
+    default:
+        // Don't change anything otherwise
+        return false
+    }
+    return false
+}
+
+let setCellShape: (String) -> Bool = { cellShape in
+    // Check that viscosity can be converted to a valid int
+    guard let cellShape = Int32(cellShape) else {
+        return false
+    }
+    switch cellShape {
+    case Parameters.SPHERICAL_CELL:
+        NotSetParameters.cellShape = Parameters.SPHERICAL_CELL
+    case Parameters.ORTHOGONAL_CELL:
+        NotSetParameters.cellShape = Parameters.ORTHOGONAL_CELL
+    default:
+        // Don't change anything otherwise
+        return false
+    }
+    if Parameters.cellShape == NotSetParameters.cellShape {
+        return false
+    } else {
+        return true
+    }
+}
+
 // MARK: - Getters
 /// Some UI functions use this getters since they have to process the value to retrieve a useful string
 
@@ -227,5 +312,28 @@ let getMolecularMotors: () -> String = {
     default:
         return "Error"
     }
+}
 
+let getBoundaryConditions: () -> String = {
+    switch Parameters.boundaryConditions {
+    case Parameters.REINJECT_INSIDE:
+        return String(Parameters.REINJECT_INSIDE)
+    case Parameters.REINJECT_OUTSIDE:
+        return String(Parameters.REINJECT_OUTSIDE)
+    case Parameters.CONTAIN_INSIDE:
+        return String(Parameters.CONTAIN_INSIDE)
+    default:
+        return "Error"
+    }
+}
+
+let getCellShape: () -> String = {
+    switch Parameters.cellShape {
+    case Parameters.SPHERICAL_CELL:
+        return String(Parameters.SPHERICAL_CELL)
+    case Parameters.ORTHOGONAL_CELL:
+        return String(Parameters.ORTHOGONAL_CELL)
+    default:
+        return "Error"
+    }
 }

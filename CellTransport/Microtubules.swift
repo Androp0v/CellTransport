@@ -50,14 +50,14 @@ private func checkIfOutsideCell(MTPoint: SCNVector3) -> Bool {
         } else {
             return false
         }
-    case Parameters.CUBIC_CELL:
-        // Check if it's inside the (cubic) cell
-        if MTPoint.x > Parameters.cellRadius ||
-            MTPoint.x < -Parameters.cellRadius ||
-            MTPoint.y > Parameters.cellRadius ||
-            MTPoint.y < -Parameters.cellRadius ||
-            MTPoint.z > Parameters.cellRadius ||
-            MTPoint.z < -Parameters.cellRadius {
+    case Parameters.ORTHOGONAL_CELL:
+        // Check if it's inside the (orthogonal) cell
+        if MTPoint.x > Parameters.cellWidth / 2 ||
+            MTPoint.x < -Parameters.cellWidth / 2 ||
+            MTPoint.y > Parameters.cellHeight / 2 ||
+            MTPoint.y < -Parameters.cellHeight / 2 ||
+            MTPoint.z > Parameters.cellLength / 2 ||
+            MTPoint.z < -Parameters.cellLength / 2 {
             return true
         } else {
             return false
@@ -104,39 +104,60 @@ private func computeLocalAngle(MTPoint: SCNVector3, angleSlope: Float) -> Float 
 }
 
 // Try to generate first microtubule pint, fail after maxStartPointTries tries
-private func generateFirstMTSegment(centrosomeRadius: Float, centrosomeLocation: SCNVector3, nucleusRadius: Float, nucleusLocation: SCNVector3) -> [SCNVector3]? {
-    
-    // Initialize first microtubule point inside the centrosome
-    var mtPoint: vector_float3
-    var trials: Int = 0
-    var firstMTPoint: SCNVector3
-    
-    // Try to generate a valid starting point or return nil after too many trials
-    repeat {
-        // Generate a random point and move it relative to the centrosome radius
-        mtPoint = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),
-                                Float.random(in: -centrosomeRadius...centrosomeRadius),
-                                Float.random(in: -centrosomeRadius...centrosomeRadius))
-        firstMTPoint = SCNVector3(centrosomeLocation.x + mtPoint.x, centrosomeLocation.y + mtPoint.y, centrosomeLocation.z + mtPoint.z)
-        // Return nil if too many trials happen
-        if trials > maxStartPointTries {
-            return nil
-        }
-        trials += 1
-    } while distance(simd_float3(firstMTPoint), simd_float3(centrosomeLocation)) > centrosomeRadius
-        && !checkIfInsideNucleus(MTPoint: SCNVector3(mtPoint))
-        
-    // Initialize second microtubule point in an exactly radial direction
-    let tmpX = mtPoint.x
-    let tmpY = mtPoint.y
-    let tmpZ = mtPoint.z
-    let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
-    
-    let secondMTPoint = SCNVector3(centrosomeLocation.x + mtPoint.x + Parameters.microtubuleSegmentLength*tmpX/normalConstant,
-                                   centrosomeLocation.y + mtPoint.y + Parameters.microtubuleSegmentLength*tmpY/normalConstant,
-                                   centrosomeLocation.z + mtPoint.z + Parameters.microtubuleSegmentLength*tmpZ/normalConstant)
-    
-    return [firstMTPoint, secondMTPoint]
+private func generateFirstMTSegment(centrosomeRadius: Float,
+                                    centrosomeLocation: SCNVector3,
+                                    nucleusRadius: Float,
+                                    nucleusLocation: SCNVector3) -> [SCNVector3]? {
+
+    switch Parameters.microtubulePreferredDirection {
+    case Parameters.SPHERICAL_CELL:
+        // Initialize first microtubule point inside the centrosome
+        var mtPoint: vector_float3
+        var trials: Int = 0
+        var firstMTPoint: SCNVector3
+
+        // Try to generate a valid starting point or return nil after too many trials
+        repeat {
+            // Generate a random point and move it relative to the centrosome radius
+            mtPoint = vector_float3(Float.random(in: -centrosomeRadius...centrosomeRadius),
+                                    Float.random(in: -centrosomeRadius...centrosomeRadius),
+                                    Float.random(in: -centrosomeRadius...centrosomeRadius))
+            firstMTPoint = SCNVector3(centrosomeLocation.x + mtPoint.x, centrosomeLocation.y + mtPoint.y, centrosomeLocation.z + mtPoint.z)
+            // Return nil if too many trials happen
+            if trials > maxStartPointTries {
+                return nil
+            }
+            trials += 1
+        } while distance(simd_float3(firstMTPoint), simd_float3(centrosomeLocation)) > centrosomeRadius
+            && !checkIfInsideNucleus(MTPoint: SCNVector3(mtPoint))
+
+        // Initialize second microtubule point in an exactly radial direction
+        let tmpX = mtPoint.x
+        let tmpY = mtPoint.y
+        let tmpZ = mtPoint.z
+        let normalConstant = sqrt(pow(tmpX, 2) + pow(tmpY, 2) + pow(tmpZ, 2))
+
+        let secondMTPoint = SCNVector3(centrosomeLocation.x + mtPoint.x + Parameters.microtubuleSegmentLength*tmpX/normalConstant,
+                                       centrosomeLocation.y + mtPoint.y + Parameters.microtubuleSegmentLength*tmpY/normalConstant,
+                                       centrosomeLocation.z + mtPoint.z + Parameters.microtubuleSegmentLength*tmpZ/normalConstant)
+
+        return [firstMTPoint, secondMTPoint]
+    case Parameters.ORTHOGONAL_CELL:
+        // Initialize first microtubule point on the upper cell surface (XY plane)
+        var firstMTPoint: SCNVector3
+
+        // Generate a single point on the surface
+        firstMTPoint = SCNVector3(Float.random(in: -Parameters.cellWidth/2...Parameters.cellWidth/2),
+                                  Parameters.cellHeight/2 - Float.random(in: 0...Parameters.centrosomeRadius),
+                                  Float.random(in: -Parameters.cellLength/2...Parameters.cellLength/2))
+
+        // Initialize second microtubule point in an exactly apical-basal direction
+        let secondMTPoint = SCNVector3(firstMTPoint.x, firstMTPoint.y - Parameters.microtubuleSegmentLength, firstMTPoint.z)
+
+        return [firstMTPoint, secondMTPoint]
+    default:
+        return nil
+    }
 }
 
 /// Generate the next MT point.

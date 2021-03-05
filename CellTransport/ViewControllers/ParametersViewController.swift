@@ -97,6 +97,11 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                                 setFromUI: setMolecularMotors,
                                 getForUI: getMolecularMotors,
                                 pickerOptions: ["Kinesins", "Dyneins"]))
+        cells.append(CellConfig(name: "Boundary conditions:",
+                                typeIdentifier: "parameterPickerCell",
+                                setFromUI: setBoundaryConditions,
+                                getForUI: getBoundaryConditions,
+                                pickerOptions: ["Reinject inside", "Reinject outside", "Contain inside"]))
 
         // Require simulation restart
         cells.append(CellConfig(name: "Number of cells:",
@@ -109,6 +114,16 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                                 setFromUI: setNBodies,
                                 getForUI: { return String(Parameters.nbodies) },
                                 pickerOptions: nil))
+        cells.append(CellConfig(name: "Nucleus enabled:",
+                                typeIdentifier: "parameterSwitchCell",
+                                setFromUI: toggleNucleus,
+                                getForUI: { return String(Parameters.nucleusEnabled) },
+                                pickerOptions: nil))
+        cells.append(CellConfig(name: "Cell geometry:",
+                                typeIdentifier: "parameterPickerCell",
+                                setFromUI: setCellShape,
+                                getForUI: getCellShape,
+                                pickerOptions: ["Spherical", "Orthogonal"]))
     }
 
     // MARK: - Table view data source
@@ -156,12 +171,20 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                 cell?.delegate = self
                 return cell!
             }
+            cell?.delegate = self
             return cell!
 
         case "parameterPickerCell":
             // Switch cells initialization
             var cell = tableView.dequeueReusableCell(withIdentifier: "parameterPickerCell",
                                                      for: indexPath) as? PickerParameterTableViewCell<PickerAndDropDownView>
+            // Function used to handle picker updates
+            let pickerUpdate: (String) -> Bool = { value in
+                let needsRestart = cell?.valueSetter?(value)
+                guard needsRestart != nil else { return false }
+                self.mayRequireRestart()
+                return needsRestart!
+            }
             cell?.valueGetter = cells[indexPath.row].getForUI
             cell?.valueSetter = cells[indexPath.row].setFromUI
             guard cell != nil else {
@@ -169,7 +192,8 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
                 // Create a HostViewController for the SwiftUI view (only way to have pickers/dropdown menus on .mac idiom)
                 cell!.host(PickerAndDropDownView(titleLabel: cells[indexPath.row].name,
                                                  pickerOptions: cells[indexPath.row].pickerOptions ?? [],
-                                                 setter: cells[indexPath.row].setFromUI),
+                                                 setter: cells[indexPath.row].setFromUI,
+                                                 onPickerChange: pickerUpdate),
                            parent: self)
                 cell?.delegate = self
                 cell?.fetchParameterValue()
@@ -177,8 +201,9 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
             }
             // Create a HostViewController for the SwiftUI view (only way to have pickers/dropdown menus on .mac idiom)
             cell!.host(PickerAndDropDownView(titleLabel: cells[indexPath.row].name,
-                                             pickerOptions: ["Kinesins", "Dyneins"],
-                                             setter: cells[indexPath.row].setFromUI),
+                                             pickerOptions: cells[indexPath.row].pickerOptions ?? [],
+                                             setter: cells[indexPath.row].setFromUI,
+                                             onPickerChange: pickerUpdate),
                        parent: self)
             cell?.fetchParameterValue()
             cell?.delegate = self
