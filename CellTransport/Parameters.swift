@@ -71,6 +71,8 @@ struct Parameters {
     
 }
 
+// MARK: - NotSetParameters
+
 /// Struct containing parameters that will be used in the simulation after a restart but are not yet in use
 class NotSetParameters: ObservableObject {
 
@@ -82,10 +84,14 @@ class NotSetParameters: ObservableObject {
     @Published var nCells = String(Parameters.nCells)
     @Published var nbodies = String(Parameters.nbodies)
     @Published var nucleusEnabled = String(Parameters.nucleusEnabled)
-    @Published var cellShape = String(Parameters.cellShape)
 
     @Published var wON = String(Parameters.wON)
     @Published var wOFF = String(Parameters.wOFF)
+    @Published var collisionsEnabled = Parameters.collisionsFlag
+    @Published var n_w = String(Parameters.n_w)
+    @Published var molecularMotors = Parameters.molecularMotors
+    @Published var boundaryConditions = Parameters.boundaryConditions
+    @Published var cellShape = Parameters.cellShape
 }
 
 // MARK: - Functions
@@ -104,7 +110,7 @@ public func checkForGlobalRestartCheck() {
     } else if notSetParameters.nucleusEnabled != String(Parameters.nucleusEnabled) {
         notSetParameters.needsRestart = true
         return
-    } else if notSetParameters.cellShape != String(Parameters.cellShape) {
+    } else if notSetParameters.cellShape != Parameters.cellShape {
         notSetParameters.needsRestart = true
         return
     }
@@ -120,7 +126,7 @@ public func applyNewParameters() {
     Parameters.nCells = Int(notSetParameters.nCells)!
     Parameters.nbodies = Int(notSetParameters.nbodies)!
     Parameters.nucleusEnabled = Bool(notSetParameters.nucleusEnabled)!
-    Parameters.cellShape = Int32(notSetParameters.cellShape)!
+    Parameters.cellShape = notSetParameters.cellShape
 
     DispatchQueue.main.async {
         notSetParameters.needsRestart = false
@@ -173,8 +179,10 @@ let setWOFF: (String) -> Bool = { wOFF in
         return false
     }
 
-    // Save the value and return
+    // Save the value and return on BOTH Parameters and NotSetParameters
     Parameters.wOFF = wOFF
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.wOFF = String(wOFF)
     return false
 }
 
@@ -184,17 +192,22 @@ let setViscosity: (String) -> Bool = { viscosity in
         return false
     }
 
-    // Save the value and return
+    // Save the value and return on BOTH Parameters and NotSetParameters
     Parameters.n_w = viscosity
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.n_w = String(viscosity)
     return false
 }
 
-let toggleCollisions: (String) -> Bool = { state in
-    if state == "true" {
+let toggleCollisions: (Bool) -> Bool = { state in
+    let notSetParameters = NotSetParameters.shared
+    if state == true {
         Parameters.collisionsFlag = true
+        notSetParameters.collisionsEnabled = true
         return false
-    } else if state == "false" {
+    } else if state == false {
         Parameters.collisionsFlag = false
+        notSetParameters.collisionsEnabled = false
         return false
     } else {
         NSLog("Invalid value passed to toggleCollisions")
@@ -240,114 +253,82 @@ let setNCells: (String) -> Bool = { nCells in
     }
 }
 
-/*let setNBodies: (String) -> Bool = { nbodies in
+let setNBodiesPerCell: (String) -> Bool = { nBodiesPerCell in
+    let notSetParameters = NotSetParameters.shared
     // Check that viscosity can be converted to a valid int
-    guard let nbodies = Int(nbodies) else {
+    guard let nBodiesPerCell = Int(nBodiesPerCell) else {
         return false
     }
-    NotSetParameters.nbodies = String(nbodies)
+    guard let nCells = Int(notSetParameters.nCells) else {
+        return false
+    }
+    notSetParameters.nbodies = String(nBodiesPerCell * nCells)
     // A restart is required unless the simulation is already using the target value
-    if String(nbodies) == String(Parameters.nbodies) {
+    if String(nBodiesPerCell * nCells) == String(Parameters.nbodies) {
         return false
     } else {
         return true
     }
-}*/
+}
 
-let setMolecularMotors: (String) -> Bool = { molecularMotor in
-    // Check that viscosity can be converted to a valid int
-    guard let molecularMotor = Int32(molecularMotor) else {
-        return false
-    }
+let setMolecularMotors: (Int32) -> Bool = { molecularMotor in
+
+    let notSetParameters = NotSetParameters.shared
+
     switch molecularMotor {
     case Parameters.KINESIN_ONLY:
+        notSetParameters.molecularMotors = Parameters.KINESIN_ONLY
         Parameters.molecularMotors = Parameters.KINESIN_ONLY
     case Parameters.DYNEIN_ONLY:
+        notSetParameters.molecularMotors = Parameters.DYNEIN_ONLY
         Parameters.molecularMotors = Parameters.DYNEIN_ONLY
     default:
-        // Don't change anything otherwise
-        return false
+        fatalError()
     }
     return false
 }
 
-let setBoundaryConditions: (String) -> Bool = { boundaryConditions in
-    // Check that viscosity can be converted to a valid int
-    guard let boundaryConditions = Int32(boundaryConditions) else {
-        return false
-    }
+let setBoundaryConditions: (Int32) -> Bool = { boundaryConditions in
+
+    let notSetParameters = NotSetParameters.shared
+
     switch boundaryConditions {
     case Parameters.REINJECT_INSIDE:
+        notSetParameters.boundaryConditions = Parameters.REINJECT_INSIDE
         Parameters.boundaryConditions = Parameters.REINJECT_INSIDE
     case Parameters.REINJECT_OUTSIDE:
+        notSetParameters.boundaryConditions = Parameters.REINJECT_OUTSIDE
         Parameters.boundaryConditions = Parameters.REINJECT_OUTSIDE
     case Parameters.CONTAIN_INSIDE:
+        notSetParameters.boundaryConditions = Parameters.CONTAIN_INSIDE
         Parameters.boundaryConditions = Parameters.CONTAIN_INSIDE
     default:
-        // Don't change anything otherwise
-        return false
+        fatalError()
     }
     return false
 }
 
-/*let setCellShape: (String) -> Bool = { cellShape in
-    // Check that viscosity can be converted to a valid int
-    guard let cellShape = Int32(cellShape) else {
-        return false
-    }
+let setCellShape: (Int32) -> Bool = { cellShape in
+
+    let notSetParameters = NotSetParameters.shared
+
     switch cellShape {
     case Parameters.SPHERICAL_CELL:
-        NotSetParameters.cellShape = String(Parameters.SPHERICAL_CELL)
+        notSetParameters.cellShape = Parameters.SPHERICAL_CELL
     case Parameters.ORTHOGONAL_CELL:
-        NotSetParameters.cellShape = String(Parameters.ORTHOGONAL_CELL)
+        notSetParameters.cellShape = Parameters.ORTHOGONAL_CELL
     default:
-        // Don't change anything otherwise
-        return false
+        fatalError()
     }
-    if String(Parameters.cellShape) == NotSetParameters.cellShape {
+    if Parameters.cellShape == notSetParameters.cellShape {
         return false
     } else {
         return true
     }
-}*/
+}
 
 // MARK: - Getters
 /// Some UI functions use this getters since they have to process the value to retrieve a useful string
-
-let getMolecularMotors: () -> String = {
-    switch Parameters.molecularMotors {
-    case Parameters.KINESIN_ONLY:
-        return "0"
-    case Parameters.DYNEIN_ONLY:
-        return "1"
-    default:
-        return "Error"
-    }
-}
-
-let getBoundaryConditions: () -> String = {
-    switch Parameters.boundaryConditions {
-    case Parameters.REINJECT_INSIDE:
-        return String(Parameters.REINJECT_INSIDE)
-    case Parameters.REINJECT_OUTSIDE:
-        return String(Parameters.REINJECT_OUTSIDE)
-    case Parameters.CONTAIN_INSIDE:
-        return String(Parameters.CONTAIN_INSIDE)
-    default:
-        return "Error"
-    }
-}
-
-let getCellShape: () -> String = {
-    switch Parameters.cellShape {
-    case Parameters.SPHERICAL_CELL:
-        return String(Parameters.SPHERICAL_CELL)
-    case Parameters.ORTHOGONAL_CELL:
-        return String(Parameters.ORTHOGONAL_CELL)
-    default:
-        return "Error"
-    }
-}
 
 let getWON: () -> String = {
     let notSetParameters = NotSetParameters.shared
@@ -362,4 +343,36 @@ let getWOFF: () -> String = {
 let getNCells: () -> String = {
     let notSetParameters = NotSetParameters.shared
     return notSetParameters.nCells
+}
+
+let getNBodiesPerCell: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    guard let nbodies = Int(notSetParameters.nbodies) else { return "Error" }
+    guard let nCells = Int(notSetParameters.nCells) else { return "Error" }
+    return String(nbodies / nCells)
+}
+
+let getCollisionsEnabled: () -> Bool = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.collisionsEnabled
+}
+
+let getViscosity: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.n_w
+}
+
+let getMolecularMotors: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.molecularMotors
+}
+
+let getBoundaryConditions: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.molecularMotors
+}
+
+let getCellShape: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.cellShape
 }
