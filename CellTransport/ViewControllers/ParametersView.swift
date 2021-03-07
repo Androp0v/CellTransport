@@ -14,8 +14,9 @@ struct ParametersContent: View {
 
     @EnvironmentObject var notSetParameters: NotSetParameters
     @State var showBottomSheet: Bool = true
-
-    let bottomSheetHeight: CGFloat = 90.0
+    let mainController: GameViewController?
+    
+    let bottomSheetHeight: CGFloat = 60.0
 
     // Changing the value of this variables changes it on the rows too, since the
     // values are binded
@@ -29,6 +30,7 @@ struct ParametersContent: View {
         // which muast be drawn on top of the other view.
         ZStack {
             List {
+                // MARK: - Dynamic parameters
                 TextInputParameterRow(parameterName: "Attachment probability:",
                                       fieldValue: $wONString,
                                       setValue: setWON,
@@ -43,6 +45,8 @@ struct ParametersContent: View {
                     .onReceive(notSetParameters.$wOFF, perform: { value in
                         self.wOFFString = value
                     })
+
+                // MARK: - Require restart
                 ParameterSectionTitleRow(sectionTitle: "Require restart")
                 TextInputParameterRow(parameterName: "Number of cells:",
                                       fieldValue: $nCellsString,
@@ -56,7 +60,11 @@ struct ParametersContent: View {
                 Spacer()
                 ZStack(alignment: .center) {
                     Color.red
-                    Button(action: {}, label: {
+                    Button(action: {
+                        DispatchQueue.global().async {
+                            mainController?.restartSimulation()
+                        }
+                    }, label: {
                         Text("Restart simulation")
                     })
                     .foregroundColor(.white)
@@ -66,6 +74,7 @@ struct ParametersContent: View {
                     showBottomSheet = needsRestart
                 })
                 .offset(y: showBottomSheet ? 0 : bottomSheetHeight)
+                .animation(.easeInOut)
             }
             .ignoresSafeArea()
         }
@@ -75,10 +84,11 @@ struct ParametersContent: View {
 struct ParametersView: View {
 
     @StateObject var notSetParameters = NotSetParameters.shared
+    let mainController: GameViewController?
 
     var body: some View {
         NavigationView {
-            ParametersContent()
+            ParametersContent(mainController: mainController)
                 // Set the environment object first so notSetParameters is available
                 // in ParametersContent view
                 .environmentObject(notSetParameters)
@@ -89,7 +99,7 @@ struct ParametersView: View {
 
 struct ParametersView_Previews: PreviewProvider {
     static var previews: some View {
-        ParametersView()
+        ParametersView(mainController: nil)
             .previewLayout(.fixed(width: 300, height: 800))
     }
 }

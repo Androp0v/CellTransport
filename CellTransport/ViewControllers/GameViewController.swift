@@ -257,7 +257,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var buffer: MTLCommandBuffer?
 
     var currentViewController: UIViewController?
-    var firstChildTabVC = UIHostingController(rootView: ParametersView())
+    var firstChildTabVC = UIHostingController(rootView: ParametersView(mainController: nil))
     var secondChildTabVC: GraphsViewController?
     var thirdChildTabVC: ComputeViewController?
     
@@ -284,6 +284,9 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             viewController.didMove(toParent: self)
             
             viewController.view.frame = self.containerView.bounds
+            for subview in containerView.subviews {
+                subview.removeFromSuperview()
+            }
             self.containerView.addSubview(viewController.view)
             self.currentViewController = viewController
 
@@ -609,11 +612,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeDeltaT()
 
         // Initialize tabs viewcontrollers
-        // FIXME: let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
-        // FIXME: self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController")
-        //    as? ParametersViewController
-        // FIXME: self.firstChildTabVC?.mainController = self
-        let parametersView = ParametersView()
+        let parametersView = ParametersView(mainController: self)
         self.firstChildTabVC = UIHostingController(rootView: parametersView)
 
         self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController

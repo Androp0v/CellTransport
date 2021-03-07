@@ -29,9 +29,9 @@ struct Parameters {
     static let APICAL_BASAL_MTS: Int32 = 1 // Apical-basal microtubules
     
     /* FIXED PARAMETERS */
-    static var nCells: Int = 20 // Number of biological cells to simulate simultaneously
+    static var nCells: Int = 2 // Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 // Cells are divided in cubic cells: cellsPerDimension for each side
-    static var nbodies: Int = 40000 // 400 // 524288 // 4194304 //  16777216
+    static var nbodies: Int = 4000 // 400 // 524288 // 4194304 //  16777216
     static let nMicrotubules: Int = 200 // 400
     static let centrosomeRadius: Float = 1200 // nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0, 0.0, 0.0) // nm
@@ -114,22 +114,17 @@ public func checkForGlobalRestartCheck() {
 
 /// Copy the parameters from the NotSetParameters struct to the Parameters struct used in the simulation
 public func applyNewParameters() {
-    // FIXME
-    /*if let nCells = Int(NotSetParameters.nCells) {
-        Parameters.nCells = nCells
+
+    let notSetParameters = NotSetParameters.shared
+
+    Parameters.nCells = Int(notSetParameters.nCells)!
+    Parameters.nbodies = Int(notSetParameters.nbodies)!
+    Parameters.nucleusEnabled = Bool(notSetParameters.nucleusEnabled)!
+    Parameters.cellShape = Int32(notSetParameters.cellShape)!
+
+    DispatchQueue.main.async {
+        notSetParameters.needsRestart = false
     }
-    if let nbodies = Int(NotSetParameters.nbodies) {
-        Parameters.nbodies = nbodies
-    }
-    if let nucleusEnabled = Bool(NotSetParameters.nucleusEnabled) {
-        Parameters.nucleusEnabled = nucleusEnabled
-    }
-    if let cellShape = Int32(NotSetParameters.cellShape) {
-        Parameters.cellShape = cellShape
-    }
-    // Make all values nil again
-    NotSetParameters.nCells = String(Parameters.nCells)
-    NotSetParameters.nbodies = String(Parameters.nbodies)*/
 }
 
 /// Computes the timestep used in the simulation (deltat) based on microtubule segment length and speed.
