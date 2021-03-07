@@ -40,6 +40,14 @@ struct PickerAndDropDownView: View {
                 pickerColor = .label
             }
         })
+        .onAppear(perform: {
+            let needsRestart = onPickerChange(String(selectedOption.value))
+            if needsRestart {
+                pickerColor = .systemRed
+            } else {
+                pickerColor = .label
+            }
+        })
     }
 
 }
@@ -47,7 +55,8 @@ struct PickerAndDropDownView: View {
 struct PickerAndDropDownView_Previews: PreviewProvider {
     static var previews: some View {
         PickerAndDropDownView(titleLabel: "Molecular motor:",
-                              pickerOptions: ["Kinesins", "Dyneins"], onPickerChange: {_ in return false}
+                              pickerOptions: ["Kinesins", "Dyneins"],
+                              onPickerChange: {_ in return false}
         )
     }
 }

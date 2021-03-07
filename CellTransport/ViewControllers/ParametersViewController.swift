@@ -9,7 +9,7 @@
 import UIKit
 import SwiftUI
 
-class ParametersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, BaseParameterTableViewCellDelegate {
+/*class ParametersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, BaseParameterTableViewCellDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet private weak var bottomSheetView: UIView!
@@ -72,16 +72,16 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
         // MARK: - Add cells
 
         // Dynamic values: can be changed on-the-fly
-        cells.append(CellConfig(name: "Attachment probability:",
+        /*cells.append(CellConfig(name: "Attachment probability:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setWON,
                                 getForUI: { return String(Parameters.wON) },
-                                pickerOptions: nil))
-        cells.append(CellConfig(name: "Detachment probability:",
+                                pickerOptions: nil))*/
+        /*cells.append(CellConfig(name: "Detachment probability:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setWOFF,
                                 getForUI: { return String(Parameters.wOFF) },
-                                pickerOptions: nil))
+                                pickerOptions: nil))*/
         cells.append(CellConfig(name: "Viscosity:",
                                 typeIdentifier: "parameterTextInputCell",
                                 setFromUI: setViscosity,
@@ -233,3 +233,4 @@ class ParametersViewController: UIViewController, UITableViewDelegate, UITableVi
     }
 
 }
+*/

@@ -9,6 +9,7 @@
 import UIKit
 import QuartzCore
 import SceneKit
+import SwiftUI
 import Metal
 import MetalKit
 import MobileCoreServices
@@ -22,6 +23,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var slowMode: Bool = true
     var waitingMode: Bool = false
     var resetArrivalTimesRequired = false
+
+    var parameters: Parameters?
     
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
@@ -254,7 +257,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var buffer: MTLCommandBuffer?
 
     var currentViewController: UIViewController?
-    var firstChildTabVC: ParametersViewController?
+    var firstChildTabVC = UIHostingController(rootView: ParametersView())
     var secondChildTabVC: GraphsViewController?
     var thirdChildTabVC: ComputeViewController?
     
@@ -283,6 +286,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             viewController.view.frame = self.containerView.bounds
             self.containerView.addSubview(viewController.view)
             self.currentViewController = viewController
+
+            viewController.view.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                viewController.view.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 1.0),
+                viewController.view.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 1.0),
+                viewController.view.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                viewController.view.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+            ])
         }
     }
 
@@ -593,15 +604,17 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Compute global variables
         computeDeltaT()
 
         // Initialize tabs viewcontrollers
-        let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
-        self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController")
-            as? ParametersViewController
-        self.firstChildTabVC?.mainController = self
+        // FIXME: let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
+        // FIXME: self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController")
+        //    as? ParametersViewController
+        // FIXME: self.firstChildTabVC?.mainController = self
+        let parametersView = ParametersView()
+        self.firstChildTabVC = UIHostingController(rootView: parametersView)
 
         self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
 
@@ -732,7 +745,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Apply new parameter values
         applyNewParameters()
         // Notify ParametersViewController of the changes
-        firstChildTabVC?.reloadParameters()
+        // FIXME: firstChildTabVC?.reloadParameters()
         // Restart simulation
         initializeMetal()
         initializeSimulation()
@@ -755,7 +768,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func metalUpdater() {
         
         // Create simulationParameters struct
-        
+
         var simulationParametersObject = SimulationParameters(wON: Parameters.wON,
                                                               wOFF: Parameters.wOFF,
                                                               n_w: Parameters.n_w,

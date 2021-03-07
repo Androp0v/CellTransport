@@ -76,7 +76,7 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     
     var exportURL = folderURL
     exportURL.appendPathComponent(filename + String(".txt"))
-    
+
     // Create an empty string
     var parametersString: String = String()
     

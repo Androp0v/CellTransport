@@ -13,7 +13,7 @@ import SceneKit
 
 /// Struct containing all parameters and constants used in the simulation
 struct Parameters {
-    
+
     /* CONSTANTS */
     static let KINESIN_ONLY: Int32 = 0 // Kinesin molecular motors for MTs (outward)
     static let DYNEIN_ONLY: Int32 = 1 // Dynein molecular motors for MTs (inward)
@@ -72,56 +72,64 @@ struct Parameters {
 }
 
 /// Struct containing parameters that will be used in the simulation after a restart but are not yet in use
-struct NotSetParameters {
-    static var nCells: Int?
-    static var nbodies: Int?
-    static var nucleusEnabled: Bool?
-    static var cellShape: Int32?
+class NotSetParameters: ObservableObject {
+
+    static let shared = NotSetParameters()
+    private init() {}
+
+    @Published var needsRestart: Bool = false
+
+    @Published var nCells = String(Parameters.nCells)
+    @Published var nbodies = String(Parameters.nbodies)
+    @Published var nucleusEnabled = String(Parameters.nucleusEnabled)
+    @Published var cellShape = String(Parameters.cellShape)
+
+    @Published var wON = String(Parameters.wON)
+    @Published var wOFF = String(Parameters.wOFF)
 }
 
 // MARK: - Functions
 
 /// Wether or not a restart is required to apply all parameters to the simulation
 /// - Returns: `true` if a restart is required, `false` otherwise
-public func requiresRestart() -> Bool {
-    if NotSetParameters.nCells != nil {
-        if NotSetParameters.nCells != Parameters.nCells {
-            return true
-        }
-    } else if NotSetParameters.nbodies != nil {
-        if NotSetParameters.nbodies != Parameters.nbodies {
-            return true
-        }
-    } else if NotSetParameters.nucleusEnabled != nil {
-        if NotSetParameters.nucleusEnabled != Parameters.nucleusEnabled {
-            return true
-        }
-    } else if NotSetParameters.cellShape != nil {
-        if NotSetParameters.cellShape != Parameters.cellShape {
-            return true
-        }
+public func checkForGlobalRestartCheck() {
+    let notSetParameters = NotSetParameters.shared
+
+    if notSetParameters.nCells != String(Parameters.nCells) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.nbodies != String(Parameters.nbodies) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.nucleusEnabled != String(Parameters.nucleusEnabled) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.cellShape != String(Parameters.cellShape) {
+        notSetParameters.needsRestart = true
+        return
     }
     // All checks passed, no restart required
-    return false
+    notSetParameters.needsRestart = false
 }
 
 /// Copy the parameters from the NotSetParameters struct to the Parameters struct used in the simulation
 public func applyNewParameters() {
-    if NotSetParameters.nCells != nil {
-        Parameters.nCells = NotSetParameters.nCells!
+    // FIXME
+    /*if let nCells = Int(NotSetParameters.nCells) {
+        Parameters.nCells = nCells
     }
-    if NotSetParameters.nbodies != nil {
-        Parameters.nbodies = NotSetParameters.nbodies!
+    if let nbodies = Int(NotSetParameters.nbodies) {
+        Parameters.nbodies = nbodies
     }
-    if NotSetParameters.nucleusEnabled != nil {
-        Parameters.nucleusEnabled = NotSetParameters.nucleusEnabled!
+    if let nucleusEnabled = Bool(NotSetParameters.nucleusEnabled) {
+        Parameters.nucleusEnabled = nucleusEnabled
     }
-    if NotSetParameters.cellShape != nil {
-        Parameters.cellShape = NotSetParameters.cellShape!
+    if let cellShape = Int32(NotSetParameters.cellShape) {
+        Parameters.cellShape = cellShape
     }
     // Make all values nil again
-    NotSetParameters.nCells = nil
-    NotSetParameters.nbodies = nil
+    NotSetParameters.nCells = String(Parameters.nCells)
+    NotSetParameters.nbodies = String(Parameters.nbodies)*/
 }
 
 /// Computes the timestep used in the simulation (deltat) based on microtubule segment length and speed.
@@ -152,8 +160,10 @@ let setWON: (String) -> Bool = { wON in
     // Check for numerical stability
     guard isNumericallyStable(wON: wON) else { return false }
 
-    // Save the value and return
+    // Save the value and return on BOTH Parameters and NotSetParameters
     Parameters.wON = wON
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.wON = String(wON)
     return false
 }
 
@@ -162,10 +172,13 @@ let setWOFF: (String) -> Bool = { wOFF in
     guard let wOFF = Float(wOFF) else {
         return false
     }
+
     // Check that the value is greater than 0
     guard wOFF >= 0 else {
         return false
     }
+
+    // Save the value and return
     Parameters.wOFF = wOFF
     return false
 }
@@ -175,6 +188,8 @@ let setViscosity: (String) -> Bool = { viscosity in
     guard let viscosity = Float(viscosity) else {
         return false
     }
+
+    // Save the value and return
     Parameters.n_w = viscosity
     return false
 }
@@ -192,17 +207,17 @@ let toggleCollisions: (String) -> Bool = { state in
     }
 }
 
-let toggleNucleus: (String) -> Bool = { state in
+/*let toggleNucleus: (String) -> Bool = { state in
     if state == "true" {
-        NotSetParameters.nucleusEnabled = true
-        if NotSetParameters.nucleusEnabled == Parameters.nucleusEnabled {
+        NotSetParameters.nucleusEnabled = "true"
+        if NotSetParameters.nucleusEnabled == String(Parameters.nucleusEnabled) {
             return false
         } else {
             return true
         }
     } else if state == "false" {
-        NotSetParameters.nucleusEnabled = false
-        if NotSetParameters.nucleusEnabled == Parameters.nucleusEnabled {
+        NotSetParameters.nucleusEnabled = "false"
+        if NotSetParameters.nucleusEnabled == String(Parameters.nucleusEnabled) {
             return false
         } else {
             return true
@@ -211,7 +226,7 @@ let toggleNucleus: (String) -> Bool = { state in
         NSLog("Invalid value passed to toggleCollisions")
         return false
     }
-}
+}*/
 
 // Other setters: require restart
 
@@ -220,28 +235,29 @@ let setNCells: (String) -> Bool = { nCells in
     guard let nCells = Int(nCells) else {
         return false
     }
-    NotSetParameters.nCells = nCells
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.nCells = String(nCells)
     // A restart is required unless the simulation is already using the target value
-    if nCells == Parameters.nCells {
+    if String(nCells) == String(Parameters.nCells) {
         return false
     } else {
         return true
     }
 }
 
-let setNBodies: (String) -> Bool = { nbodies in
+/*let setNBodies: (String) -> Bool = { nbodies in
     // Check that viscosity can be converted to a valid int
     guard let nbodies = Int(nbodies) else {
         return false
     }
-    NotSetParameters.nbodies = nbodies
+    NotSetParameters.nbodies = String(nbodies)
     // A restart is required unless the simulation is already using the target value
-    if nbodies == Parameters.nbodies {
+    if String(nbodies) == String(Parameters.nbodies) {
         return false
     } else {
         return true
     }
-}
+}*/
 
 let setMolecularMotors: (String) -> Bool = { molecularMotor in
     // Check that viscosity can be converted to a valid int
@@ -279,26 +295,26 @@ let setBoundaryConditions: (String) -> Bool = { boundaryConditions in
     return false
 }
 
-let setCellShape: (String) -> Bool = { cellShape in
+/*let setCellShape: (String) -> Bool = { cellShape in
     // Check that viscosity can be converted to a valid int
     guard let cellShape = Int32(cellShape) else {
         return false
     }
     switch cellShape {
     case Parameters.SPHERICAL_CELL:
-        NotSetParameters.cellShape = Parameters.SPHERICAL_CELL
+        NotSetParameters.cellShape = String(Parameters.SPHERICAL_CELL)
     case Parameters.ORTHOGONAL_CELL:
-        NotSetParameters.cellShape = Parameters.ORTHOGONAL_CELL
+        NotSetParameters.cellShape = String(Parameters.ORTHOGONAL_CELL)
     default:
         // Don't change anything otherwise
         return false
     }
-    if Parameters.cellShape == NotSetParameters.cellShape {
+    if String(Parameters.cellShape) == NotSetParameters.cellShape {
         return false
     } else {
         return true
     }
-}
+}*/
 
 // MARK: - Getters
 /// Some UI functions use this getters since they have to process the value to retrieve a useful string
@@ -336,4 +352,19 @@ let getCellShape: () -> String = {
     default:
         return "Error"
     }
+}
+
+let getWON: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.wON
+}
+
+let getWOFF: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.wOFF
+}
+
+let getNCells: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.nCells
 }

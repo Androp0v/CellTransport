@@ -213,6 +213,7 @@
                                     <constraint firstItem="8BS-bg-Xv2" firstAttribute="top" secondItem="gKz-RE-pXx" secondAttribute="top" id="efG-U1-zfs"/>
                                     <constraint firstItem="8BS-bg-Xv2" firstAttribute="leading" secondItem="gKz-RE-pXx" secondAttribute="leading" id="jqq-ib-zQb"/>
                                     <constraint firstAttribute="trailing" secondItem="A0q-Od-ymt" secondAttribute="trailing" constant="18" id="jxa-pk-9ub"/>
+                                    <constraint firstItem="Fbd-xZ-qai" firstAttribute="top" secondItem="gKz-RE-pXx" secondAttribute="top" id="lsv-54-sj6"/>
                                     <constraint firstAttribute="trailing" secondItem="Fbd-xZ-qai" secondAttribute="trailing" id="qKD-7C-zjS"/>
                                     <constraint firstAttribute="trailing" secondItem="qhX-xt-6ls" secondAttribute="trailing" constant="18" id="rvl-Nr-dE7"/>
                                     <constraint firstItem="8BS-bg-Xv2" firstAttribute="bottom" secondItem="A0q-Od-ymt" secondAttribute="bottom" constant="8" id="tqB-a4-SqR"/>
@@ -223,6 +224,7 @@
                         <viewLayoutGuide key="safeArea" id="WO7-jS-JkE"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="gKz-RE-pXx" secondAttribute="bottom" id="0pl-oI-oNo"/>
+                            <constraint firstItem="gKz-RE-pXx" firstAttribute="top" secondItem="WO7-jS-JkE" secondAttribute="top" id="0yf-2I-wmj"/>
                             <constraint firstItem="j0w-cZ-pgg" firstAttribute="top" secondItem="WO7-jS-JkE" secondAttribute="top" constant="8" id="I6K-zm-9wt"/>
                             <constraint firstItem="qhX-xt-6ls" firstAttribute="top" secondItem="WO7-jS-JkE" secondAttribute="top" constant="20" id="qvF-VK-Wo8"/>
                             <constraint firstItem="gKz-RE-pXx" firstAttribute="top" secondItem="WO7-jS-JkE" secondAttribute="top" id="vCa-Jg-zUk"/>

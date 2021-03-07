@@ -57,6 +57,10 @@
 		C4C1E88425EAAE92008BAD6C /* TextInputParameterTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C4C1E88225EAAE92008BAD6C /* TextInputParameterTableViewCell.xib */; };
 		C4C1E88D25EAAF68008BAD6C /* ParametersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C1E88B25EAAF68008BAD6C /* ParametersViewController.swift */; };
 		C4C603A72584530B000A09EF /* SpawnMembrane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C603A62584530B000A09EF /* SpawnMembrane.swift */; };
+		C4FF0C5025F3EC4D00C4BD1E /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF0C4F25F3EC4D00C4BD1E /* ParametersView.swift */; };
+		C4FF0C5425F3F1A700C4BD1E /* TextInputParameterRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF0C5325F3F1A700C4BD1E /* TextInputParameterRow.swift */; };
+		C4FF0C5825F4205C00C4BD1E /* EmptyParameterCellRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF0C5725F4205C00C4BD1E /* EmptyParameterCellRow.swift */; };
+		C4FF0C5E25F431B000C4BD1E /* ParameterSectionTitleRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF0C5D25F431B000C4BD1E /* ParameterSectionTitleRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -119,6 +123,10 @@
 		C4C1E88225EAAE92008BAD6C /* TextInputParameterTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextInputParameterTableViewCell.xib; sourceTree = "<group>"; };
 		C4C1E88B25EAAF68008BAD6C /* ParametersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersViewController.swift; sourceTree = "<group>"; };
 		C4C603A62584530B000A09EF /* SpawnMembrane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpawnMembrane.swift; sourceTree = "<group>"; };
+		C4FF0C4F25F3EC4D00C4BD1E /* ParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersView.swift; sourceTree = "<group>"; };
+		C4FF0C5325F3F1A700C4BD1E /* TextInputParameterRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputParameterRow.swift; sourceTree = "<group>"; };
+		C4FF0C5725F4205C00C4BD1E /* EmptyParameterCellRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyParameterCellRow.swift; sourceTree = "<group>"; };
+		C4FF0C5D25F431B000C4BD1E /* ParameterSectionTitleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterSectionTitleRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +172,7 @@
 				C4C1E87A25EAADAD008BAD6C /* ParameterCells */,
 				C49463EA25EC322A00EE19DF /* ParametersViewController.storyboard */,
 				C4C1E88B25EAAF68008BAD6C /* ParametersViewController.swift */,
+				C4FF0C4F25F3EC4D00C4BD1E /* ParametersView.swift */,
 				C4BD596923EB477F000B871B /* GraphsViewController.swift */,
 				C404E1AE24EAF68600FD5489 /* Histograms */,
 				C42A043F256D95A200329664 /* ComputeViewController.swift */,
@@ -192,7 +201,10 @@
 		C480F6B325EC05E50034E498 /* SwiftUI Views */ = {
 			isa = PBXGroup;
 			children = (
+				C4FF0C5D25F431B000C4BD1E /* ParameterSectionTitleRow.swift */,
 				C480F6AB25EBE73C0034E498 /* PickerAndDropDownView.swift */,
+				C4FF0C5325F3F1A700C4BD1E /* TextInputParameterRow.swift */,
+				C4FF0C5725F4205C00C4BD1E /* EmptyParameterCellRow.swift */,
 			);
 			path = "SwiftUI Views";
 			sourceTree = "<group>";
@@ -427,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C49029172522521100532ED5 /* Parameters.swift in Sources */,
+				C4FF0C5E25F431B000C4BD1E /* ParameterSectionTitleRow.swift in Sources */,
 				C406BBB823F6F57F0013A79B /* Histogram.swift in Sources */,
 				C406BBBA23F743F60013A79B /* Histogram.metal in Sources */,
 				C480F68425EB0E1A0034E498 /* SwitchParameterTableViewCell.swift in Sources */,
@@ -434,10 +447,12 @@
 				C4C1E88D25EAAF68008BAD6C /* ParametersViewController.swift in Sources */,
 				C4BD594923EA22E1000B871B /* GameViewController.swift in Sources */,
 				C480F6B725EC130C0034E498 /* NumericalStabilityChecks.swift in Sources */,
+				C4FF0C5425F3F1A700C4BD1E /* TextInputParameterRow.swift in Sources */,
 				C404E1B224EAF73C00FD5489 /* LineChart3View.swift in Sources */,
 				C480F6A725EBE5A70034E498 /* PickerParameterTableViewCell.swift in Sources */,
 				C403DB4323F6B394008368CB /* LineChart1View.swift in Sources */,
 				C4C1E87C25EAAE17008BAD6C /* BaseParameterTableViewCell.swift in Sources */,
+				C4FF0C5825F4205C00C4BD1E /* EmptyParameterCellRow.swift in Sources */,
 				C493AB5C24AAA63D00710F67 /* HelperFunctions.swift in Sources */,
 				C404E1B024EAF6AE00FD5489 /* LineChart2View.swift in Sources */,
 				C4BD596423EB14DD000B871B /* shaders.metal in Sources */,
@@ -445,6 +460,7 @@
 				C4BD596623EB15AA000B871B /* Microtubules.swift in Sources */,
 				C4BB18C825E09276000648DE /* SpawnBoundingBox.swift in Sources */,
 				C4C603A72584530B000A09EF /* SpawnMembrane.swift in Sources */,
+				C4FF0C5025F3EC4D00C4BD1E /* ParametersView.swift in Sources */,
 				C42A0440256D95A200329664 /* ComputeViewController.swift in Sources */,
 				C475A4F125E06B1D00FAD923 /* FatalCrashAlertController.swift in Sources */,
 				C4BD596023EA4CDA000B871B /* MetalMeshDeformable.swift in Sources */,
