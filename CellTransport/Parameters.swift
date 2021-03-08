@@ -39,7 +39,7 @@ struct Parameters {
     static let nucleusLocation: SCNVector3 = SCNVector3(6500, 0.0, 0.0) // nm
     static let microtubuleSpeed: Float = 800 // nm/s
     static let microtubuleSegmentLength: Float = 50 // nm
-    static let localAngle: Float = 0.05 // 0.15 // 0.05 // 0.015 // Radians
+    static var localAngle: Float = 0.05 // 0.15 // 0.05 // 0.015 // Radians
     static let maxLocalAngle: Float = 1*localAngle // Radians
     static let maxNSegments = 3200 // 200
     static var nucleusEnabled: Bool = false // Wether to generate a nucleus or not
@@ -52,7 +52,7 @@ struct Parameters {
     static let cellWidth: Float = 12000 // nm, used only for ORTHOGONAL_CELL
     static let cellHeight: Float = 24000 // nm, used only for ORTHOGONAL_CELL
     static let cellLength: Float = 12000 // nm, used only for ORTHOGONAL_CELL
-    static let microtubulePreferredDirection = APICAL_BASAL_MTS // Microtubule structure preferred direction
+    static var microtubulePreferredDirection = APICAL_BASAL_MTS // Microtubule structure preferred direction
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = CONTAIN_INSIDE // Molecular motor choice and boundary conditions
@@ -84,6 +84,9 @@ class NotSetParameters: ObservableObject {
     @Published var nCells = String(Parameters.nCells)
     @Published var nbodies = String(Parameters.nbodies)
     @Published var nucleusEnabled = String(Parameters.nucleusEnabled)
+    @Published var cellShape = Parameters.cellShape
+    @Published var microtubulePreferredDirection = Parameters.microtubulePreferredDirection
+    @Published var localAngle = String(Parameters.localAngle)
 
     @Published var wON = String(Parameters.wON)
     @Published var wOFF = String(Parameters.wOFF)
@@ -91,14 +94,13 @@ class NotSetParameters: ObservableObject {
     @Published var n_w = String(Parameters.n_w)
     @Published var molecularMotors = Parameters.molecularMotors
     @Published var boundaryConditions = Parameters.boundaryConditions
-    @Published var cellShape = Parameters.cellShape
 }
 
 // MARK: - Functions
 
 /// Wether or not a restart is required to apply all parameters to the simulation
 /// - Returns: `true` if a restart is required, `false` otherwise
-public func checkForGlobalRestartCheck() {
+public func globalRequiresRestartCheck() {
     let notSetParameters = NotSetParameters.shared
 
     if notSetParameters.nCells != String(Parameters.nCells) {
@@ -113,6 +115,10 @@ public func checkForGlobalRestartCheck() {
     } else if notSetParameters.cellShape != Parameters.cellShape {
         notSetParameters.needsRestart = true
         return
+    } else if notSetParameters.microtubulePreferredDirection != Parameters.microtubulePreferredDirection {
+        notSetParameters.needsRestart = true
+    } else if notSetParameters.localAngle != String(Parameters.localAngle) {
+        notSetParameters.needsRestart = true
     }
     // All checks passed, no restart required
     notSetParameters.needsRestart = false
@@ -127,6 +133,8 @@ public func applyNewParameters() {
     Parameters.nbodies = Int(notSetParameters.nbodies)!
     Parameters.nucleusEnabled = Bool(notSetParameters.nucleusEnabled)!
     Parameters.cellShape = notSetParameters.cellShape
+    Parameters.microtubulePreferredDirection = notSetParameters.microtubulePreferredDirection
+    Parameters.localAngle = Float(notSetParameters.localAngle)!
 
     DispatchQueue.main.async {
         notSetParameters.needsRestart = false
@@ -271,6 +279,21 @@ let setNBodiesPerCell: (String) -> Bool = { nBodiesPerCell in
     }
 }
 
+let setLocalAngle: (String) -> Bool = { localAngle in
+    // Check that viscosity can be converted to a valid int
+    guard let localAngle = Float(localAngle) else {
+        return false
+    }
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.localAngle = String(localAngle)
+    // A restart is required unless the simulation is already using the target value
+    if String(localAngle) == String(Parameters.localAngle) {
+        return false
+    } else {
+        return true
+    }
+}
+
 let setMolecularMotors: (Int32) -> Bool = { molecularMotor in
 
     let notSetParameters = NotSetParameters.shared
@@ -327,6 +350,25 @@ let setCellShape: (Int32) -> Bool = { cellShape in
     }
 }
 
+let setMTPreferredDirection: (Int32) -> Bool = { MTdirection in
+
+    let notSetParameters = NotSetParameters.shared
+
+    switch MTdirection {
+    case Parameters.RADIAL_MTS:
+        notSetParameters.microtubulePreferredDirection = Parameters.RADIAL_MTS
+    case Parameters.APICAL_BASAL_MTS:
+        notSetParameters.microtubulePreferredDirection = Parameters.APICAL_BASAL_MTS
+    default:
+        fatalError()
+    }
+    if Parameters.microtubulePreferredDirection == notSetParameters.microtubulePreferredDirection {
+        return false
+    } else {
+        return true
+    }
+}
+
 // MARK: - Getters
 /// Some UI functions use this getters since they have to process the value to retrieve a useful string
 
@@ -352,6 +394,11 @@ let getNBodiesPerCell: () -> String = {
     return String(nbodies / nCells)
 }
 
+let getLocalAngle: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.localAngle
+}
+
 let getCollisionsEnabled: () -> Bool = {
     let notSetParameters = NotSetParameters.shared
     return notSetParameters.collisionsEnabled
@@ -375,4 +422,9 @@ let getBoundaryConditions: () -> Int32 = {
 let getCellShape: () -> Int32 = {
     let notSetParameters = NotSetParameters.shared
     return notSetParameters.cellShape
+}
+
+let getMTPreferredDirection: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.microtubulePreferredDirection
 }

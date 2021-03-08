@@ -20,7 +20,7 @@ struct PickerParameterRow: View {
     var getValue: (() -> Int32)?
 
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             Text("\(parameterName):")
                 .foregroundColor(needsUpdate ? .red : .primary)
             Spacer()
@@ -39,9 +39,14 @@ struct PickerParameterRow: View {
                 guard let getValue = getValue else { return }
                 needsUpdate = setValue(selectedParameter)
                 selectedParameter = getValue()
-                checkForGlobalRestartCheck()
+                globalRequiresRestartCheck()
             })
             .pickerStyle(MenuPickerStyle())
+            /*Button(action: {
+                // Action
+            }) {
+                Image(systemName: "info.circle")
+            }*/
        }
     }
 }

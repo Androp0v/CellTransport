@@ -18,7 +18,7 @@ struct SwitchParameterRow: View {
     var getValue: (() -> Bool)?
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             Text(parameterName)
                 .foregroundColor(needsUpdate ? .red : .primary)
             Spacer()
@@ -28,8 +28,13 @@ struct SwitchParameterRow: View {
                     guard let getValue = getValue else { return }
                     needsUpdate = setValue(fieldValue)
                     fieldValue = getValue()
-                    checkForGlobalRestartCheck()
+                    globalRequiresRestartCheck()
                 })
+            /*Button(action: {
+                // Action
+            }) {
+                Image(systemName: "info.circle")
+            }*/
         }
         .frame(minWidth: 0,
                 maxWidth: .infinity,

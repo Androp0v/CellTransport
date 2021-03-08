@@ -13,12 +13,13 @@ struct TextInputParameterRow: View {
     @State var parameterName: String
     @Binding var fieldValue: String
     @State private var needsUpdate: Bool = false
+    @State var showPopover: Bool = false
 
     var setValue: ((String) -> Bool)?
     var getValue: (() -> String)?
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             Text(parameterName)
                 .foregroundColor(needsUpdate ? .red : .primary)
             Spacer()
@@ -30,7 +31,7 @@ struct TextInputParameterRow: View {
                         guard let getValue = getValue else { return }
                         needsUpdate = setValue(fieldValue)
                         fieldValue = getValue()
-                        checkForGlobalRestartCheck()
+                        globalRequiresRestartCheck()
                       })
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .foregroundColor(needsUpdate ? .red : .primary)
@@ -42,6 +43,16 @@ struct TextInputParameterRow: View {
                        idealHeight: 20,
                        maxHeight: .infinity,
                        alignment: .trailing)
+            /*Button(action: {
+                        // Action
+                        showPopover = true
+                    },
+                    label: {
+                        Image(systemName: "info.circle")
+                    })
+            .popover(isPresented: self.$showPopover, content: {
+                Text("Popover!")
+            })*/
         }
         .frame(minWidth: 0,
                 maxWidth: .infinity,
