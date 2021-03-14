@@ -34,6 +34,8 @@ struct ParametersContent: View {
     @State var cellShape = Int32()
     @State var microtubulePreferredDirection = Int32()
     @State var localAngle = String()
+    @State var nucleusEnabled = Bool()
+    @State var microtubulesPerCellString = String()
 
     // MARK: - View Body
     var body: some View {
@@ -73,6 +75,7 @@ struct ParametersContent: View {
                             })
                         SwitchParameterRow(parameterName: "Collisions enabled:",
                                            fieldValue: $collisionsEnabled,
+                                           globalNeedsUpdate: globalNeedsRestart,
                                            setValue: toggleCollisions,
                                            getValue: getCollisionsEnabled)
                             .onReceive(notSetParameters.$collisionsEnabled, perform: { value in
@@ -123,6 +126,14 @@ struct ParametersContent: View {
                             .onReceive(notSetParameters.$nCells, perform: { _ in
                                 self.nBodiesPerCellString = getNBodiesPerCell()
                             })
+                        TextInputParameterRow(parameterName: "Microtubules per cell:",
+                                              fieldValue: $microtubulesPerCellString,
+                                              setValue: setNMTs,
+                                              getValue: getNMTs,
+                                              globalNeedsUpdate: globalNeedsRestart)
+                            .onReceive(notSetParameters.$nMicrotubules, perform: { value in
+                                self.microtubulesPerCellString = value
+                            })
                         PickerParameterRow(parameterName: "Cell shape",
                                            selectedParameter: $cellShape,
                                            pickerOptions: ["Spherical",
@@ -149,6 +160,15 @@ struct ParametersContent: View {
                             .onReceive(notSetParameters.$localAngle, perform: { value in
                                 self.localAngle = value
                             })
+                        NucleusParameterRow(parameterName: "Nucleus enabled:",
+                                            toggleState: $nucleusEnabled,
+                                            nucleusRadius: "5000",
+                                            positionX: "6500",
+                                            positionY: "0.0",
+                                            positionZ: "0.0",
+                                            setValue: toggleNucleus,
+                                            getValue: getNucleusEnabled,
+                                            globalNeedsUpdate: globalNeedsRestart)
                     })
                 }
                 .listRowInsets(.init(top: 6, leading: 12, bottom: 6, trailing: 6))

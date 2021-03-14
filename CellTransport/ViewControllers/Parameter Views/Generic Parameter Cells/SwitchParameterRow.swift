@@ -13,6 +13,7 @@ struct SwitchParameterRow: View {
     @State var parameterName: String
     @Binding var fieldValue: Bool
     @State private var needsUpdate: Bool = false
+    var globalNeedsUpdate: Published<Bool>.Publisher
 
     var setValue: ((Bool) -> Bool)?
     var getValue: (() -> Bool)?
@@ -41,13 +42,18 @@ struct SwitchParameterRow: View {
                 minHeight: 0,
                 maxHeight: .infinity,
                 alignment: .center)
+        .onReceive(globalNeedsUpdate, perform: { _ in
+            guard let setValue = setValue else { return }
+            needsUpdate = setValue(fieldValue)
+        })
     }
 }
 
 struct SwitchParameterRow_Previews: PreviewProvider {
     static var previews: some View {
         SwitchParameterRow(parameterName: "Switch parameter",
-                           fieldValue: .constant(true))
+                           fieldValue: .constant(true),
+                           globalNeedsUpdate: NotSetParameters.shared.$needsRestart)
             .previewLayout(.fixed(width: 300, height: 40))
     }
 }
