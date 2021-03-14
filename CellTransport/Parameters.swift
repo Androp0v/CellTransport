@@ -39,7 +39,7 @@ struct Parameters {
     static let nucleusLocation: SCNVector3 = SCNVector3(6500, 0.0, 0.0) // nm
     static let microtubuleSpeed: Float = 800 // nm/s
     static let microtubuleSegmentLength: Float = 50 // nm
-    static var localAngle: Float = 0.05 // 0.15 // 0.05 // 0.015 // Radians
+    static var localAngle: Float = 0.15 // 0.05 // 0.15 // 0.05 // 0.015 // Radians
     static let maxLocalAngle: Float = 1*localAngle // Radians
     static let maxNSegments = 3200 // 200
     static var nucleusEnabled: Bool = false // Wether to generate a nucleus or not
@@ -47,12 +47,12 @@ struct Parameters {
     static let bendMTs: Bool = false // Wether to bend MTs near the cell wall or nucleus
 
     /* CELL GEOMETRY */
-    static var cellShape: Int32 = ORTHOGONAL_CELL // Cell shape
+    static var cellShape: Int32 = SPHERICAL_CELL // Cell shape
     static let cellRadius: Float = 12000 // nm, used only for SPHERICAL_CELL
     static let cellWidth: Float = 12000 // nm, used only for ORTHOGONAL_CELL
     static let cellHeight: Float = 24000 // nm, used only for ORTHOGONAL_CELL
     static let cellLength: Float = 12000 // nm, used only for ORTHOGONAL_CELL
-    static var microtubulePreferredDirection = APICAL_BASAL_MTS // Microtubule structure preferred direction
+    static var microtubulePreferredDirection = RADIAL_MTS // Microtubule structure preferred direction
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = CONTAIN_INSIDE // Molecular motor choice and boundary conditions

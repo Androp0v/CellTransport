@@ -17,6 +17,7 @@ struct TextInputParameterRow: View {
 
     var setValue: ((String) -> Bool)?
     var getValue: (() -> String)?
+    var globalNeedsUpdate: Published<Bool>.Publisher
 
     var body: some View {
         HStack(spacing: 4) {
@@ -59,15 +60,21 @@ struct TextInputParameterRow: View {
                 minHeight: 0,
                 maxHeight: .infinity,
                 alignment: .topLeading)
+        .onReceive(globalNeedsUpdate, perform: { _ in
+            guard let setValue = setValue else { return }
+            needsUpdate = setValue(fieldValue)
+        })
     }
 }
 
 struct TextInputParameterRow_Previews: PreviewProvider {
     static var previews: some View {
         Group {
+            let notSetParameters = NotSetParameters.shared
             TextInputParameterRow(parameterName: "Parameter name:",
                                   fieldValue: .constant("0.0"),
-                                  setValue: setWON)
+                                  setValue: setWON,
+                                  globalNeedsUpdate: notSetParameters.$needsRestart)
                 .previewLayout(.fixed(width: 300, height: 40))
         }
     }

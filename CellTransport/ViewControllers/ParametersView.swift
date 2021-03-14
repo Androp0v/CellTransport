@@ -37,6 +37,8 @@ struct ParametersContent: View {
 
     // MARK: - View Body
     var body: some View {
+        let notSetParameters = NotSetParameters.shared
+        let globalNeedsRestart = notSetParameters.$needsRestart
         // Zstack containing the table itself and the restart simulation button
         // which muast be drawn on top of the other view.
         ZStack {
@@ -48,21 +50,24 @@ struct ParametersContent: View {
                         TextInputParameterRow(parameterName: "Attachment probability:",
                                               fieldValue: $wONString,
                                               setValue: setWON,
-                                              getValue: getWON)
+                                              getValue: getWON,
+                                              globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$wON, perform: { value in
                                 self.wONString = value
                             })
                         TextInputParameterRow(parameterName: "Detachment probability:",
                                               fieldValue: $wOFFString,
                                               setValue: setWOFF,
-                                              getValue: getWOFF)
+                                              getValue: getWOFF,
+                                              globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$wOFF, perform: { value in
                                 self.wOFFString = value
                             })
                         TextInputParameterRow(parameterName: "Viscosity:",
                                               fieldValue: $viscosityString,
                                               setValue: setViscosity,
-                                              getValue: getViscosity)
+                                              getValue: getViscosity,
+                                              globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$n_w, perform: { value in
                                 self.viscosityString = value
                             })
@@ -100,14 +105,16 @@ struct ParametersContent: View {
                         TextInputParameterRow(parameterName: "Number of cells:",
                                               fieldValue: $nCellsString,
                                               setValue: setNCells,
-                                              getValue: getNCells)
+                                              getValue: getNCells,
+                                              globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$nCells, perform: { value in
                                 self.nCellsString = value
                             })
                         TextInputParameterRow(parameterName: "Particles per cell:",
                                               fieldValue: $nBodiesPerCellString,
                                               setValue: setNBodiesPerCell,
-                                              getValue: getNBodiesPerCell)
+                                              getValue: getNBodiesPerCell,
+                                              globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$nbodies, perform: { _ in
                                 self.nBodiesPerCellString = getNBodiesPerCell()
                             })
@@ -137,7 +144,8 @@ struct ParametersContent: View {
                         TextInputParameterRow(parameterName: "Microtubule local angle:",
                                               fieldValue: $localAngle,
                                               setValue: setLocalAngle,
-                                              getValue: getLocalAngle)
+                                              getValue: getLocalAngle,
+                                              globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$localAngle, perform: { value in
                                 self.localAngle = value
                             })

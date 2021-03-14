@@ -744,7 +744,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Apply new parameter values
         applyNewParameters()
         // Notify ParametersViewController of the changes
-        // FIXME: firstChildTabVC?.reloadParameters()
+        globalRequiresRestartCheck()
         // Restart simulation
         initializeMetal()
         initializeSimulation()
