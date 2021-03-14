@@ -76,7 +76,7 @@ class LineChart2: UIView {
         
         let path = UIBezierPath()
         
-        histogramTimes(times: times, nDistances: nBodies, bins: bins, histogramArray: &histogramArray)
+        histogramTimes(times: times, nbodies: nBodies, bins: bins, histogramArray: &histogramArray)
         
         let baseLineHeight: CGFloat = 8.0
         let topMargin: CGFloat = 8.0

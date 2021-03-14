@@ -253,7 +253,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float *distances [[buffer(2)]],
                     device float *timeLastJumpIn [[buffer(3)]],
                     device float *timeLastJumpOut [[buffer(4)]],
-                    device float *timeBetweenJumps [[buffer(5)]],
+                    device float *timeBetweenJumpsInOut [[buffer(5)]],
                     device simd_float3 *MTpoints [[buffer(6)]],
                     device int32_t *cellIDtoIndex [[buffer(7)]],
                     device int16_t *cellIDtoNMTs [[buffer(8)]],
@@ -273,6 +273,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     float3 position = positionsIn[i];
     int32_t MTstepNumber = MTstepNumberIn[i];
     float timeLastJump = timeLastJumpIn[i];
+    float timeBetweenJumps = timeBetweenJumpsInOut[i];
 
     // Initialize useful values
     int currentCellNumber = int( i / int(nBodies / nCells) );
@@ -425,8 +426,10 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     int outsideBounds = isOutsideBounds(parameters.boundaryConditions, position, distance);
     switch (outsideBounds) {
         case OUTSIDE_AND_COUNT_TIME: {
-            timeBetweenJumps[i] = parameters.time - timeLastJump;
-            timeLastJump = parameters.time;
+            if (timeLastJump >= 0) {
+                timeBetweenJumps = parameters.time - timeLastJump;
+                timeLastJump = parameters.time;
+            }
             isAttached = -1;
             
             // Reinject point in the correct position given boundary conditions
@@ -470,6 +473,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         }
     }
 
+    // Discard jump times that happened before the simulation parameters were last changed
+    if (timeLastJump > parameters.time) {
+        timeLastJump = -1;
+    }
+
     // MARK: - Write to buffers
     // Coalesce all writes to buffer at the same time
     isAttachedOut[i] = isAttached;
@@ -478,6 +486,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     randomSeedsOut[i] = randNumber;
     distances[i] = distance;
     timeLastJumpOut[i] = timeLastJump;
+    timeBetweenJumpsInOut[i] = timeBetweenJumps;
     
 }
 

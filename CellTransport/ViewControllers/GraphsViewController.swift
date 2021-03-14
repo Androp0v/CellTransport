@@ -21,7 +21,8 @@ class GraphsViewController: UIViewController {
     
     @IBOutlet var histogramChart1Settings: UIButton!
     
-    var autoMerge: Bool = false
+    private var autoMerge: Bool = false
+    private let notSetParameters = NotSetParameters.shared
     
     @IBOutlet var switchAutoMerge: UISwitch!
     @IBAction func switchAutoMergeChanged(_ sender: Any) {
@@ -78,6 +79,7 @@ class GraphsViewController: UIViewController {
         histogramChart2?.layer.cornerRadius = 8.0
         histogramChart3?.layer.cornerRadius = 8.0
         histogramChart4?.layer.cornerRadius = 8.0
+        
     }
     
 }
