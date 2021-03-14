@@ -411,7 +411,15 @@ let setMTPreferredDirection: (Int32) -> Bool = { MTdirection in
     case Parameters.RADIAL_MTS:
         notSetParameters.microtubulePreferredDirection = Parameters.RADIAL_MTS
     case Parameters.APICAL_BASAL_MTS:
-        notSetParameters.microtubulePreferredDirection = Parameters.APICAL_BASAL_MTS
+        if notSetParameters.cellShape == Parameters.ORTHOGONAL_CELL {
+            notSetParameters.microtubulePreferredDirection = Parameters.APICAL_BASAL_MTS
+        } else {
+            NSLog("Apical-basal microtubules are not compatible with this cell shape")
+            var errorNotificationContent = [String: String]()
+            errorNotificationContent["title"] = "Invalid selection"
+            errorNotificationContent["message"] = NSLocalizedString("Apical-basal microtubules are not compatible with this cell shape", comment: "")
+            NotificationCenter.default.post(name: .inputErrorNotification, object: nil, userInfo: errorNotificationContent)
+        }
     default:
         fatalError()
     }
