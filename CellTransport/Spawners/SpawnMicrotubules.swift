@@ -68,7 +68,7 @@ class MicrotubuleSpawner {
                               indexToPoint: inout [Int32]) -> ([SCNNode], [SCNVector3], [Int], [simd_float3]) {
 
         // Track progress of cells with completed MTs
-        completedMTsCount = Parameters.nMicrotubules // First cell is not computed in parallel, excluded from progress count
+        completedMTsCount = 0
         progressFinishedUpdating = true
         startTime = NSDate.now
 
@@ -178,7 +178,7 @@ class MicrotubuleSpawner {
                 guard self.completedMTsCount != nil else { return }
                 guard let progressFinishedUpdating = self.progressFinishedUpdating else { return }
                 self.completedMTsCount! += 1
-                if progressFinishedUpdating {
+                if progressFinishedUpdating && !isFirstCell {
                     self.updateProgress()
                 }
             }
