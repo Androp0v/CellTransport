@@ -173,20 +173,39 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
     
     // Modify direction vector if inside nonFreeMTdistance and current direction is set to collide with the nucleus
     var directionVectorMod = directionVector
-    
-    if Parameters.bendMTs {
-        if distanceNucleus(MTPoint: lastPoint) < Parameters.nonFreeMTdistance || distanceCellWall(MTPoint: lastPoint) < Parameters.nonFreeMTdistance {
-            
-            // Raytracing
+
+    // Microtubules should be bent by the cell nucleus
+    if Parameters.nucleusEnabled {
+        if distanceNucleus(MTPoint: lastPoint) < Parameters.nonFreeMTdistance {
+
+            // Raycasting
             var willCollideNucleus = false
-            var willCollideCellWall = false
             for i in (1...Int(Parameters.nonFreeMTdistance/Parameters.microtubuleSegmentLength)).reversed() {
                 if checkIfInsideNucleus(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector)
                                                                 * Parameters.microtubuleSegmentLength
                                                                 * Float(i))) {
                     willCollideNucleus = true
                     break
-                } else if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector)
+                }
+            }
+
+            // Bias the direction using the normal
+            if willCollideNucleus {
+                let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(Parameters.nucleusLocation))
+                let biasMTBending = Float(bendingStrength) * (1 - distanceNucleus(MTPoint: lastPoint)/Parameters.nonFreeMTdistance)
+                directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
+            }
+        }
+    }
+
+    // Microtubules may be bent by the cell membrane
+    if Parameters.bendMTs {
+        if distanceCellWall(MTPoint: lastPoint) < Parameters.nonFreeMTdistance {
+            
+            // Raycasting
+            var willCollideCellWall = false
+            for i in (1...Int(Parameters.nonFreeMTdistance/Parameters.microtubuleSegmentLength)).reversed() {
+                if checkIfOutsideCell(MTPoint: SCNVector3( simd_float3(lastPoint) + simd_float3(directionVector)
                                                                     * Parameters.microtubuleSegmentLength
                                                                     * Float(i))) {
                     willCollideCellWall = true
@@ -195,11 +214,7 @@ private func generateNextMTPoint(directionVector: SCNVector3, lastPoint: SCNVect
             }
             
             // Bias the direction using the normal
-            if willCollideNucleus {
-                let nucleusNormal = normalize(simd_float3(lastPoint) - simd_float3(Parameters.nucleusLocation))
-                let biasMTBending = Float(bendingStrength) * (1 - distanceNucleus(MTPoint: lastPoint)/Parameters.nonFreeMTdistance)
-                directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*nucleusNormal + simd_float3(directionVector)))
-            } else if willCollideCellWall {
+            if willCollideCellWall {
                 let cellWallNormal = -normalize(simd_float3(lastPoint))
                 let biasMTBending = Float(bendingStrength) * (1 - distanceCellWall(MTPoint: lastPoint)/Parameters.nonFreeMTdistance)
                 directionVectorMod = SCNVector3(normalize(Float(biasMTBending)*cellWallNormal + simd_float3(directionVector)))
