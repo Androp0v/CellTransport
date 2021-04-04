@@ -86,7 +86,8 @@ struct ParametersContent: View {
                                            pickerOptions: ["Kinesins",
                                                            "Dyneins"],
                                            setValue: setMolecularMotors,
-                                           getValue: getMolecularMotors)
+                                           getValue: getMolecularMotors,
+                                           globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$molecularMotors, perform: { value in
                                 self.molecularMotor = value
                             })
@@ -96,7 +97,8 @@ struct ParametersContent: View {
                                                            "Reinject outside",
                                                            "Contain inside"],
                                            setValue: setBoundaryConditions,
-                                           getValue: getBoundaryConditions)
+                                           getValue: getBoundaryConditions,
+                                           globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$boundaryConditions, perform: { value in
                                 self.boundaryConditions = value
                             })
@@ -139,7 +141,8 @@ struct ParametersContent: View {
                                            pickerOptions: ["Spherical",
                                                            "Orthogonal"],
                                            setValue: setCellShape,
-                                           getValue: getCellShape)
+                                           getValue: getCellShape,
+                                           globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$cellShape, perform: { value in
                                 self.cellShape = value
                             })
@@ -148,7 +151,8 @@ struct ParametersContent: View {
                                            pickerOptions: ["Radial",
                                                            "Apical-basal"],
                                            setValue: setMTPreferredDirection,
-                                           getValue: getMTPreferredDirection)
+                                           getValue: getMTPreferredDirection,
+                                           globalNeedsUpdate: globalNeedsRestart)
                             .onReceive(notSetParameters.$microtubulePreferredDirection, perform: { value in
                                 self.microtubulePreferredDirection = value
                             })
@@ -162,10 +166,6 @@ struct ParametersContent: View {
                             })
                         NucleusParameterRow(parameterName: "Nucleus enabled:",
                                             toggleState: $nucleusEnabled,
-                                            nucleusRadius: "5000",
-                                            positionX: "6500",
-                                            positionY: "0.0",
-                                            positionZ: "0.0",
                                             setValue: toggleNucleus,
                                             getValue: getNucleusEnabled,
                                             globalNeedsUpdate: globalNeedsRestart)

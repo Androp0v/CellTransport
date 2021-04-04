@@ -24,7 +24,7 @@ struct TextInputParameterRow: View {
             Text(parameterName)
                 .foregroundColor(needsUpdate ? .red : .primary)
             Spacer()
-            TextField("Parameter",
+            TextField("",
                       text: $fieldValue,
                       onEditingChanged: { _ in },
                       onCommit: {

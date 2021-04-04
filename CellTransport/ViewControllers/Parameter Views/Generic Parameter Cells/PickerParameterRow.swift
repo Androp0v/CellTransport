@@ -18,6 +18,7 @@ struct PickerParameterRow: View {
 
     var setValue: ((Int32) -> Bool)?
     var getValue: (() -> Int32)?
+    var globalNeedsUpdate: Published<Bool>.Publisher
 
     var body: some View {
         HStack(spacing: 4) {
@@ -48,6 +49,10 @@ struct PickerParameterRow: View {
                 Image(systemName: "info.circle")
             }*/
        }
+       .onReceive(globalNeedsUpdate, perform: { _ in
+            guard let setValue = setValue else { return }
+            needsUpdate = setValue(selectedParameter)
+       })
     }
 }
 
@@ -57,7 +62,8 @@ struct PickerParameterRow_Previews: PreviewProvider {
                            selectedParameter: .constant(0),
                            pickerOptions: ["Option 1",
                                            "Option 2",
-                                           "Option 3"]
+                                           "Option 3"],
+                           globalNeedsUpdate: NotSetParameters.shared.$needsRestart
         )
         .previewLayout(.fixed(width: 300, height: 40))
     }

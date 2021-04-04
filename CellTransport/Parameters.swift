@@ -36,7 +36,7 @@ struct Parameters {
     static var nMicrotubules: Int = 200 // 400
     static let centrosomeRadius: Float = 1200 // nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0, 0.0, 0.0) // nm
-    static let nucleusRadius: Float = 5000 // nm
+    static var nucleusRadius: Float = 5000 // nm
     static let nucleusLocation: SCNVector3 = SCNVector3(6500, 0.0, 0.0) // nm
     static let microtubuleSpeed: Float = 800 // nm/s
     static let microtubuleSegmentLength: Float = 50 // nm
@@ -89,6 +89,7 @@ class NotSetParameters: ObservableObject {
     @Published var cellShape = Parameters.cellShape
     @Published var microtubulePreferredDirection = Parameters.microtubulePreferredDirection
     @Published var localAngle = String(Parameters.localAngle)
+    @Published var nucleusRadius = String(Parameters.nucleusRadius)
 
     @Published var wON = String(Parameters.wON)
     @Published var wOFF = String(Parameters.wOFF)
@@ -126,6 +127,9 @@ public func globalRequiresRestartCheck() {
     } else if notSetParameters.localAngle != String(Parameters.localAngle) {
         notSetParameters.needsRestart = true
         return
+    } else if notSetParameters.nucleusRadius != String(Parameters.nucleusRadius) {
+        notSetParameters.needsRestart = true
+        return
     }
     // All checks passed, no restart required
     DispatchQueue.main.async {
@@ -145,6 +149,7 @@ public func applyNewParameters() {
     Parameters.cellShape = notSetParameters.cellShape
     Parameters.microtubulePreferredDirection = notSetParameters.microtubulePreferredDirection
     Parameters.localAngle = Float(notSetParameters.localAngle)!
+    Parameters.nucleusRadius = Float(notSetParameters.nucleusRadius)!
 
     DispatchQueue.main.async {
         notSetParameters.needsRestart = false
@@ -430,6 +435,22 @@ let setMTPreferredDirection: (Int32) -> Bool = { MTdirection in
     }
 }
 
+let setNucleusRadius: (String) -> Bool = { radius in
+    // Check that viscosity can be converted to a valid int
+    guard let radius = Float(radius) else {
+        return false
+    }
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.nucleusRadius = String(radius)
+    // A restart is required unless the simulation is already using the target value
+    if String(radius) == String(Parameters.nucleusRadius) {
+        return false
+    } else {
+        return true
+    }
+
+}
+
 // MARK: - Getters
 /// Some UI functions use this getters since they have to process the value to retrieve a useful string
 
@@ -496,6 +517,11 @@ let getNucleusEnabled: () -> Bool = {
 }
 
 let getNMTs: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.nMicrotubules
+}
+
+let getNucleusRadius: () -> String = {
     let notSetParameters = NotSetParameters.shared
     return notSetParameters.nMicrotubules
 }

@@ -12,10 +12,10 @@ struct NucleusParameterRow: View {
 
     @State var parameterName: String
     @Binding var toggleState: Bool
-    @State var nucleusRadius: String
-    @State var positionX: String
-    @State var positionY: String
-    @State var positionZ: String
+    @State var nucleusRadiusString = String()
+    @State var positionX = String()
+    @State var positionY = String()
+    @State var positionZ = String()
     @State private var needsUpdate: Bool = false
 
     var setValue: ((Bool) -> Bool)?
@@ -23,6 +23,9 @@ struct NucleusParameterRow: View {
     var globalNeedsUpdate: Published<Bool>.Publisher
 
     var body: some View {
+
+        let notSetParameters = NotSetParameters.shared
+
         VStack {
             HStack(spacing: 4) {
                 Text(parameterName)
@@ -47,8 +50,13 @@ struct NucleusParameterRow: View {
             if toggleState {
                 List {
                     TextInputParameterRow(parameterName: "Radius (nm):",
-                                          fieldValue: $nucleusRadius,
+                                          fieldValue: $nucleusRadiusString,
+                                          setValue: setNucleusRadius,
+                                          getValue: getNucleusRadius,
                                           globalNeedsUpdate: globalNeedsUpdate)
+                        .onReceive(notSetParameters.$nucleusRadius, perform: { value in
+                            self.nucleusRadiusString = value
+                        })
                         .listRowInsets(.init(top: 8, leading: 0, bottom: 8, trailing: 0))
                     TextInputParameterRow(parameterName: "Position x (nm):",
                                           fieldValue: $positionX,
@@ -83,7 +91,6 @@ struct NucleusParameterRow_Previews: PreviewProvider {
     static var previews: some View {
         NucleusParameterRow(parameterName: "Nucleus enabled",
                             toggleState: .constant(true),
-                            nucleusRadius: "5000",
                             positionX: "6500",
                             positionY: "0.0",
                             positionZ: "0.0",
