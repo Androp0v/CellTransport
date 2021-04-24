@@ -17,7 +17,6 @@ Parameter | Explanation
 **Microtubule speed** | Speed at which particles travel through the microtubules, in nanometers per second.
 **Microtubule segment lenght** | Segment length of the microtubules. These segments are straight but the angle at which they join is randomly varied to build a realistic microtubule. Several segments are joined to form a full microtubule. Particles have a probability of attaching to every **segment** in their vicinity.
 **Microtubule local angle** | Maximum angle at which new microtubule segments can join the previous segment. In radians.
-**Microtubule max local angle** | Maximum angle at which new microtubule segments close to the cell membrane can join the previous segment. In radians.
 **Microtubule max segments** | Maximum number of segments that can be joined to form a full microtubule. Segments are added to a forming microtubule upon generation until either the cell membrane is reached or the microtubule max segments count is reached.
 **Molecular motors** | Wether the simulation is using *KINESIN_ONLY* (outward traveling motors) or *DYNEIN_ONLY* (inward traveling motors).
 **Boundary conditions** | Wether the simulation is using *REINJECT_INSIDE* (particles further than the cell membrane are reinjected in the centrosome), *REINJECT_OUTSIDE* (particles in the centrosome are reinjected in the cell membrane or *CONTAIN_INSIDE* (particles are not reinjected anywhere and can't travel outside the cell membrane).
@@ -29,4 +28,4 @@ Parameter | Explanation
 **Cytoplasm viscosity** | Viscosity of the cytoplasm (expressed as x times the viscosity of pure water).
 
 ## Compatibility
-Works in macOS 10.15 or later and iOS 13 or later. Requires a Metal-compatible graphic card.
+Works in macOS 11 (Big Sur) or later and iOS 13.6 or later. Requires a Metal-compatible graphic card.
