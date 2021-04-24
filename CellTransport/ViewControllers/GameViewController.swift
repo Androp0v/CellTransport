@@ -9,6 +9,7 @@
 import UIKit
 import QuartzCore
 import SceneKit
+import SwiftUI
 import Metal
 import MetalKit
 import MobileCoreServices
@@ -22,6 +23,8 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     var slowMode: Bool = true
     var waitingMode: Bool = false
     var resetArrivalTimesRequired = false
+
+    var parameters: Parameters?
     
     var microtubuleDistances: [Float] = []
     var microtubulePoints: [SCNVector3] = []
@@ -254,7 +257,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     fileprivate var buffer: MTLCommandBuffer?
 
     var currentViewController: UIViewController?
-    var firstChildTabVC: ParametersViewController?
+    var firstChildTabVC = UIHostingController(rootView: ParametersView(mainController: nil))
     var secondChildTabVC: GraphsViewController?
     var thirdChildTabVC: ComputeViewController?
     
@@ -281,8 +284,19 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
             viewController.didMove(toParent: self)
             
             viewController.view.frame = self.containerView.bounds
+            for subview in containerView.subviews {
+                subview.removeFromSuperview()
+            }
             self.containerView.addSubview(viewController.view)
             self.currentViewController = viewController
+
+            viewController.view.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                viewController.view.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 1.0),
+                viewController.view.heightAnchor.constraint(equalTo: containerView.heightAnchor, multiplier: 1.0),
+                viewController.view.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                viewController.view.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+            ])
         }
     }
 
@@ -294,6 +308,10 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         var deltatCompileConstant: Float = Parameters.deltat
         var stepsPerMTPointCompileConstant: Int = Int(Parameters.stepsPerMTPoint)
         var cellRadiusCompileConstant: Float = Parameters.cellRadius
+        var cellWidthCompileConstant: Float = Parameters.cellWidth
+        var cellHeightCompileConstant: Float = Parameters.cellHeight
+        var cellLengthCompileConstant: Float = Parameters.cellLength
+        var cellShapeCompileConstant: Int = Int(Parameters.cellShape)
         var cellsPerDimensionCompileConstant: Int = Int(Parameters.cellsPerDimension)
         var nBodiesCompileConstant: Int = Int(Parameters.nbodies)
         var nCellsCompileConstant: Int = Int(Parameters.nCells)
@@ -304,10 +322,14 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         computeFunctionCompileConstants.setConstantValue(&deltatCompileConstant, type: .float, index: 0)
         computeFunctionCompileConstants.setConstantValue(&stepsPerMTPointCompileConstant, type: .int, index: 1)
         computeFunctionCompileConstants.setConstantValue(&cellRadiusCompileConstant, type: .float, index: 2)
-        computeFunctionCompileConstants.setConstantValue(&cellsPerDimensionCompileConstant, type: .int, index: 3)
-        computeFunctionCompileConstants.setConstantValue(&nBodiesCompileConstant, type: .int, index: 4)
-        computeFunctionCompileConstants.setConstantValue(&nCellsCompileConstant, type: .int, index: 5)
-        computeFunctionCompileConstants.setConstantValue(&nucleusEnabledCompileConstant, type: .bool, index: 6)
+        computeFunctionCompileConstants.setConstantValue(&cellWidthCompileConstant, type: .float, index: 3)
+        computeFunctionCompileConstants.setConstantValue(&cellHeightCompileConstant, type: .float, index: 4)
+        computeFunctionCompileConstants.setConstantValue(&cellLengthCompileConstant, type: .float, index: 5)
+        computeFunctionCompileConstants.setConstantValue(&cellShapeCompileConstant, type: .int, index: 6)
+        computeFunctionCompileConstants.setConstantValue(&cellsPerDimensionCompileConstant, type: .int, index: 7)
+        computeFunctionCompileConstants.setConstantValue(&nBodiesCompileConstant, type: .int, index: 8)
+        computeFunctionCompileConstants.setConstantValue(&nCellsCompileConstant, type: .int, index: 9)
+        computeFunctionCompileConstants.setConstantValue(&nucleusEnabledCompileConstant, type: .bool, index: 10)
         
         // Compile functions using current constants
         guard let compute = try? library.makeFunction(name: "compute", constantValues: computeFunctionCompileConstants) else {
@@ -585,15 +607,13 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Compute global variables
         computeDeltaT()
 
         // Initialize tabs viewcontrollers
-        let firstChildTabStoryboard = UIStoryboard(name: "ParametersViewController", bundle: nil)
-        self.firstChildTabVC = firstChildTabStoryboard.instantiateViewController(withIdentifier: "ParametersViewController")
-            as? ParametersViewController
-        self.firstChildTabVC?.mainController = self
+        let parametersView = ParametersView(mainController: self)
+        self.firstChildTabVC = UIHostingController(rootView: parametersView)
 
         self.secondChildTabVC = self.storyboard?.instantiateViewController(withIdentifier: "GraphsViewController") as? GraphsViewController
 
@@ -724,7 +744,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
         // Apply new parameter values
         applyNewParameters()
         // Notify ParametersViewController of the changes
-        firstChildTabVC?.reloadParameters()
+        globalRequiresRestartCheck()
         // Restart simulation
         initializeMetal()
         initializeSimulation()
@@ -747,7 +767,7 @@ class GameViewController: UIViewController, UIDocumentPickerDelegate {
     func metalUpdater() {
         
         // Create simulationParameters struct
-        
+
         var simulationParametersObject = SimulationParameters(wON: Parameters.wON,
                                                               wOFF: Parameters.wOFF,
                                                               n_w: Parameters.n_w,

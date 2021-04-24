@@ -21,7 +21,8 @@ class GraphsViewController: UIViewController {
     
     @IBOutlet var histogramChart1Settings: UIButton!
     
-    var autoMerge: Bool = false
+    private var autoMerge: Bool = false
+    private let notSetParameters = NotSetParameters.shared
     
     @IBOutlet var switchAutoMerge: UISwitch!
     @IBAction func switchAutoMergeChanged(_ sender: Any) {
@@ -72,12 +73,13 @@ class GraphsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 126, left: 1, bottom: 1, right: 1)
+        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 78.5, left: 1, bottom: 2, right: 1)
         
         histogramChart1?.layer.cornerRadius = 8.0
         histogramChart2?.layer.cornerRadius = 8.0
         histogramChart3?.layer.cornerRadius = 8.0
         histogramChart4?.layer.cornerRadius = 8.0
+        
     }
     
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2020 Raúl Montón Pinillos. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SceneKit
 
@@ -13,7 +14,7 @@ import SceneKit
 
 /// Struct containing all parameters and constants used in the simulation
 struct Parameters {
-    
+
     /* CONSTANTS */
     static let KINESIN_ONLY: Int32 = 0 // Kinesin molecular motors for MTs (outward)
     static let DYNEIN_ONLY: Int32 = 1 // Dynein molecular motors for MTs (inward)
@@ -23,27 +24,35 @@ struct Parameters {
     static let CONTAIN_INSIDE: Int32 = 2 // Contain organelles inside the cell
     
     static let SPHERICAL_CELL: Int32 = 0 // Spherical cell
-    static let CUBIC_CELL: Int32 = 1 // Cubic cell
+    static let ORTHOGONAL_CELL: Int32 = 1 // Orthogonal cell
+
+    static let RADIAL_MTS: Int32 = 0 // Radial microtubules
+    static let APICAL_BASAL_MTS: Int32 = 1 // Apical-basal microtubules
     
     /* FIXED PARAMETERS */
-    static var nCells: Int = 20 // Number of biological cells to simulate simultaneously
+    static var nCells: Int = 2 // Number of biological cells to simulate simultaneously
     static let cellsPerDimension = 100 // Cells are divided in cubic cells: cellsPerDimension for each side
-    static var nbodies: Int = 40000 // 400 // 524288 // 4194304 //  16777216
-    static let nMicrotubules: Int = 200 // 400
-    static let cellRadius: Float = 12000 // nm
+    static var nbodies: Int = 4000 // 400 // 524288 // 4194304 //  16777216
+    static var nMicrotubules: Int = 200 // 400
     static let centrosomeRadius: Float = 1200 // nm
     static let centrosomeLocation: SCNVector3 = SCNVector3(0.0, 0.0, 0.0) // nm
-    static let nucleusRadius: Float = 5000 // nm
+    static var nucleusRadius: Float = 5000 // nm
     static let nucleusLocation: SCNVector3 = SCNVector3(6500, 0.0, 0.0) // nm
     static let microtubuleSpeed: Float = 800 // nm/s
     static let microtubuleSegmentLength: Float = 50 // nm
-    static let localAngle: Float = 0.15 // 0.05 // 0.015 // Radians
-    static let maxLocalAngle: Float = 1*localAngle // Radians
+    static var localAngle: Float = 0.15 // 0.05 // 0.15 // 0.05 // 0.015 // Radians
     static let maxNSegments = 3200 // 200
-    static let nucleusEnabled: Bool = false // Wether to generate a nucleus or not, EXPERIMENTAL TO-DO
+    static var nucleusEnabled: Bool = false // Wether to generate a nucleus or not
     static let nonFreeMTdistance: Float = 2000 // nm
     static let bendMTs: Bool = false // Wether to bend MTs near the cell wall or nucleus
-    static let cellShape: Int32 = SPHERICAL_CELL // Cell shape
+
+    /* CELL GEOMETRY */
+    static var cellShape: Int32 = SPHERICAL_CELL // Cell shape
+    static let cellRadius: Float = 12000 // nm, used only for SPHERICAL_CELL
+    static let cellWidth: Float = 12000 // nm, used only for ORTHOGONAL_CELL
+    static let cellHeight: Float = 24000 // nm, used only for ORTHOGONAL_CELL
+    static let cellLength: Float = 12000 // nm, used only for ORTHOGONAL_CELL
+    static var microtubulePreferredDirection = RADIAL_MTS // Microtubule structure preferred direction
     
     /* VARIABLE PARAMETERS */
     static var boundaryConditions: Int32 = REINJECT_INSIDE // Molecular motor choice and boundary conditions
@@ -62,42 +71,93 @@ struct Parameters {
     
 }
 
+// MARK: - NotSetParameters
+
 /// Struct containing parameters that will be used in the simulation after a restart but are not yet in use
-struct NotSetParameters {
-    static var nCells: Int?
-    static var nbodies: Int?
+class NotSetParameters: ObservableObject {
+
+    static let shared = NotSetParameters()
+    private init() {}
+
+    @Published var needsRestart: Bool = false
+
+    @Published var nCells = String(Parameters.nCells)
+    @Published var nbodies = String(Parameters.nbodies)
+    @Published var nMicrotubules = String(Parameters.nMicrotubules)
+    @Published var nucleusEnabled = Parameters.nucleusEnabled
+    @Published var cellShape = Parameters.cellShape
+    @Published var microtubulePreferredDirection = Parameters.microtubulePreferredDirection
+    @Published var localAngle = String(Parameters.localAngle)
+    @Published var nucleusRadius = String(Parameters.nucleusRadius)
+
+    @Published var wON = String(Parameters.wON)
+    @Published var wOFF = String(Parameters.wOFF)
+    @Published var collisionsEnabled = Parameters.collisionsFlag
+    @Published var n_w = String(Parameters.n_w)
+    @Published var molecularMotors = Parameters.molecularMotors
+    @Published var boundaryConditions = Parameters.boundaryConditions
 }
 
 // MARK: - Functions
 
 /// Wether or not a restart is required to apply all parameters to the simulation
 /// - Returns: `true` if a restart is required, `false` otherwise
-public func requiresRestart() -> Bool {
-    if NotSetParameters.nCells != nil {
-        if NotSetParameters.nCells != Parameters.nCells {
-            return true
-        }
-    }
-    if NotSetParameters.nbodies != nil {
-        if NotSetParameters.nbodies != Parameters.nbodies {
-            return true
-        }
+public func globalRequiresRestartCheck() {
+    let notSetParameters = NotSetParameters.shared
+
+    if notSetParameters.nCells != String(Parameters.nCells) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.nbodies != String(Parameters.nbodies) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.nMicrotubules != String(Parameters.nMicrotubules) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.nucleusEnabled != Parameters.nucleusEnabled {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.cellShape != Parameters.cellShape {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.microtubulePreferredDirection != Parameters.microtubulePreferredDirection {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.localAngle != String(Parameters.localAngle) {
+        notSetParameters.needsRestart = true
+        return
+    } else if notSetParameters.nucleusRadius != String(Parameters.nucleusRadius) {
+        notSetParameters.needsRestart = true
+        return
     }
     // All checks passed, no restart required
-    return false
+    DispatchQueue.main.async {
+        notSetParameters.needsRestart = false
+    }
 }
 
 /// Copy the parameters from the NotSetParameters struct to the Parameters struct used in the simulation
 public func applyNewParameters() {
-    if NotSetParameters.nCells != nil {
-        Parameters.nCells = NotSetParameters.nCells!
+
+    let notSetParameters = NotSetParameters.shared
+
+    Parameters.nCells = Int(notSetParameters.nCells)!
+    Parameters.nbodies = Int(notSetParameters.nbodies)!
+    Parameters.nMicrotubules = Int(notSetParameters.nMicrotubules)!
+    Parameters.nucleusEnabled = notSetParameters.nucleusEnabled
+    Parameters.cellShape = notSetParameters.cellShape
+    Parameters.microtubulePreferredDirection = notSetParameters.microtubulePreferredDirection
+    Parameters.localAngle = Float(notSetParameters.localAngle)!
+    Parameters.nucleusRadius = Float(notSetParameters.nucleusRadius)!
+
+    DispatchQueue.main.async {
+        notSetParameters.needsRestart = false
     }
-    if NotSetParameters.nbodies != nil {
-        Parameters.nbodies = NotSetParameters.nbodies!
-    }
-    // Make all values nil again
-    NotSetParameters.nCells = nil
-    NotSetParameters.nbodies = nil
+}
+
+/// Makes a soft simulation reset: simulation time is set to 0 and relevant controllers are notified
+public func softReset() {
+    Parameters.time = 0
 }
 
 /// Computes the timestep used in the simulation (deltat) based on microtubule segment length and speed.
@@ -128,8 +188,13 @@ let setWON: (String) -> Bool = { wON in
     // Check for numerical stability
     guard isNumericallyStable(wON: wON) else { return false }
 
-    // Save the value and return
+    // Save the value and return on BOTH Parameters and NotSetParameters
     Parameters.wON = wON
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.wON = String(wON)
+
+    // Reset simulation time
+    Parameters.time = 0
     return false
 }
 
@@ -138,11 +203,18 @@ let setWOFF: (String) -> Bool = { wOFF in
     guard let wOFF = Float(wOFF) else {
         return false
     }
+
     // Check that the value is greater than 0
     guard wOFF >= 0 else {
         return false
     }
+
+    // Save the value and return on BOTH Parameters and NotSetParameters
     Parameters.wOFF = wOFF
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.wOFF = String(wOFF)
+    // Reset simulation time
+    Parameters.time = 0
     return false
 }
 
@@ -151,16 +223,29 @@ let setViscosity: (String) -> Bool = { viscosity in
     guard let viscosity = Float(viscosity) else {
         return false
     }
+
+    // Save the value and return on BOTH Parameters and NotSetParameters
     Parameters.n_w = viscosity
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.n_w = String(viscosity)
+    // Reset simulation time
+    Parameters.time = 0
     return false
 }
 
-let toggleCollisions: (String) -> Bool = { state in
-    if state == "true" {
+let toggleCollisions: (Bool) -> Bool = { state in
+    let notSetParameters = NotSetParameters.shared
+    if state == true {
         Parameters.collisionsFlag = true
+        notSetParameters.collisionsEnabled = true
+        // Reset simulation time
+        Parameters.time = 0
         return false
-    } else if state == "false" {
+    } else if state == false {
         Parameters.collisionsFlag = false
+        notSetParameters.collisionsEnabled = false
+        // Reset simulation time
+        Parameters.time = 0
         return false
     } else {
         NSLog("Invalid value passed to toggleCollisions")
@@ -175,57 +260,267 @@ let setNCells: (String) -> Bool = { nCells in
     guard let nCells = Int(nCells) else {
         return false
     }
-    NotSetParameters.nCells = nCells
+    guard nCells > 0 else {
+        return false
+    }
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.nCells = String(nCells)
     // A restart is required unless the simulation is already using the target value
-    if nCells == Parameters.nCells {
+    if String(nCells) == String(Parameters.nCells) {
         return false
     } else {
         return true
     }
 }
 
-let setNBodies: (String) -> Bool = { nbodies in
+let setNBodiesPerCell: (String) -> Bool = { nBodiesPerCell in
+    let notSetParameters = NotSetParameters.shared
     // Check that viscosity can be converted to a valid int
-    guard let nbodies = Int(nbodies) else {
+    guard let nBodiesPerCell = Int(nBodiesPerCell) else {
         return false
     }
-    NotSetParameters.nbodies = nbodies
+    guard let nCells = Int(notSetParameters.nCells) else {
+        return false
+    }
+    notSetParameters.nbodies = String(nBodiesPerCell * nCells)
     // A restart is required unless the simulation is already using the target value
-    if nbodies == Parameters.nbodies {
+    if String(nBodiesPerCell * nCells) == String(Parameters.nbodies) {
         return false
     } else {
         return true
     }
 }
 
-let setMolecularMotors: (String) -> Bool = { molecularMotor in
-    // Check that viscosity can be converted to a valid int
-    guard let molecularMotor = Int32(molecularMotor) else {
+let setNMTs: (String) -> Bool = { nMicrotubules in
+    // Check that wOFF can be converted to a valid float
+    guard let nMicrotubules = Int(nMicrotubules) else {
         return false
     }
+
+    // Check that the value is greater than 0
+    guard nMicrotubules >= 0 else {
+        return false
+    }
+
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.nMicrotubules = String(nMicrotubules)
+    // A restart is required unless the simulation is already using the target value
+    if String(nMicrotubules) == String(Parameters.nMicrotubules) {
+        return false
+    } else {
+        return true
+    }
+}
+
+let setLocalAngle: (String) -> Bool = { localAngle in
+    // Check that viscosity can be converted to a valid int
+    guard let localAngle = Float(localAngle) else {
+        return false
+    }
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.localAngle = String(localAngle)
+    // A restart is required unless the simulation is already using the target value
+    if String(localAngle) == String(Parameters.localAngle) {
+        return false
+    } else {
+        return true
+    }
+}
+
+let toggleNucleus: (Bool) -> Bool = { state in
+    let notSetParameters = NotSetParameters.shared
+    if state == true {
+        notSetParameters.nucleusEnabled = true
+        if notSetParameters.nucleusEnabled == Parameters.nucleusEnabled {
+            return false
+        } else {
+            return true
+        }
+    } else {
+        notSetParameters.nucleusEnabled = false
+        if notSetParameters.nucleusEnabled == Parameters.nucleusEnabled {
+            return false
+        } else {
+            return true
+        }
+    }
+}
+
+let setMolecularMotors: (Int32) -> Bool = { molecularMotor in
+
+    let notSetParameters = NotSetParameters.shared
+
     switch molecularMotor {
     case Parameters.KINESIN_ONLY:
+        notSetParameters.molecularMotors = Parameters.KINESIN_ONLY
         Parameters.molecularMotors = Parameters.KINESIN_ONLY
+        
     case Parameters.DYNEIN_ONLY:
+        notSetParameters.molecularMotors = Parameters.DYNEIN_ONLY
         Parameters.molecularMotors = Parameters.DYNEIN_ONLY
     default:
-        // Don't change anything otherwise
+        fatalError()
+    }
+    // Reset simulation time
+    Parameters.time = 0
+    return false
+}
+
+let setBoundaryConditions: (Int32) -> Bool = { boundaryConditions in
+
+    let notSetParameters = NotSetParameters.shared
+
+    switch boundaryConditions {
+    case Parameters.REINJECT_INSIDE:
+        notSetParameters.boundaryConditions = Parameters.REINJECT_INSIDE
+        Parameters.boundaryConditions = Parameters.REINJECT_INSIDE
+    case Parameters.REINJECT_OUTSIDE:
+        notSetParameters.boundaryConditions = Parameters.REINJECT_OUTSIDE
+        Parameters.boundaryConditions = Parameters.REINJECT_OUTSIDE
+    case Parameters.CONTAIN_INSIDE:
+        notSetParameters.boundaryConditions = Parameters.CONTAIN_INSIDE
+        Parameters.boundaryConditions = Parameters.CONTAIN_INSIDE
+    default:
+        fatalError()
+    }
+    // Reset simulation time
+    Parameters.time = 0
+    return false
+}
+
+let setCellShape: (Int32) -> Bool = { cellShape in
+
+    let notSetParameters = NotSetParameters.shared
+
+    switch cellShape {
+    case Parameters.SPHERICAL_CELL:
+        notSetParameters.cellShape = Parameters.SPHERICAL_CELL
+    case Parameters.ORTHOGONAL_CELL:
+        notSetParameters.cellShape = Parameters.ORTHOGONAL_CELL
+    default:
+        fatalError()
+    }
+    if Parameters.cellShape == notSetParameters.cellShape {
+        return false
+    } else {
+        return true
+    }
+}
+
+let setMTPreferredDirection: (Int32) -> Bool = { MTdirection in
+
+    let notSetParameters = NotSetParameters.shared
+
+    switch MTdirection {
+    case Parameters.RADIAL_MTS:
+        notSetParameters.microtubulePreferredDirection = Parameters.RADIAL_MTS
+    case Parameters.APICAL_BASAL_MTS:
+        if notSetParameters.cellShape == Parameters.ORTHOGONAL_CELL {
+            notSetParameters.microtubulePreferredDirection = Parameters.APICAL_BASAL_MTS
+        } else {
+            NSLog("Apical-basal microtubules are not compatible with this cell shape")
+            var errorNotificationContent = [String: String]()
+            errorNotificationContent["title"] = "Invalid selection"
+            errorNotificationContent["message"] = NSLocalizedString("Apical-basal microtubules are not compatible with this cell shape", comment: "")
+            NotificationCenter.default.post(name: .inputErrorNotification, object: nil, userInfo: errorNotificationContent)
+        }
+    default:
+        fatalError()
+    }
+    if Parameters.microtubulePreferredDirection == notSetParameters.microtubulePreferredDirection {
+        return false
+    } else {
+        return true
+    }
+}
+
+let setNucleusRadius: (String) -> Bool = { radius in
+    // Check that viscosity can be converted to a valid int
+    guard let radius = Float(radius) else {
         return false
     }
-    return false
+    let notSetParameters = NotSetParameters.shared
+    notSetParameters.nucleusRadius = String(radius)
+    // A restart is required unless the simulation is already using the target value
+    if String(radius) == String(Parameters.nucleusRadius) {
+        return false
+    } else {
+        return true
+    }
+
 }
 
 // MARK: - Getters
 /// Some UI functions use this getters since they have to process the value to retrieve a useful string
 
-let getMolecularMotors: () -> String = {
-    switch Parameters.molecularMotors {
-    case Parameters.KINESIN_ONLY:
-        return "0"
-    case Parameters.DYNEIN_ONLY:
-        return "1"
-    default:
-        return "Error"
-    }
+let getWON: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.wON
+}
 
+let getWOFF: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.wOFF
+}
+
+let getNCells: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.nCells
+}
+
+let getNBodiesPerCell: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    guard let nbodies = Int(notSetParameters.nbodies) else { return "Error" }
+    guard let nCells = Int(notSetParameters.nCells) else { return "Error" }
+    return String(nbodies / nCells)
+}
+
+let getLocalAngle: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.localAngle
+}
+
+let getCollisionsEnabled: () -> Bool = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.collisionsEnabled
+}
+
+let getViscosity: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.n_w
+}
+
+let getMolecularMotors: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.molecularMotors
+}
+
+let getBoundaryConditions: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.molecularMotors
+}
+
+let getCellShape: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.cellShape
+}
+
+let getMTPreferredDirection: () -> Int32 = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.microtubulePreferredDirection
+}
+
+let getNucleusEnabled: () -> Bool = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.nucleusEnabled
+}
+
+let getNMTs: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.nMicrotubules
+}
+
+let getNucleusRadius: () -> String = {
+    let notSetParameters = NotSetParameters.shared
+    return notSetParameters.nMicrotubules
 }

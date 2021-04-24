@@ -17,11 +17,15 @@ func spawnCellMembrane(scene: SCNScene) -> [SCNNode] {
     switch Parameters.cellShape {
     case Parameters.SPHERICAL_CELL:
         membrane = SCNIcosphere(radius: Parameters.cellRadius)
-    case Parameters.CUBIC_CELL:
-        membrane = SCNBox(width: CGFloat(2*Parameters.cellRadius),
-                          height: CGFloat(2*Parameters.cellRadius),
-                          length: CGFloat(2*Parameters.cellRadius),
-                          chamferRadius: CGFloat(0.1*Parameters.cellRadius))
+    case Parameters.ORTHOGONAL_CELL:
+        // Compute a chamfer radius proportional to the box dimensions
+        let chamferRadius = 0.1 * (Parameters.cellWidth + Parameters.cellHeight + Parameters.cellLength) / 3
+        // Make the membrane slightly bigger visually so no microtubules or particles appear ouside it
+        // because of the chamfer radius
+        membrane = SCNBox(width: CGFloat(Parameters.cellWidth + chamferRadius),
+                          height: CGFloat(Parameters.cellHeight + chamferRadius),
+                          length: CGFloat(Parameters.cellLength + chamferRadius),
+                          chamferRadius: CGFloat(chamferRadius))
         membraneMaterial.isDoubleSided = true
     default:
         membrane = SCNIcosphere(radius: Parameters.cellRadius)
@@ -54,12 +58,15 @@ func spawnCellMembrane(scene: SCNScene) -> [SCNNode] {
         let sphereMembrane = SCNSphere(radius: CGFloat(Parameters.cellRadius*0.99))
         sphereMembrane.segmentCount = 96
         membrane2 = sphereMembrane
-    case Parameters.CUBIC_CELL:
-        membrane2 = SCNBox(width: CGFloat(2*Parameters.cellRadius*0.99),
-                           height: CGFloat(2*Parameters.cellRadius*0.99),
-                           length: CGFloat(2*Parameters.cellRadius*0.99),
-                           chamferRadius: CGFloat(0.1*Parameters.cellRadius)
-        )
+    case Parameters.ORTHOGONAL_CELL:
+        // Compute a chamfer radius proportional to the box dimensions
+        let chamferRadius = 0.1 * (Parameters.cellWidth + Parameters.cellHeight + Parameters.cellLength) / 3
+        // Make the membrane slightly bigger visually so no microtubules or particles appear ouside it
+        // because of the chamfer radius
+        membrane2 = SCNBox(width: CGFloat((Parameters.cellWidth + chamferRadius)*0.99),
+                           height: CGFloat((Parameters.cellHeight + chamferRadius)*0.99),
+                           length: CGFloat((Parameters.cellLength + chamferRadius)*0.99),
+                           chamferRadius: CGFloat(chamferRadius*0.99))
         membrane2.firstMaterial?.isDoubleSided = true
     default:
         let sphereMembrane = SCNSphere(radius: CGFloat(Parameters.cellRadius*0.99))

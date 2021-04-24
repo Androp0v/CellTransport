@@ -21,15 +21,22 @@ constant int OUTSIDE_AND_COUNT_TIME = 0;
 constant int INSIDE = 1;
 constant int OUTSIDE_AND_NOT_COUNT_TIME = 2;
 
+constant int SPHERICAL_CELL = 0;
+constant int ORTHOGONAL_CELL = 1;
+
 // MARK: - Compile time constants
 
 constant float deltat [[ function_constant(0) ]];
 constant int32_t stepsPerMTPoint [[ function_constant(1) ]];
 constant float cellRadius [[ function_constant(2) ]];
-constant int32_t cellsPerDimension [[ function_constant(3) ]];
-constant int32_t nBodies [[ function_constant(4) ]];
-constant int32_t nCells [[ function_constant(5) ]];
-constant bool nucleusEnabled [[ function_constant(6) ]];
+constant float cellWidth [[ function_constant(3) ]];
+constant float cellHeight [[ function_constant(4) ]];
+constant float cellLength [[ function_constant(5) ]];
+constant int32_t cellShape [[ function_constant(6) ]];
+constant int32_t cellsPerDimension [[ function_constant(7) ]];
+constant int32_t nBodies [[ function_constant(8) ]];
+constant int32_t nCells [[ function_constant(9) ]];
+constant bool nucleusEnabled [[ function_constant(10) ]];
 
 // MARK: - Input parameters struct
 
@@ -122,29 +129,68 @@ float4 randomSurfaceSpherePoint(float radius, int x, int y, int z){
 }
 
 // Check if particle is outside bounds
-int isOutsideBounds(int32_t boundaryConditions, float distance, float cellRadius) {
+int isOutsideBounds(int32_t boundaryConditions, float3 position, float distance) {
     switch (boundaryConditions) {
         case REINJECT_INSIDE: {
-            if (distance >= cellRadius){
-                return OUTSIDE_AND_COUNT_TIME;
-            }else{
-                return INSIDE;
+            switch (cellShape) {
+                case SPHERICAL_CELL: {
+                    if (distance >= cellRadius){
+                        return OUTSIDE_AND_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
+                case ORTHOGONAL_CELL: {
+                    if (position.x > cellWidth / 2 ||
+                        position.x < -cellWidth / 2 ||
+                        position.y > cellHeight / 2 ||
+                        position.y < -cellHeight / 2 ||
+                        position.z > cellLength / 2 ||
+                        position.z < -cellLength / 2){
+                        return OUTSIDE_AND_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
             }
         }
         case CONTAIN_INSIDE: {
-            if (distance >= cellRadius){
-                return OUTSIDE_AND_NOT_COUNT_TIME;
-            }else{
-                return INSIDE;
+            switch (cellShape) {
+                case SPHERICAL_CELL: {
+                    if (distance >= cellRadius){
+                        return OUTSIDE_AND_NOT_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
+                case ORTHOGONAL_CELL: {
+                    if (position.x > cellWidth / 2 ||
+                        position.x < -cellWidth / 2 ||
+                        position.y > cellHeight / 2 ||
+                        position.y < -cellHeight / 2 ||
+                        position.z > cellLength / 2 ||
+                        position.z < -cellLength / 2){
+                        return OUTSIDE_AND_NOT_COUNT_TIME;
+                    }else{
+                        return INSIDE;
+                    }
+                }
             }
         }
         case REINJECT_OUTSIDE:{
-            if (distance <= cellRadius*0.1) {
-                return OUTSIDE_AND_COUNT_TIME;
-            } else if (distance > cellRadius) {
-                return OUTSIDE_AND_NOT_COUNT_TIME;
-            } else {
-                return INSIDE;
+            switch (cellShape) {
+                case SPHERICAL_CELL: {
+                    if (distance <= cellRadius*0.1) {
+                        return OUTSIDE_AND_COUNT_TIME;
+                    } else if (distance > cellRadius) {
+                        return OUTSIDE_AND_NOT_COUNT_TIME;
+                    } else {
+                        return INSIDE;
+                    }
+                }
+                case ORTHOGONAL_CELL: {
+                    // NOT IMPLEMENTED
+                }
             }
         }
         default: {
@@ -207,7 +253,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
                     device float *distances [[buffer(2)]],
                     device float *timeLastJumpIn [[buffer(3)]],
                     device float *timeLastJumpOut [[buffer(4)]],
-                    device float *timeBetweenJumps [[buffer(5)]],
+                    device float *timeBetweenJumpsInOut [[buffer(5)]],
                     device simd_float3 *MTpoints [[buffer(6)]],
                     device int32_t *cellIDtoIndex [[buffer(7)]],
                     device int16_t *cellIDtoNMTs [[buffer(8)]],
@@ -227,6 +273,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     float3 position = positionsIn[i];
     int32_t MTstepNumber = MTstepNumberIn[i];
     float timeLastJump = timeLastJumpIn[i];
+    float timeBetweenJumps = timeBetweenJumpsInOut[i];
 
     // Initialize useful values
     int currentCellNumber = int( i / int(nBodies / nCells) );
@@ -376,11 +423,13 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     // MARK: - Reinjection
     // Check if new point is outside specified boundary conditions
     
-    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, distance, cellRadius);
+    int outsideBounds = isOutsideBounds(parameters.boundaryConditions, position, distance);
     switch (outsideBounds) {
         case OUTSIDE_AND_COUNT_TIME: {
-            timeBetweenJumps[i] = parameters.time - timeLastJump;
-            timeLastJump = parameters.time;
+            if (timeLastJump >= 0) {
+                timeBetweenJumps = parameters.time - timeLastJump;
+                timeLastJump = parameters.time;
+            }
             isAttached = -1;
             
             // Reinject point in the correct position given boundary conditions
@@ -424,6 +473,11 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
         }
     }
 
+    // Discard jump times that happened before the simulation parameters were last changed
+    if (timeLastJump > parameters.time) {
+        timeLastJump = -1;
+    }
+
     // MARK: - Write to buffers
     // Coalesce all writes to buffer at the same time
     isAttachedOut[i] = isAttached;
@@ -432,6 +486,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     randomSeedsOut[i] = randNumber;
     distances[i] = distance;
     timeLastJumpOut[i] = timeLastJump;
+    timeBetweenJumpsInOut[i] = timeBetweenJumps;
     
 }
 
