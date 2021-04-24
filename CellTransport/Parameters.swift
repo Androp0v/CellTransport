@@ -41,7 +41,6 @@ struct Parameters {
     static let microtubuleSpeed: Float = 800 // nm/s
     static let microtubuleSegmentLength: Float = 50 // nm
     static var localAngle: Float = 0.15 // 0.05 // 0.15 // 0.05 // 0.015 // Radians
-    static let maxLocalAngle: Float = 1*localAngle // Radians
     static let maxNSegments = 3200 // 200
     static var nucleusEnabled: Bool = false // Wether to generate a nucleus or not
     static let nonFreeMTdistance: Float = 2000 // nm

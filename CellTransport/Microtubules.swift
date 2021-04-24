@@ -73,36 +73,6 @@ private func checkIfOutsideCell(MTPoint: SCNVector3) -> Bool {
     
 }
 
-/// Compute the local angle based on proximity to cell wall or nucleus
-private func computeLocalAngle(MTPoint: SCNVector3, angleSlope: Float) -> Float {
-    
-    // Check that the local angle is not a constant
-    if Parameters.maxLocalAngle == Parameters.localAngle {
-        return Parameters.localAngle
-    }
-        
-    // Compute distance to cell wall and nucleus (if present)
-    let distanceCellWallValue = distanceCellWall(MTPoint: MTPoint)
-    
-    var distanceNucleusValue: Float = 0
-    if Parameters.nucleusEnabled {
-        distanceNucleusValue = distanceNucleus(MTPoint: MTPoint)
-    }
-    
-    // Retrieve base localAngle from parameters
-    var localAngle = Parameters.localAngle
-    
-    // Compute the angle next segments have, dependant of how close it is to cell wall or nucleus
-    if distanceCellWallValue < Parameters.nonFreeMTdistance {
-        localAngle = max(Parameters.localAngle + (Parameters.nonFreeMTdistance - distanceCellWallValue)*angleSlope, localAngle)
-    }
-    if distanceNucleusValue < Parameters.nonFreeMTdistance && Parameters.nucleusEnabled {
-        localAngle = max(Parameters.localAngle + (Parameters.nonFreeMTdistance - distanceNucleusValue)*angleSlope, localAngle)
-    }
-    
-    return localAngle
-}
-
 // Try to generate first microtubule pint, fail after maxStartPointTries tries
 private func generateFirstMTSegment(centrosomeRadius: Float,
                                     centrosomeLocation: SCNVector3,
@@ -271,9 +241,6 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
         targetLength = randomGaussian*Parameters.cellRadius
     }
 
-    // Compute the angle slope for MT points near the nucleus or cell wall
-    let angleSlope: Float = (Parameters.maxLocalAngle - Parameters.localAngle)/(Parameters.nonFreeMTdistance)
-    
     var pointsList: [SCNVector3] = []
     
     // Loop over the maximum number of segments
@@ -299,14 +266,11 @@ func generateMicrotubule(cellRadius: Float, centrosomeRadius: Float, centrosomeL
             let directionVector = SCNVector3((pointsList[i].x - pointsList[i-1].x)/Parameters.microtubuleSegmentLength,
                                              (pointsList[i].y - pointsList[i-1].y)/Parameters.microtubuleSegmentLength,
                                              (pointsList[i].z - pointsList[i-1].z)/Parameters.microtubuleSegmentLength)
-            
-            // Compute local angle based on distance to cell wall or nucleus
-            let localAngleMod = computeLocalAngle(MTPoint: pointsList[i], angleSlope: angleSlope)
-            
+
             // Repeat until a valid (non-null) point is found or until maxNextPointTries is reached
             var nextPointTries: Int = 0
             repeat {
-                newPoint = generateNextMTPoint(directionVector: directionVector, lastPoint: pointsList[i], localAngle: localAngleMod)
+                newPoint = generateNextMTPoint(directionVector: directionVector, lastPoint: pointsList[i], localAngle: Parameters.localAngle)
                 nextPointTries += 1
             } while newPoint == nil && nextPointTries < maxNextPointTries && Parameters.bendMTs
             

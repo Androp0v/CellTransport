@@ -90,7 +90,6 @@ func exportParametersToFile(folderURL: URL, filename: String) {
     parametersString += "Microtubule speed: " + String(Parameters.microtubuleSpeed) + " nm/s\n"
     parametersString += "Microtubule segment length: " + String(Parameters.microtubuleSegmentLength) + " nm\n"
     parametersString += "Microtubule local angle: " + String(Parameters.localAngle) + " radians\n"
-    parametersString += "Microtubule max local angle: " + String(Parameters.maxLocalAngle) + " radians\n"
     parametersString += "Microtubule max segments: " + String(Parameters.maxNSegments) + "\n"
     parametersString += "Nucleus enabled: " + String(Parameters.nucleusEnabled) + "\n"
     
