@@ -73,7 +73,7 @@ class GraphsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 126, left: 1, bottom: 1, right: 1)
+        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 78.5, left: 1, bottom: 2, right: 1)
         
         histogramChart1?.layer.cornerRadius = 8.0
         histogramChart2?.layer.cornerRadius = 8.0

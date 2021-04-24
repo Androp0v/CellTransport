@@ -337,10 +337,10 @@
                                         </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="e1S-Lq-YFZ" userLabel="Nucleus enabled">
-                                        <rect key="frame" x="18" y="838" width="264" height="28.5"/>
+                                        <rect key="frame" x="18" y="838" width="264" height="39"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Auto merge data" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YEY-We-9pC">
-                                                <rect key="frame" x="12" y="0.0" width="185" height="20.5"/>
+                                                <rect key="frame" x="12" y="0.0" width="185" height="31"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -349,7 +349,7 @@
                                                 </variation>
                                             </label>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Hio-0f-aG0">
-                                                <rect key="frame" x="203" y="0.0" width="51" height="20.5"/>
+                                                <rect key="frame" x="203" y="0.0" width="51" height="31"/>
                                                 <connections>
                                                     <action selector="switchAutoMergeChanged:" destination="Y6r-am-NQD" eventType="valueChanged" id="KHc-O5-T1x"/>
                                                 </connections>
@@ -404,7 +404,7 @@
                                     <constraint firstItem="80e-mu-shh" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="n63-j8-qPW"/>
                                     <constraint firstAttribute="trailing" secondItem="6ca-sC-HgI" secondAttribute="trailing" constant="18" id="orA-nt-IUe"/>
                                     <constraint firstAttribute="trailing" secondItem="rYf-H9-7zY" secondAttribute="trailing" constant="18" id="p7v-AS-Bst"/>
-                                    <constraint firstItem="He4-gG-Ka7" firstAttribute="top" secondItem="YHS-VJ-Vz4" secondAttribute="top" constant="107.5" id="pDM-61-Jds"/>
+                                    <constraint firstItem="He4-gG-Ka7" firstAttribute="top" secondItem="YHS-VJ-Vz4" secondAttribute="top" constant="67.5" id="pDM-61-Jds"/>
                                     <constraint firstItem="rYf-H9-7zY" firstAttribute="top" secondItem="vMp-bS-fG8" secondAttribute="bottom" constant="8" id="sNb-zy-cu8"/>
                                     <constraint firstItem="e1S-Lq-YFZ" firstAttribute="leading" secondItem="YHS-VJ-Vz4" secondAttribute="leading" constant="18" id="sOa-2s-8HJ"/>
                                     <constraint firstItem="nb8-Gs-eb4" firstAttribute="centerY" secondItem="He4-gG-Ka7" secondAttribute="centerY" id="sui-UV-Nha"/>
