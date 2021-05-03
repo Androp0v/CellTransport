@@ -54,14 +54,14 @@ struct simulation_parameters {
 // MARK: - Helper functions
 
 // Get CellID of a position in x,y,z coordinates
-int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension, int currentCellNumber){
+int getCellID(float x, float y, float z, float cellRadius, int cellsPerDimension, int currentCellNumber) {
     
-    int maxCellNumber = cellsPerDimension*cellsPerDimension*cellsPerDimension;
+    int maxCellNumber = cellsPerDimension * cellsPerDimension * cellsPerDimension;
     
     int cellID = 0;
-    cellID += cellsPerDimension*cellsPerDimension * int(cellsPerDimension * ((z+cellRadius)/(2*cellRadius)));
-    cellID += cellsPerDimension * int(cellsPerDimension * ((y+cellRadius)/(2*cellRadius)));
-    cellID += int(cellsPerDimension * ((x+cellRadius)/(2*cellRadius)));
+    cellID += cellsPerDimension * cellsPerDimension * int(cellsPerDimension * ((z+cellRadius) / (2 * cellRadius)));
+    cellID += cellsPerDimension * int(cellsPerDimension * ((y + cellRadius) / (2 * cellRadius)));
+    cellID += int(cellsPerDimension * ((x + cellRadius) / (2 * cellRadius)));
     
     cellID += maxCellNumber*currentCellNumber;
     
@@ -84,15 +84,14 @@ bool checkIfInsideNucleus(float3 MTPoint, float nucleusRadius, float3 nucleusLoc
 }
 
 // Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
-float rand(int x, int y, int z)
-{
+float rand(int x, int y, int z) {
     int seed = x + y * 57 + z * 241;
-    seed= (seed<< 13) ^ seed;
+    seed = (seed << 13) ^ seed;
     return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
 }
 
 // Generate random sphere points
-float4 randomSpherePoint(float radius, int x, int y, int z){
+float4 randomSpherePoint(float radius, int x, int y, int z) {
     
     float u = rand(x, y, z);
     float v = rand(z, x, y);
@@ -289,7 +288,7 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     bool diffuseFlag = true;
 
     // Precompute the random number used in MT dynamics
-    float randNumber = rand(int(randomSeedsIn[i]*100000), 0, 0);
+    float randNumber = rand(as_type<int>(randomSeedsIn[i]), 0, 0);
     
     // MARK: - Microtubule attach/detach
         
@@ -359,9 +358,9 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
             if (cellIDtoNMTs[currentCellID] != 0){
                 
                 int nMTs = cellIDtoNMTs[currentCellID];
-                int chosenMT = int(rand(int(position.x*1000000),
-                                        int(position.y*1000000),
-                                        int(position.z*1000000))
+                int chosenMT = int(rand(as_type<int>(position.x),
+                                        as_type<int>(position.y),
+                                        as_type<int>(position.z))
                                    *nMTs);
                 
                 int MTindex = cellIDtoIndex[currentCellID];
@@ -379,22 +378,22 @@ kernel void compute(device float3 *positionsIn [[buffer(0)]],
     
     if (diffuseFlag){
         
-        float randNumber1 = rand(int(randNumber * 100000), 0, 0);
-        float randNumber2 = rand(int(randNumber1 * 100000), 0, 0);
-        float randNumber3 = rand(int(randNumber2 * 100000), int(randNumber1*100000), 0);
+        float randNumber1 = rand(as_type<int>(randNumber), 0, 0);
+        float randNumber2 = rand(as_type<int>(randNumber1), 0, 0);
+        float randNumber3 = rand(as_type<int>(randNumber2), as_type<int>(randNumber1), 0);
         randNumber = randNumber3;
         
-        float randNumberX = 2*rand(int(randNumber1 * 10000),
-                                   int(position.y * 10000),
-                                   int(position.z * 10000)) - 1;
+        float randNumberX = 2*rand(as_type<int>(randNumber1),
+                                   as_type<int>(position.y),
+                                   as_type<int>(position.z)) - 1;
 
-        float randNumberY = 2*rand(int(position.y * 10000),
-                                   int(randNumber2 * 10000),
-                                   int(position.z * 10000)) - 1;
+        float randNumberY = 2*rand(as_type<int>(position.y),
+                                   as_type<int>(randNumber2),
+                                   as_type<int>(position.z)) - 1;
 
-        float randNumberZ = 2*rand(int(position.y * 10000),
-                                   int(position.x * 10000),
-                                   int(randNumber3 * 10000)) - 1;
+        float randNumberZ = 2*rand(as_type<int>(position.y),
+                                   as_type<int>(position.x),
+                                   as_type<int>(randNumber3)) - 1;
         
         // Compute the diffusion movement factor (compiler should optimize this)
         float diffusivity = 1.59349 * pow(10.0, 6.0) / parameters.n_w;
@@ -514,7 +513,7 @@ kernel void verifyCollisions(device float3 *positionsIn [[buffer(0)]],
     }
                                  
     //Move each particle in the cell sequentially
-    for (int j=0; j < particlesPerCell; j++){
+    for (int j = 0; j < particlesPerCell; j++){
                 
         int cellIdIn = getCellID(positionsIn[j + particlesPerCell*i].x,
                                  positionsIn[j + particlesPerCell*i].y,
